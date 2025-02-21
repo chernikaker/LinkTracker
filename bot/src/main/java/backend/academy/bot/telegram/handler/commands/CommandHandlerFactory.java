@@ -1,7 +1,6 @@
-package backend.academy.bot.telegram.handler.state;
+package backend.academy.bot.telegram.handler.commands;
 
 import backend.academy.bot.model.Command;
-import backend.academy.bot.model.UserState;
 import java.util.Map;
 
 

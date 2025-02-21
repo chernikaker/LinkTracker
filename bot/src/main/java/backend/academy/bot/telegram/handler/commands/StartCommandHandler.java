@@ -1,4 +1,4 @@
-package backend.academy.bot.telegram.handler.state;
+package backend.academy.bot.telegram.handler.commands;
 
 import backend.academy.bot.repository.InMemoryTrackingCache;
 import com.pengrad.telegrambot.model.Message;

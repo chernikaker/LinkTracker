@@ -1,8 +1,8 @@
 package backend.academy.bot.telegram.handler;
 
 import backend.academy.bot.model.Command;
-import backend.academy.bot.telegram.handler.state.CommandHandlerFactory;
-import backend.academy.bot.telegram.handler.state.CommandHandler;
+import backend.academy.bot.telegram.handler.commands.CommandHandlerFactory;
+import backend.academy.bot.telegram.handler.commands.CommandHandler;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import java.util.Optional;
