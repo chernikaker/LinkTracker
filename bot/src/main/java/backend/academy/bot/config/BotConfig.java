@@ -8,6 +8,7 @@ import backend.academy.bot.telegram.TelegramBotService;
 import backend.academy.bot.telegram.handler.HandlerService;
 import backend.academy.bot.telegram.handler.commands.CommandHandler;
 import backend.academy.bot.telegram.handler.commands.CommandHandlerFactory;
+import backend.academy.bot.telegram.handler.commands.HelpCommandHandler;
 import backend.academy.bot.telegram.handler.commands.StartCommandHandler;
 import backend.academy.bot.telegram.handler.commands.TextCommandHandler;
 import backend.academy.bot.telegram.handler.commands.TrackCommandHandler;
@@ -47,6 +48,11 @@ public record BotConfig(@NotEmpty String telegramToken) {
     }
 
     @Bean
+    public CommandHandler helpCommandHandler(InMemoryTrackingCache userRepository){
+        return new HelpCommandHandler(userRepository);
+    }
+
+    @Bean
     public HandlerService updateHandlerService(CommandHandlerFactory handlerFactory){
         return new HandlerService(handlerFactory);
     }
@@ -61,7 +67,8 @@ public record BotConfig(@NotEmpty String telegramToken) {
         return Map.of(
             Command.START, startCommandHandler(repository),
             Command.TEXT, textCommandHandler(repository, client),
-            Command.TRACK, trackCommandHandler(repository)
+            Command.TRACK, trackCommandHandler(repository),
+            Command.HELP, helpCommandHandler(repository)
         );
     }
 
