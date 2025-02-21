@@ -1,4 +1,4 @@
-package backend.academy.bot.repository;
+package backend.academy.bot.cache;
 
 import backend.academy.bot.model.LinkTrackingObject;
 import java.util.HashMap;

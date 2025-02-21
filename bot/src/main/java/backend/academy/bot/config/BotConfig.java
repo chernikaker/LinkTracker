@@ -1,7 +1,7 @@
 package backend.academy.bot.config;
 
 import backend.academy.bot.model.Command;
-import backend.academy.bot.repository.InMemoryTrackingCache;
+import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.scrapperClient.IClient;
 import backend.academy.bot.scrapperClient.MockClient;
 import backend.academy.bot.telegram.TelegramBotService;

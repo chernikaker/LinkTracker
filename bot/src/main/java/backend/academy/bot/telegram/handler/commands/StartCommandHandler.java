@@ -1,6 +1,6 @@
 package backend.academy.bot.telegram.handler.commands;
 
-import backend.academy.bot.repository.InMemoryTrackingCache;
+import backend.academy.bot.cache.InMemoryTrackingCache;
 import com.pengrad.telegrambot.model.Message;
 
 public class StartCommandHandler extends CommandHandler {
