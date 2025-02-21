@@ -13,7 +13,6 @@ public enum Command {
         return switch (command.trim().toLowerCase()) {
             case "/start" -> START;
             case "/track" -> TRACK;
-            case "/untrack" -> UNTRACK;
             case "/help" -> HELP;
             default -> TEXT;
         };
