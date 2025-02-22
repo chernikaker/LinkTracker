@@ -36,7 +36,6 @@ public class TelegramBotService extends TelegramBot {
     }
 
     private void handleUpdate(Update update) {
-
         Optional<SendMessage> responseMessage = handlerService.handle(update);
         if (responseMessage.isPresent()) {
             SendMessage message = responseMessage.get();
@@ -44,10 +43,10 @@ public class TelegramBotService extends TelegramBot {
         }
     }
 
-    private void sendResponse(SendMessage message) {
+    public void sendResponse(SendMessage message) {
         SendResponse response = execute(message);
         if (!response.isOk()) {
-            System.err.println("Ошибка при отправке сообщения: " + response.description());
+            throw new RuntimeException("Error sending response: " + response.message());
         }
     }
 
