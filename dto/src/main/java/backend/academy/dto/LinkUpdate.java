@@ -1,4 +1,4 @@
-package backend.academy.bot.dto;
+package backend.academy.dto;
 
 import java.util.List;
 import jakarta.validation.constraints.Min;

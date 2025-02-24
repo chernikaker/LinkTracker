@@ -1,7 +1,7 @@
 package backend.academy.bot.exception;
 
-import backend.academy.bot.dto.ApiErrorResponse;
 import backend.academy.bot.exception.custom.BotException;
+import backend.academy.dto.ApiErrorResponse;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;

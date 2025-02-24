@@ -1,7 +1,7 @@
 package backend.academy.bot.validator;
 
 
-import backend.academy.bot.dto.LinkUpdate;
+import backend.academy.dto.LinkUpdate;
 import backend.academy.bot.exception.custom.BotIllegalRequestArgumentException;
 import backend.academy.bot.exception.custom.BotValidationException;
 import org.springframework.stereotype.Component;

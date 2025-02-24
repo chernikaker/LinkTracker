@@ -1,6 +1,6 @@
 package backend.academy.bot.server;
 
-import backend.academy.bot.dto.LinkUpdate;
+import backend.academy.dto.LinkUpdate;
 import backend.academy.bot.telegram.TelegramBotService;
 import backend.academy.bot.validator.LinkUpdateValidator;
 import com.pengrad.telegrambot.request.SendMessage;
