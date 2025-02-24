@@ -1,6 +1,7 @@
 package backend.academy.bot.server;
 
 import backend.academy.bot.dto.LinkUpdate;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,9 +15,9 @@ public class BotController {
     private final BotService botService;
 
     @PostMapping(value = "/updates", consumes = {"application/json"})
-    public ResponseEntity<?> processUpdates(@RequestBody LinkUpdate linkUpdate) {
+    public ResponseEntity<?> processUpdates(@RequestBody @Valid LinkUpdate linkUpdate) {
         botService.sendUpdates(linkUpdate);
         System.out.println(linkUpdate);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("Request processed successfully");
     }
 }
