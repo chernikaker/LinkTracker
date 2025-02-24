@@ -2,7 +2,7 @@ package backend.academy.dto;
 
 import java.util.List;
 
-public record ApiErrorResponse (
+public record ApiErrorResponse(
      String description,
      String code,
      String exceptionName,
