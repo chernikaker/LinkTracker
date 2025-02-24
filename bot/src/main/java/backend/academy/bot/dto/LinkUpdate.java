@@ -14,8 +14,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LinkUpdate {
 
+    @NotNull(message = "ID is required")
     @Min(value = 1, message="ID can't be less than 1")
-    private long id;
+    private Long id;
 
     @NotNull(message = "URL is required")
     @NotEmpty(message = "URL cannot be empty")
