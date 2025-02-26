@@ -1,7 +1,7 @@
 package backend.academy.scrapper.repository;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.exception.custom.ScrapperLinkNotExistsException;
+import backend.academy.scrapper.exception.custom.repository.ScrapperLinkNotExistsException;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;

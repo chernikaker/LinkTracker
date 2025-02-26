@@ -1,10 +1,9 @@
 package backend.academy.scrapper.server;
 
-import backend.academy.scrapper.exception.custom.ScrapperControllerEntityNotFoundException;
-import backend.academy.scrapper.exception.custom.ScrapperInvalidIdException;
-import backend.academy.scrapper.exception.custom.ScrapperUserNotExistsException;
+import backend.academy.scrapper.exception.custom.controller.ScrapperControllerEntityNotFoundException;
+import backend.academy.scrapper.exception.custom.controller.ScrapperInvalidIdException;
+import backend.academy.scrapper.exception.custom.repository.ScrapperUserNotExistsException;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;

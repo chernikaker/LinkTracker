@@ -3,15 +3,12 @@ package backend.academy.scrapper.repository;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.User;
-import backend.academy.scrapper.exception.custom.ScrapperSubscriptionAlreadyExistsException;
-import backend.academy.scrapper.exception.custom.SubscriptionNotExistsException;
+import backend.academy.scrapper.exception.custom.repository.ScrapperSubscriptionAlreadyExistsException;
+import backend.academy.scrapper.exception.custom.repository.SubscriptionNotExistsException;
 import org.springframework.stereotype.Component;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Component

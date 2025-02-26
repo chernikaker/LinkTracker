@@ -1,8 +1,8 @@
 package backend.academy.scrapper.repository;
 
 import backend.academy.scrapper.entity.User;
-import backend.academy.scrapper.exception.custom.ScrapperUserAlreadyExistsException;
-import backend.academy.scrapper.exception.custom.ScrapperUserNotExistsException;
+import backend.academy.scrapper.exception.custom.repository.ScrapperUserAlreadyExistsException;
+import backend.academy.scrapper.exception.custom.repository.ScrapperUserNotExistsException;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
