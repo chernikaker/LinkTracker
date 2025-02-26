@@ -20,7 +20,7 @@ public class InMemorySubscriptionRepository {
     private final Map<Long, Subscription> subscriptions = new HashMap<>();
 
     public long addSubscription(Subscription subscription) {
-        long id = getSubscriptionId(subscription);
+        long id = getSubscriptionId(subscription.userId(), subscription.linkId());
         if (id != -1) {
             throw new ScrapperSubscriptionAlreadyExistsException(
                 "Subscription to " + subscription.link() + " already exists for user " + subscription.user()
@@ -34,7 +34,7 @@ public class InMemorySubscriptionRepository {
     public Subscription removeSubscriptionById(long id) {
         Subscription deleted = subscriptions.remove(id);
         if (deleted == null) {
-            throw new SubscriptionNotExistsException("Link " + id + " does not exist");
+            throw new SubscriptionNotExistsException("Subscription " + id + " does not exist");
         }
         return deleted;
     }
@@ -59,14 +59,14 @@ public class InMemorySubscriptionRepository {
         return subscriptions
             .entrySet()
             .stream()
-            .filter(entry -> entry.getValue().user().equals(link))
+            .filter(entry -> entry.getValue().link().equals(link))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private long getSubscriptionId(Subscription subscription) {
+    public long getSubscriptionId(long userId, long linkId) {
         for (Map.Entry<Long, Subscription> entry : subscriptions.entrySet()) {
             Subscription sub = entry.getValue();
-            if (sub.link().equals(subscription.link()) && sub.user().equals(subscription.user())) {
+            if (sub.linkId() == linkId && sub.userId() == userId) {
                 return entry.getKey();
             }
         }

@@ -3,9 +3,12 @@ package backend.academy.scrapper.server;
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
+import backend.academy.dto.RemoveLinkRequest;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.User;
+import backend.academy.scrapper.exception.custom.repository.ScrapperLinkNotExistsException;
+import backend.academy.scrapper.exception.custom.repository.ScrapperSubscriptionNotExistsException;
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import backend.academy.scrapper.repository.InMemoryUserRepository;
@@ -60,14 +63,32 @@ public class ScrapperService {
         List<String> tags = request.tags() == null ? new ArrayList<>() : request.tags();
         Subscription newSubscription = new Subscription(chatId, user, linkId, link, filters, tags);
         long subscriptionId = subscrRepository.addSubscription(newSubscription);
-        return new LinkResponse(subscriptionId, request.link(), request.tags(), request.filters());
+        return new LinkResponse(subscriptionId, newSubscription.link().url(), newSubscription.tags(), newSubscription.filters());
+    }
+
+    public LinkResponse deleteSubscription(long chatId, RemoveLinkRequest request) {
+        long linkId = linkRepository.getLinkIdByURL(request.link());
+        if(linkId == -1) {
+            throw new ScrapperLinkNotExistsException("Link with URL " + request.link() + " not found");
+        }
+        long subscriptionId = subscrRepository.getSubscriptionId(chatId, linkId);
+        if(subscriptionId == -1) {
+            throw new ScrapperSubscriptionNotExistsException("Subscription by user " + chatId + "on link wiht id "+linkId+" not found");
+        }
+        Subscription deleted = subscrRepository.removeSubscriptionById(subscriptionId);
+        checkUnsubscribedLink(deleted);
+        return new LinkResponse(subscriptionId, deleted.link().url(), deleted.tags(), deleted.filters());
     }
 
     private void checkUnsubscribedLinks(Set<Subscription> unsubscribed) {
         for (Subscription s : unsubscribed) {
-            if(subscrRepository.getLinkSubscriptions(s.link()).isEmpty()) {
-                linkRepository.removeLinkById(s.linkId());
-            }
+           checkUnsubscribedLink(s);
+        }
+    }
+
+    private void checkUnsubscribedLink(Subscription s) {
+        if(subscrRepository.getLinkSubscriptions(s.link()).isEmpty()) {
+            linkRepository.removeLinkById(s.linkId());
         }
     }
 }

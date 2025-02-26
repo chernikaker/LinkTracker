@@ -2,8 +2,8 @@ package backend.academy.scrapper.server;
 
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.LinkResponse;
-import backend.academy.dto.LinkUpdate;
 import backend.academy.dto.ListLinksResponse;
+import backend.academy.dto.RemoveLinkRequest;
 import backend.academy.scrapper.exception.custom.controller.ScrapperControllerEntityNotFoundException;
 import backend.academy.scrapper.exception.custom.controller.ScrapperInvalidIdException;
 import backend.academy.scrapper.exception.custom.repository.ScrapperUserNotExistsException;
@@ -76,4 +76,16 @@ public class ScrapperController {
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
     }
 
+    @DeleteMapping("/links")
+    public final ResponseEntity<?> deleteLinkSubscription(
+        @RequestHeader("Tg-Chat-Id") final Long id,
+        @RequestBody @Valid final RemoveLinkRequest request
+    ) {
+        try {
+            LinkResponse response = scrapperService.deleteSubscription(id, request);
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
+        } catch (ScrapperUserNotExistsException ex) {
+            throw new ScrapperControllerEntityNotFoundException(ex, ex.getMessage());
+        }
+    }
 }

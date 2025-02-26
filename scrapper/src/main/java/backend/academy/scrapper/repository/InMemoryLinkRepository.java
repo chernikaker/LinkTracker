@@ -24,12 +24,12 @@ public class InMemoryLinkRepository {
     }
 
     public void removeLinkById(long linkId) {
-        if (links.remove(linkId) != null) {
+        if (links.remove(linkId) == null) {
             throw new ScrapperLinkNotExistsException("Link " + linkId + " does not exist");
         }
     }
 
-    private long getLinkIdByURL(String url) {
+    public long getLinkIdByURL(String url) {
         for(Map.Entry<Long, Link> entry : links.entrySet()) {
             if(entry.getValue().url().equals(url)) {
                 return entry.getKey();
