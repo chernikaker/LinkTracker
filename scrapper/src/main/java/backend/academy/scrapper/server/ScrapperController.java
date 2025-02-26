@@ -1,6 +1,8 @@
 package backend.academy.scrapper.server;
 
+import backend.academy.scrapper.exception.custom.ScrapperControllerEntityNotFoundException;
 import backend.academy.scrapper.exception.custom.ScrapperInvalidIdException;
+import backend.academy.scrapper.exception.custom.ScrapperUserNotExistsException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +42,11 @@ public class ScrapperController {
         if (id <= 0) {
             throw new ScrapperInvalidIdException("Id must be a positive integer");
         }
-        scrapperService.deleteUser(id);
+        try {
+            scrapperService.deleteUser(id);
+        } catch (ScrapperUserNotExistsException ex) {
+            throw new ScrapperControllerEntityNotFoundException(ex, ex.getMessage());
+        }
         return ResponseEntity.ok("Chat deleted successfully");
     }
 
