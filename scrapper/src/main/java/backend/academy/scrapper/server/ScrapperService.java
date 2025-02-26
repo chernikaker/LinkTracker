@@ -1,11 +1,17 @@
 package backend.academy.scrapper.server;
 
+import backend.academy.dto.LinkResponse;
+import backend.academy.dto.ListLinksResponse;
+import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import backend.academy.scrapper.repository.InMemoryUserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -26,5 +32,19 @@ public class ScrapperService {
         userRepository.deleteUserById(chatId);
     }
 
-
+    public ListLinksResponse getUserLinks(long chatId) {
+        User user = userRepository.getUserById(chatId);
+        Map<Long, Subscription> subscriptions = subscrRepository.getUserSubscriptions(user);
+        List<LinkResponse> links = new ArrayList<>();
+        for (Subscription subscription : subscriptions.values()) {
+            LinkResponse link = new LinkResponse(
+                subscription.linkId(),
+                subscription.link().url(),
+                subscription.tags(),
+                subscription.filters()
+            );
+            links.add(link);
+        }
+        return new ListLinksResponse(links, links.size());
+    }
 }

@@ -1,13 +1,17 @@
 package backend.academy.scrapper.server;
 
+import backend.academy.dto.ListLinksResponse;
 import backend.academy.scrapper.exception.custom.controller.ScrapperControllerEntityNotFoundException;
 import backend.academy.scrapper.exception.custom.controller.ScrapperInvalidIdException;
 import backend.academy.scrapper.exception.custom.repository.ScrapperUserNotExistsException;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -47,6 +51,15 @@ public class ScrapperController {
             throw new ScrapperControllerEntityNotFoundException(ex, ex.getMessage());
         }
         return ResponseEntity.ok("Chat deleted successfully");
+    }
+
+    @GetMapping("/links")
+    public final ResponseEntity<?> getLinks(@RequestHeader("Tg-Chat-Id") final Long id) {
+        if (id <= 0) {
+            throw new ScrapperInvalidIdException("Id must be a positive integer");
+        }
+        ListLinksResponse response = scrapperService.getUserLinks(id);
+        return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
     }
 
 }
