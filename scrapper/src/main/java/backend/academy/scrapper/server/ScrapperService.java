@@ -36,12 +36,12 @@ public class ScrapperService {
         User user = userRepository.getUserById(chatId);
         Map<Long, Subscription> subscriptions = subscrRepository.getUserSubscriptions(user);
         List<LinkResponse> links = new ArrayList<>();
-        for (Subscription subscription : subscriptions.values()) {
+        for (Map.Entry<Long,Subscription> subscription : subscriptions.entrySet()) {
             LinkResponse link = new LinkResponse(
-                subscription.linkId(),
-                subscription.link().url(),
-                subscription.tags(),
-                subscription.filters()
+                subscription.getKey(),
+                subscription.getValue().link().url(),
+                subscription.getValue().tags(),
+                subscription.getValue().filters()
             );
             links.add(link);
         }
