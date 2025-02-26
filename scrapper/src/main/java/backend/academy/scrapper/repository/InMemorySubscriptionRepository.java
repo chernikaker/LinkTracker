@@ -7,7 +7,9 @@ import backend.academy.scrapper.exception.custom.repository.ScrapperSubscription
 import backend.academy.scrapper.exception.custom.repository.SubscriptionNotExistsException;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -29,17 +31,20 @@ public class InMemorySubscriptionRepository {
         return newLinkId;
     }
 
-    public void removeSubscriptionById(long id) {
-        if (subscriptions.remove(id) != null) {
+    public Subscription removeSubscriptionById(long id) {
+        Subscription deleted = subscriptions.remove(id);
+        if (deleted == null) {
             throw new SubscriptionNotExistsException("Link " + id + " does not exist");
         }
+        return deleted;
     }
 
-    public void deleteUserSubscriptions(User user) {
+    public Set<Subscription> deleteUserSubscriptions(User user) {
         Map<Long, Subscription> subscriptions = getUserSubscriptions(user);
         for(Long id : subscriptions.keySet()) {
             removeSubscriptionById(id);
         }
+        return new HashSet<>(subscriptions.values());
     }
 
     public Map<Long, Subscription> getUserSubscriptions(User user) {

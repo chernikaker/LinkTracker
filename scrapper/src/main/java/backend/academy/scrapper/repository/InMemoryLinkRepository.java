@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class InMemoryLinkRepository {
 
-    private static AtomicLong ID = new AtomicLong(0);
+    private static final AtomicLong ID = new AtomicLong(0);
     private final Map<Long, Link> links = new HashMap<>();
 
     public long addLink(Link link) {

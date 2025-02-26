@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -30,7 +31,8 @@ public class ScrapperService {
 
     public void deleteUser(long chatId) {
         User user = userRepository.getUserById(chatId);
-        subscrRepository.deleteUserSubscriptions(user);
+        Set<Subscription> deleted = subscrRepository.deleteUserSubscriptions(user);
+        checkUnsubscribedLinks(deleted);
         userRepository.deleteUserById(chatId);
     }
 
@@ -53,11 +55,19 @@ public class ScrapperService {
     public LinkResponse addSubscription(long chatId, AddLinkRequest request) {
         User user = userRepository.getUserById(chatId);
         Link link = new Link(request.link(), Link.getLinkType(request.link()));
-        linkRepository.addLink(link);
+        long linkId = linkRepository.addLink(link);
         List<String> filters = request.filters() == null ? new ArrayList<>() : request.filters();
         List<String> tags = request.tags() == null ? new ArrayList<>() : request.tags();
-        Subscription newSubscription = new Subscription(user, link, filters, tags);
+        Subscription newSubscription = new Subscription(chatId, user, linkId, link, filters, tags);
         long subscriptionId = subscrRepository.addSubscription(newSubscription);
         return new LinkResponse(subscriptionId, request.link(), request.tags(), request.filters());
+    }
+
+    private void checkUnsubscribedLinks(Set<Subscription> unsubscribed) {
+        for (Subscription s : unsubscribed) {
+            if(subscrRepository.getLinkSubscriptions(s.link()).isEmpty()) {
+                linkRepository.removeLinkById(s.linkId());
+            }
+        }
     }
 }
