@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Component
 public class InMemorySubscriptionRepository {
@@ -36,24 +38,27 @@ public class InMemorySubscriptionRepository {
         }
     }
 
-    public List<Subscription> getUserSubscriptions(User user) {
-        List<Subscription> response = new ArrayList<>();
-        for (Map.Entry<Long, Subscription> entry: subscriptions.entrySet()){
-            if (entry.getValue().user().equals(user)) {
-                response.add(entry.getValue());
-            }
+    public void deleteUserSubscriptions(User user) {
+        Map<Long, Subscription> subscriptions = getUserSubscriptions(user);
+        for(Long id : subscriptions.keySet()) {
+            removeSubscriptionById(id);
         }
-        return response;
     }
 
-    public List<Subscription> getLinkSubscriptions(Link link) {
-        List<Subscription> response = new ArrayList<>();
-        for (Map.Entry<Long, Subscription> entry: subscriptions.entrySet()){
-            if (entry.getValue().link().equals(link)) {
-                response.add(entry.getValue());
-            }
-        }
-        return response;
+    public Map<Long, Subscription> getUserSubscriptions(User user) {
+        return subscriptions
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue().user().equals(user))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public Map<Long, Subscription> getLinkSubscriptions(Link link) {
+        return subscriptions
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue().user().equals(link))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private long getSubscriptionId(Subscription subscription) {

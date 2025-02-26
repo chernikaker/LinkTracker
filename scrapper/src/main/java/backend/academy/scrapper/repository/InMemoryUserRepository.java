@@ -21,8 +21,16 @@ public class InMemoryUserRepository {
         return id;
     }
 
+    public User getUserById(long userId) {
+        User user = users.get(userId);
+        if (user == null) {
+            throw new ScrapperUserNotExistsException("User " + userId + " does not exist");
+        }
+        return user;
+    }
+
     public void deleteUserById(long userId) {
-        if (users.remove(userId) != null) {
+        if (users.remove(userId) == null) {
             throw new ScrapperUserNotExistsException("User " + userId + " does not exist");
         }
     }
