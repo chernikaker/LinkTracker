@@ -20,7 +20,7 @@ public class AddLinkRequest {
         max = Constant.MAX_URL_LENGTH,
         message = "URL must be less than 2048 characters"
     )
-    private String url;
+    private String link;
     private List<String> tags;
     private List<String> filters;
 }
