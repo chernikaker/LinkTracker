@@ -5,10 +5,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
+
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 @SpringBootApplication
 @EnableConfigurationProperties({ScrapperConfig.class})
 public class ScrapperApplication {
-    public static void main(String[] args) {
+    /**
+     * Главный метод для запуска приложения.
+     * @param args аргументы командной строки.
+     */
+    public static void main(final String[] args) {
         SpringApplication.run(ScrapperApplication.class, args);
     }
 }
