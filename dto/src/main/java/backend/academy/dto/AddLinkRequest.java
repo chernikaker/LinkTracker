@@ -14,6 +14,10 @@ import java.util.List;
 @AllArgsConstructor
 public class AddLinkRequest {
 
+    /**
+     * URL для добавления.
+     * Не должен быть пустым и должен содержать не более 2048 символов.
+     */
     @NotNull(message = "URL is required")
     @NotEmpty(message = "URL cannot be empty")
     @Size(
@@ -21,6 +25,18 @@ public class AddLinkRequest {
         message = "URL must be less than 2048 characters"
     )
     private String link;
+
+    /**
+     * Тэги для ссылки.
+     * Должны быть представлены в JSON, возможно пустым списком
+     */
+    @NotNull
     private List<String> tags;
+
+    /**
+     * Фильтры изменений.
+     * Должны быть представлены в JSON, возможно пустым списком
+     */
+    @NotNull
     private List<String> filters;
 }

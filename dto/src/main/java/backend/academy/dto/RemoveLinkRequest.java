@@ -13,6 +13,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RemoveLinkRequest {
 
+    /**
+     * URL для удаления.
+     * Не должен быть пустым и должен содержать не более 2048 символов.
+     */
     @NotNull(message = "URL is required")
     @NotEmpty(message = "URL cannot be empty")
     @Size(
