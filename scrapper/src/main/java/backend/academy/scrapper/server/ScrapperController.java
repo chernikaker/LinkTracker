@@ -37,7 +37,7 @@ public class ScrapperController {
             throw new ScrapperInvalidIdException("Id must be a positive integer");
         }
         scrapperService.registerUser(id);
-        return ResponseEntity.ok("Chat registered successfully");
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -55,7 +55,7 @@ public class ScrapperController {
         } catch (ScrapperUserNotExistsException ex) {
             throw new ScrapperControllerEntityNotFoundException(ex, ex.getMessage());
         }
-        return ResponseEntity.ok("Chat deleted successfully");
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/links")
