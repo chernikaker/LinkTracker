@@ -59,9 +59,7 @@ public class ScrapperService {
         User user = userRepository.getUserById(chatId);
         Link link = new Link(request.link(), Link.getLinkType(request.link()));
         long linkId = linkRepository.addLink(link);
-        List<String> filters = request.filters() == null ? new ArrayList<>() : request.filters();
-        List<String> tags = request.tags() == null ? new ArrayList<>() : request.tags();
-        Subscription newSubscription = new Subscription(chatId, user, linkId, link, filters, tags);
+        Subscription newSubscription = new Subscription(chatId, user, linkId, link, request.tags(), request.filters());
         long subscriptionId = subscrRepository.addSubscription(newSubscription);
         return new LinkResponse(subscriptionId, newSubscription.link().url(), newSubscription.tags(), newSubscription.filters());
     }
