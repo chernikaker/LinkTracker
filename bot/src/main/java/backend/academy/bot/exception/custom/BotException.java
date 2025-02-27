@@ -1,8 +1,10 @@
 package backend.academy.bot.exception.custom;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class BotException extends RuntimeException {
 
     private final String description = "Internal Bot App Exception";
