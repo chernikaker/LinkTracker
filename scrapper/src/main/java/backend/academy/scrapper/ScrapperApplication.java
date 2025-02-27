@@ -6,10 +6,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 
-@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 @SpringBootApplication
 @EnableConfigurationProperties({ScrapperConfig.class})
 public class ScrapperApplication {
+
+    //костыль?
+    private final int id = 1;
     /**
      * Главный метод для запуска приложения.
      * @param args аргументы командной строки.

@@ -3,7 +3,8 @@ package backend.academy.bot.config;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.scrapperClient.IClient;
-import backend.academy.bot.scrapperClient.MockClient;
+import backend.academy.bot.scrapperClient.ScrapperClientService;
+import backend.academy.bot.scrapperClient.ScrapperRestClient;
 //import backend.academy.bot.server.BotService;
 //import backend.academy.bot.server.BotServiceImpl;
 import backend.academy.bot.telegram.TelegramBotService;
@@ -12,6 +13,7 @@ import backend.academy.bot.telegram.handler.commands.CommandHandler;
 import backend.academy.bot.telegram.handler.commands.FiltersTextCommandHandler;
 import backend.academy.bot.telegram.handler.commands.HelpCommandHandler;
 import backend.academy.bot.telegram.handler.commands.LinkTextCommandHandler;
+import backend.academy.bot.telegram.handler.commands.ListCommandHandler;
 import backend.academy.bot.telegram.handler.commands.StartCommandHandler;
 import backend.academy.bot.telegram.handler.commands.TagsTextCommandHandler;
 import backend.academy.bot.telegram.handler.commands.TrackCommandHandler;
@@ -37,8 +39,13 @@ public record BotConfig(@NotEmpty String telegramToken) {
     }
 
     @Bean
-    public CommandHandler startCommandHandler(InMemoryTrackingCache userRepository){
-        return new StartCommandHandler(userRepository);
+    public ScrapperClientService scrapperClientService(IClient client){
+        return new ScrapperClientService(client);
+    }
+
+    @Bean
+    public CommandHandler startCommandHandler(InMemoryTrackingCache userRepository, ScrapperClientService scrapperClientService){
+        return new StartCommandHandler(userRepository, scrapperClientService);
     }
 
     @Bean
@@ -52,9 +59,15 @@ public record BotConfig(@NotEmpty String telegramToken) {
     }
 
     @Bean
-    public CommandHandler filtersTextCommandHandler(InMemoryTrackingCache userRepository, IClient client){
-        return new FiltersTextCommandHandler(userRepository, client);
+    public CommandHandler filtersTextCommandHandler(InMemoryTrackingCache userRepository, ScrapperClientService service){
+        return new FiltersTextCommandHandler(userRepository, service);
     }
+
+    @Bean
+    public CommandHandler listCommandHandler(InMemoryTrackingCache userRepository, ScrapperClientService service){
+        return new ListCommandHandler(userRepository, service);
+    }
+
 
     @Bean
     public CommandHandler trackCommandHandler(InMemoryTrackingCache userRepository){
@@ -82,14 +95,15 @@ public record BotConfig(@NotEmpty String telegramToken) {
     }
 
     @Bean
-    public List<CommandHandler> commandHandlers(InMemoryTrackingCache repository, IClient client) {
+    public List<CommandHandler> commandHandlers(InMemoryTrackingCache repository, ScrapperClientService service) {
         return List.of(
-            startCommandHandler(repository),
+            startCommandHandler(repository, service),
             trackCommandHandler(repository),
             helpCommandHandler(repository),
             linkTextCommandHandler(repository),
+            listCommandHandler(repository, service),
             tagsTextCommandHandler(repository),
-            filtersTextCommandHandler(repository, client),
+            filtersTextCommandHandler(repository, service),
             unknownCommandHandler(repository)
         );
     }
@@ -97,7 +111,7 @@ public record BotConfig(@NotEmpty String telegramToken) {
 
     @Bean
     public IClient client() {
-        return new MockClient();
+        return new ScrapperRestClient("http://localhost:8081/");
     }
 
 }

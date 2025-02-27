@@ -4,16 +4,18 @@ import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.IClient;
+import backend.academy.bot.scrapperClient.ScrapperClientService;
+import backend.academy.bot.scrapperClient.ScrapperRestClient;
 import com.pengrad.telegrambot.model.Message;
 import java.util.Optional;
 
 public class FiltersTextCommandHandler extends CommandHandler {
 
-    private final IClient client;
+    private final ScrapperClientService service;
 
-    public FiltersTextCommandHandler(InMemoryTrackingCache repository, IClient client) {
+    public FiltersTextCommandHandler(InMemoryTrackingCache repository, ScrapperClientService service) {
         super(repository);
-        this.client = client;
+        this.service = service;
     }
 
     @Override
@@ -21,9 +23,9 @@ public class FiltersTextCommandHandler extends CommandHandler {
         Optional<LinkTrackingObject> potentialTracking = repository.getTrack(message.chat().id());
         LinkTrackingObject tracking = potentialTracking.get();
         String writingResponse = writeFilters(message.text(), tracking);
-        String answer = client.sendTrackingLink(message.chat().id(), tracking);
+        //String answer = client.sendTrackingLink(message.chat().id(), tracking);
         repository.removeTrack(message.chat().id());
-        return writingResponse + "\n" + answer;
+        return writingResponse + "\n";
     }
 
     @Override
