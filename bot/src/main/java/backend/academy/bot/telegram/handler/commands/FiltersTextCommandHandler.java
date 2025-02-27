@@ -23,9 +23,9 @@ public class FiltersTextCommandHandler extends CommandHandler {
         Optional<LinkTrackingObject> potentialTracking = repository.getTrack(message.chat().id());
         LinkTrackingObject tracking = potentialTracking.get();
         String writingResponse = writeFilters(message.text(), tracking);
-        //String answer = client.sendTrackingLink(message.chat().id(), tracking);
+        String answer = service.addLinkSubscription(message.chat().id(), tracking);
         repository.removeTrack(message.chat().id());
-        return writingResponse + "\n";
+        return writingResponse + "\n" + answer;
     }
 
     @Override
@@ -35,13 +35,14 @@ public class FiltersTextCommandHandler extends CommandHandler {
     }
 
     private String writeFilters(String filter, LinkTrackingObject tracking) {
+        String message = "Фильтры не установлены";
+        String[] filters = new String[0];
         if(!"-".equals(filter)){
-            String[] filters = filter.split(" ");
-            tracking.filters(filters);
-            tracking.state(UserState.DEFAULT);
-            return "Фильтры установлены";
+            filters = filter.split(" ");
+            message = "Фильтры установлены";
         }
+        tracking.filters(filters);
         tracking.state(UserState.DEFAULT);
-        return "Фильтры не установлены";
+        return message;
     }
 }

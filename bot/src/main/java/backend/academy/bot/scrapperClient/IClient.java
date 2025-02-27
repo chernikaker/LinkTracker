@@ -1,6 +1,8 @@
 package backend.academy.bot.scrapperClient;
 
 import backend.academy.bot.model.LinkTrackingObject;
+import backend.academy.dto.AddLinkRequest;
+import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
 
 
@@ -11,4 +13,6 @@ public interface IClient {
     void registerChat(long userId);
 
     ListLinksResponse getUserLinks(long userId);
+
+    LinkResponse addLinkSubscription(long userId, AddLinkRequest request);
 }

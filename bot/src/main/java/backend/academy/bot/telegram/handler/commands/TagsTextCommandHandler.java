@@ -26,13 +26,14 @@ public class TagsTextCommandHandler extends CommandHandler{
     }
 
     private String writeTags(String tagLine, LinkTrackingObject tracking) {
-        if("-".equals(tagLine)){
-            tracking.state(UserState.TRACKING_FILTER);
-            return "Тэги не установлены. Введите фильтры(опционально)";
+        String message = "Тэги не установлены. Введите фильтры(опционально)";
+        String[] tags = new String[0];
+        if(!"-".equals(tagLine)){
+            tags = tagLine.split(" ");
+            message = "Тэги установлены. Введите фильтры(опционально)";
         }
-        String[] tags = tagLine.split(" ");
         tracking.tags(tags);
         tracking.state(UserState.TRACKING_FILTER);
-        return "Введите фильтры(опционально)";
+        return message;
     }
 }
