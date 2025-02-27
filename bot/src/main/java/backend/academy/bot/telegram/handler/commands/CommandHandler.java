@@ -18,4 +18,6 @@ public abstract class CommandHandler {
     }
 
     protected abstract String processRequest(Message message);
+
+    public abstract boolean canHandle(Message message);
 }

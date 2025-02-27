@@ -24,4 +24,9 @@ public class HelpCommandHandler extends CommandHandler{
             5) /help - помощь
             """;
     }
+
+    @Override
+    public boolean canHandle(Message message) {
+        return message.text().equals("/help");
+    }
 }

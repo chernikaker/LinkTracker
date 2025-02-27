@@ -25,4 +25,9 @@ public class StartCommandHandler extends CommandHandler {
         //TODO: add method
         return false;
     }
+
+    @Override
+    public boolean canHandle(Message message) {
+        return message.text().equals("/start");
+    }
 }

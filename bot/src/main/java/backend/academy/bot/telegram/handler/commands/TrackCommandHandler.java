@@ -21,4 +21,9 @@ public class TrackCommandHandler extends CommandHandler {
         repository.setTrack(message.chat().id(), newTracking);
         return "Введите ссылку для отслеживания";
     }
+
+    @Override
+    public boolean canHandle(Message message) {
+        return message.text().startsWith("/track");
+    }
 }

@@ -1,6 +1,6 @@
 package backend.academy.bot.config;
 
-import backend.academy.bot.model.Command;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.scrapperClient.IClient;
 import backend.academy.bot.scrapperClient.MockClient;
@@ -9,13 +9,15 @@ import backend.academy.bot.scrapperClient.MockClient;
 import backend.academy.bot.telegram.TelegramBotService;
 import backend.academy.bot.telegram.handler.HandlerService;
 import backend.academy.bot.telegram.handler.commands.CommandHandler;
-import backend.academy.bot.telegram.handler.commands.CommandHandlerFactory;
+import backend.academy.bot.telegram.handler.commands.FiltersTextCommandHandler;
 import backend.academy.bot.telegram.handler.commands.HelpCommandHandler;
+import backend.academy.bot.telegram.handler.commands.LinkTextCommandHandler;
 import backend.academy.bot.telegram.handler.commands.StartCommandHandler;
-import backend.academy.bot.telegram.handler.commands.TextCommandHandler;
+import backend.academy.bot.telegram.handler.commands.TagsTextCommandHandler;
 import backend.academy.bot.telegram.handler.commands.TrackCommandHandler;
+import backend.academy.bot.telegram.handler.commands.UnknownCommandHandler;
 import jakarta.validation.constraints.NotEmpty;
-import java.util.Map;
+import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.validation.annotation.Validated;
@@ -40,8 +42,18 @@ public record BotConfig(@NotEmpty String telegramToken) {
     }
 
     @Bean
-    public CommandHandler textCommandHandler(InMemoryTrackingCache userRepository, IClient client){
-        return new TextCommandHandler(userRepository, client);
+    public CommandHandler linkTextCommandHandler(InMemoryTrackingCache userRepository){
+        return new LinkTextCommandHandler(userRepository);
+    }
+
+    @Bean
+    public CommandHandler tagsTextCommandHandler(InMemoryTrackingCache userRepository){
+        return new TagsTextCommandHandler(userRepository);
+    }
+
+    @Bean
+    public CommandHandler filtersTextCommandHandler(InMemoryTrackingCache userRepository, IClient client){
+        return new FiltersTextCommandHandler(userRepository, client);
     }
 
     @Bean
@@ -55,8 +67,13 @@ public record BotConfig(@NotEmpty String telegramToken) {
     }
 
     @Bean
-    public HandlerService updateHandlerService(CommandHandlerFactory handlerFactory){
-        return new HandlerService(handlerFactory);
+    public CommandHandler unknownCommandHandler(InMemoryTrackingCache userRepository){
+        return new UnknownCommandHandler(userRepository);
+    }
+
+    @Bean
+    public HandlerService updateHandlerService(List<CommandHandler> commandHandlers){
+        return new HandlerService(commandHandlers);
     }
 
     @Bean
@@ -65,19 +82,18 @@ public record BotConfig(@NotEmpty String telegramToken) {
     }
 
     @Bean
-    public Map<Command, CommandHandler> commandHandlers(InMemoryTrackingCache repository, IClient client) {
-        return Map.of(
-            Command.START, startCommandHandler(repository),
-            Command.TEXT, textCommandHandler(repository, client),
-            Command.TRACK, trackCommandHandler(repository),
-            Command.HELP, helpCommandHandler(repository)
+    public List<CommandHandler> commandHandlers(InMemoryTrackingCache repository, IClient client) {
+        return List.of(
+            startCommandHandler(repository),
+            trackCommandHandler(repository),
+            helpCommandHandler(repository),
+            linkTextCommandHandler(repository),
+            tagsTextCommandHandler(repository),
+            filtersTextCommandHandler(repository, client),
+            unknownCommandHandler(repository)
         );
     }
 
-    @Bean
-    public CommandHandlerFactory handlerFactory(Map<Command, CommandHandler> commandHandlers) {
-        return new CommandHandlerFactory(commandHandlers);
-    }
 
     @Bean
     public IClient client() {

@@ -1,28 +1,35 @@
 package backend.academy.bot.telegram.handler;
 
-import backend.academy.bot.model.Command;
-import backend.academy.bot.telegram.handler.commands.CommandHandlerFactory;
 import backend.academy.bot.telegram.handler.commands.CommandHandler;
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import java.util.List;
 import java.util.Optional;
 
 public class HandlerService {
 
-    private final CommandHandlerFactory commandHandlerFactory;
+    private final List<CommandHandler> handlers;
 
-    public HandlerService(
-        CommandHandlerFactory commandHandlerFactory) {
-        this.commandHandlerFactory = commandHandlerFactory;
+    public HandlerService(List<CommandHandler> handlers) {
+        this.handlers = handlers;
     }
 
     public Optional<SendMessage> handle(Update update) {
         if (update.message() == null || update.message().text() == null) {
             return Optional.empty();
         }
-        Command currentCommand = Command.fromString(update.message().text());
-        CommandHandler currentHandler = commandHandlerFactory.getHandlerByCommand(currentCommand);
+        CommandHandler currentHandler = getHandlerByMessage(update.message());
         SendMessage result = currentHandler.handleMessage(update.message());
         return Optional.of(result);
+    }
+
+    private CommandHandler getHandlerByMessage(Message message) {
+        for(CommandHandler handler : handlers) {
+            if(handler.canHandle(message)) {
+                return handler;
+            }
+        }
+        return handlers.getLast();
     }
 }
