@@ -33,17 +33,12 @@ public class ScrapperRestClient implements IClient {
 
     @Override
     public ListLinksResponse getUserLinks(long userId) {
-        try {
-            return restClient.get()
-                .uri("/links")
-                .header("Tg-Chat-Id", String.valueOf(userId))
-                .retrieve()
-                .toEntity(ListLinksResponse.class)
-                .getBody();
-        } catch (HttpClientErrorException e) {
-            ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
-            throw new BotInvalidChatIdException(error);
-        }
+        return restClient.get()
+            .uri("/links")
+            .header("Tg-Chat-Id", String.valueOf(userId))
+            .retrieve()
+            .toEntity(ListLinksResponse.class)
+            .getBody();
     }
 
     @Override

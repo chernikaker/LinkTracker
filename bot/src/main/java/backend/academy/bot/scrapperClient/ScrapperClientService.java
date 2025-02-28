@@ -32,18 +32,13 @@ public class ScrapperClientService {
         }
     }
 
-    public String getUserLinks(long chatId) {
+    public ListLinksResponse getUserLinks(long chatId) {
         try {
-            ListLinksResponse response = client.getUserLinks(chatId);
-            return makeLinksMessage(response);
-        } catch (BotInvalidChatIdException ex) {
-            ApiErrorResponse response = ex.response();
-            if (response.exceptionName().equals("ScrapperUserNotExistsException")) {
-                return "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
-            } else {
-                log.error("Scrapper client exception: "+ex.getMessage());
-                return "Запрос отклонен, попробуйте ещё раз";
-            }
+            return client.getUserLinks(chatId);
+        }  catch (HttpClientErrorException e) {
+            ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
+            log.error("Scrapper client exception: "+error.exceptionMessage());
+            throw new BotInvalidChatIdException(error);
         }
     }
 
@@ -89,29 +84,5 @@ public class ScrapperClientService {
                 return "Запрос отклонен, попробуйте ещё раз";
             }
         }
-    }
-
-    private String makeLinksMessage(ListLinksResponse links) {
-        if(links.size() == 0) {
-            return "Отслеживаемых ссылок нет";
-        }
-        StringBuilder sb = new StringBuilder("Отслеживаемые ссылки:\n\n");
-        for (LinkResponse link : links.links()) {
-            sb.append(link.url()).append("\n");
-            if(!link.tags().isEmpty()) {
-                sb.append("Теги: \n");
-                for(String tag : link.tags()) {
-                    sb.append(tag).append("\n");
-                }
-            }
-            if(!link.filters().isEmpty()) {
-                sb.append("Фильтры\n");
-                for(String filter : link.filters()) {
-                    sb.append(filter).append("\n");
-                }
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
     }
 }
