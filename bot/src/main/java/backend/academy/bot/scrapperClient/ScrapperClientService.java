@@ -2,15 +2,15 @@ package backend.academy.bot.scrapperClient;
 
 import backend.academy.bot.exception.custom.scrapperClient.BotChatRegistrationException;
 import backend.academy.bot.exception.custom.scrapperClient.BotInvalidChatIdException;
-import backend.academy.bot.exception.custom.scrapperClient.BotInvalidLinkDataException;
+import backend.academy.bot.exception.custom.scrapperClient.BotInvalidLinkRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
+import backend.academy.dto.RemoveLinkRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 
@@ -60,13 +60,34 @@ public class ScrapperClientService {
             );
             LinkResponse response = client.addLinkSubscription(chatId, request);
             return "Ссылка успешно зарегистрирована!";
-        } catch (BotInvalidLinkDataException ex) {
+        } catch (BotInvalidLinkRequestException ex) {
             ApiErrorResponse response = ex.response();
             if (response.exceptionName().equals("ScrapperUserNotExistsException")) {
                 return "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
             }
             if(response.exceptionMessage().contains("Validation failed for argument [1]")) {
                 return "Введена невалидная ссылка. Запрос отклонен, попробуйте ещё раз";
+            } else {
+                log.error("Scrapper client exception: "+ex.getMessage());
+                return "Запрос отклонен, попробуйте ещё раз";
+            }
+        }
+    }
+
+    public String untrackLinkSubscription (long chatId, String link) {
+        try {
+            RemoveLinkRequest request = new RemoveLinkRequest(link);
+            client.deleteLinkSubscription(chatId, request);
+            return "Ссылка успешно удалена";
+        } catch (BotInvalidLinkRequestException ex) {
+            ApiErrorResponse response = ex.response();
+            if (response.exceptionName().equals("ScrapperUserNotExistsException")) {
+                return "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
+            }
+            if(response.exceptionMessage().contains("Validation failed for argument [1]")) {
+                return "Введена невалидная ссылка. Запрос отклонен, попробуйте ещё раз";
+            } if(response.code().equals("404")) {
+                return "У вас нет подписки на данную ссылку";
             } else {
                 log.error("Scrapper client exception: "+ex.getMessage());
                 return "Запрос отклонен, попробуйте ещё раз";

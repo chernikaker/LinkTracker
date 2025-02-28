@@ -18,6 +18,8 @@ import backend.academy.bot.telegram.handler.commands.StartCommandHandler;
 import backend.academy.bot.telegram.handler.commands.TagsTextCommandHandler;
 import backend.academy.bot.telegram.handler.commands.TrackCommandHandler;
 import backend.academy.bot.telegram.handler.commands.UnknownCommandHandler;
+import backend.academy.bot.telegram.handler.commands.UntrackCommandHandler;
+import backend.academy.bot.telegram.handler.commands.UntrackingLinkTextCommandHandler;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -85,6 +87,16 @@ public record BotConfig(@NotEmpty String telegramToken) {
     }
 
     @Bean
+    public CommandHandler untrackCommandHandler(InMemoryTrackingCache userRepository){
+        return new UntrackCommandHandler(userRepository);
+    }
+
+    @Bean
+    public CommandHandler untrackLinkTextCommandHandler(InMemoryTrackingCache userRepository, ScrapperClientService service){
+        return new UntrackingLinkTextCommandHandler(userRepository, service);
+    }
+
+    @Bean
     public HandlerService updateHandlerService(List<CommandHandler> commandHandlers){
         return new HandlerService(commandHandlers);
     }
@@ -102,8 +114,10 @@ public record BotConfig(@NotEmpty String telegramToken) {
             helpCommandHandler(repository),
             linkTextCommandHandler(repository),
             listCommandHandler(repository, service),
+            untrackCommandHandler(repository),
             tagsTextCommandHandler(repository),
             filtersTextCommandHandler(repository, service),
+            untrackLinkTextCommandHandler(repository, service),
             unknownCommandHandler(repository)
         );
     }

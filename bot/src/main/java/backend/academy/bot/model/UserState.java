@@ -8,7 +8,8 @@ public enum UserState {
     DEFAULT(1),
     TRACKING_LINK(2),
     TRACKING_TAG(3),
-    TRACKING_FILTER(4);
+    TRACKING_FILTER(4),
+    UNTRACKING_LINK(5),;
 
     private final int stateValue;
 
