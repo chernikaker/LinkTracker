@@ -1,6 +1,5 @@
 package backend.academy.bot.scrapperClient;
 
-import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
@@ -8,8 +7,6 @@ import backend.academy.dto.RemoveLinkRequest;
 
 
 public interface IClient {
-
-    String sendTrackingLink(long userId, LinkTrackingObject trackingObject);
 
     void registerChat(long userId);
 

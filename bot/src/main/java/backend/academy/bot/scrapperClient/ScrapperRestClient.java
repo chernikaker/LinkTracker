@@ -1,7 +1,7 @@
 package backend.academy.bot.scrapperClient;
 
-import backend.academy.bot.exception.custom.scrapperClient.BotInvalidChatIdException;
 import backend.academy.bot.exception.custom.scrapperClient.BotChatRegistrationException;
+import backend.academy.bot.exception.custom.scrapperClient.BotInvalidChatIdException;
 import backend.academy.bot.exception.custom.scrapperClient.BotInvalidLinkRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.dto.AddLinkRequest;
@@ -9,9 +9,7 @@ import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
@@ -23,11 +21,6 @@ public class ScrapperRestClient implements IClient {
 
     public ScrapperRestClient(String baseUrl) {
         this.restClient = RestClient.create(baseUrl);
-    }
-
-    @Override
-    public String sendTrackingLink(long userId, LinkTrackingObject trackingObject) {
-        return "link added";
     }
 
     @Override
