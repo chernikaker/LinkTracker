@@ -4,9 +4,6 @@ package backend.academy.bot.config;
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.scrapperClient.IClient;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
-import backend.academy.bot.scrapperClient.ScrapperRestClient;
-//import backend.academy.bot.server.BotService;
-//import backend.academy.bot.server.BotServiceImpl;
 import backend.academy.bot.telegram.TelegramBotService;
 import backend.academy.bot.telegram.handler.HandlerService;
 import backend.academy.bot.telegram.handler.commands.CommandHandler;
@@ -120,12 +117,6 @@ public record BotConfig(@NotEmpty String telegramToken) {
             untrackLinkTextCommandHandler(repository, service),
             unknownCommandHandler(repository)
         );
-    }
-
-
-    @Bean
-    public IClient client() {
-        return new ScrapperRestClient("http://localhost:8081/");
     }
 
 }

@@ -8,7 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-@Component
+
 public class ScrapperRestClient implements IClient {
 
     private final String DEFAULT_URL = "http://localhost:8081/";
