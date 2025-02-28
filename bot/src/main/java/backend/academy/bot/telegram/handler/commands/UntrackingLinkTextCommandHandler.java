@@ -20,7 +20,7 @@ public class UntrackingLinkTextCommandHandler extends CommandHandler{
     protected String processRequest(Message message) {
         repository.removeTrack(message.chat().id());
         // TODO: validation
-        return service.untrackLinkSubscription(message.chat().id(), message.text());
+        return service.removeLinkSubscription(message.chat().id(), message.text());
 
     }
 

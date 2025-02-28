@@ -42,30 +42,22 @@ public class ScrapperClientService {
         }
     }
 
-    public String addLinkSubscription (long chatId, LinkTrackingObject linkData) {
+    public void addLinkSubscription (long chatId, LinkTrackingObject linkData) {
         try {
             AddLinkRequest request = new AddLinkRequest(
                 linkData.link(),
                 Arrays.asList(linkData.tags()),
                 Arrays.asList(linkData.filters())
             );
-            LinkResponse response = client.addLinkSubscription(chatId, request);
-            return "Ссылка успешно зарегистрирована!";
-        } catch (BotInvalidLinkRequestException ex) {
-            ApiErrorResponse response = ex.response();
-            if (response.exceptionName().equals("ScrapperUserNotExistsException")) {
-                return "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
-            }
-            if(response.exceptionMessage().contains("Validation failed for argument [1]")) {
-                return "Введена невалидная ссылка. Запрос отклонен, попробуйте ещё раз";
-            } else {
-                log.error("Scrapper client exception: "+ex.getMessage());
-                return "Запрос отклонен, попробуйте ещё раз";
-            }
+            client.addLinkSubscription(chatId, request);
+        } catch (HttpClientErrorException e) {
+            ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
+            log.error("Scrapper client exception: "+error.exceptionMessage());
+            throw new BotInvalidLinkRequestException(error);
         }
     }
 
-    public String untrackLinkSubscription (long chatId, String link) {
+    public String removeLinkSubscription(long chatId, String link) {
         try {
             RemoveLinkRequest request = new RemoveLinkRequest(link);
             client.deleteLinkSubscription(chatId, request);

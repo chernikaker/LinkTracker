@@ -43,18 +43,13 @@ public class ScrapperRestClient implements IClient {
 
     @Override
     public LinkResponse addLinkSubscription(long userId, AddLinkRequest request) {
-        try{
-            return restClient.post()
-                .uri("/links")
-                .header("Tg-Chat-Id", String.valueOf(userId))
-                .body(request)
-                .retrieve()
-                .toEntity(LinkResponse.class)
-                .getBody();
-        } catch (HttpClientErrorException e) {
-            ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
-            throw new BotInvalidLinkRequestException(error);
-        }
+        return restClient.post()
+            .uri("/links")
+            .header("Tg-Chat-Id", String.valueOf(userId))
+            .body(request)
+            .retrieve()
+            .toEntity(LinkResponse.class)
+            .getBody();
     }
 
     @Override
