@@ -6,6 +6,8 @@ import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
 import backend.academy.scrapper.exception.custom.controller.ScrapperControllerEntityNotFoundException;
 import backend.academy.scrapper.exception.custom.controller.ScrapperInvalidIdException;
+import backend.academy.scrapper.exception.custom.repository.ScrapperLinkNotExistsException;
+import backend.academy.scrapper.exception.custom.repository.ScrapperSubscriptionNotExistsException;
 import backend.academy.scrapper.exception.custom.repository.ScrapperUserNotExistsException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -84,7 +86,7 @@ public class ScrapperController {
         try {
             LinkResponse response = scrapperService.deleteSubscription(id, request);
             return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
-        } catch (ScrapperUserNotExistsException ex) {
+        } catch (ScrapperLinkNotExistsException | ScrapperSubscriptionNotExistsException ex) {
             throw new ScrapperControllerEntityNotFoundException(ex, ex.getMessage());
         }
     }
