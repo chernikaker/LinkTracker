@@ -1,6 +1,8 @@
 package backend.academy.scrapper.entity;
 
-public record Link(String url, LinkType type) {
+import java.time.LocalDateTime;
+
+public record Link(String url, LinkType type, LocalDateTime lastValidation) {
 
     // TODO: validation?
     public static LinkType getLinkType(String url) {

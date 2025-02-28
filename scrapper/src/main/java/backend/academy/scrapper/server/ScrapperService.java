@@ -14,6 +14,7 @@ import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import backend.academy.scrapper.repository.InMemoryUserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class ScrapperService {
 
     public LinkResponse addSubscription(long chatId, AddLinkRequest request) {
         User user = userRepository.getUserById(chatId);
-        Link link = new Link(request.link(), Link.getLinkType(request.link()));
+        Link link = new Link(request.link(), Link.getLinkType(request.link()), LocalDateTime.now());
         long linkId = linkRepository.addLink(link);
         Subscription newSubscription = new Subscription(chatId, user, linkId, link, request.tags(), request.filters());
         long subscriptionId = subscrRepository.addSubscription(newSubscription);
