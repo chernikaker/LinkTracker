@@ -1,26 +1,27 @@
 package backend.academy.bot.scrapperClient;
 
-import backend.academy.bot.exception.custom.scrapperClient.BotChatRegistrationException;
-import backend.academy.bot.exception.custom.scrapperClient.BotInvalidChatIdException;
-import backend.academy.bot.exception.custom.scrapperClient.BotInvalidLinkRequestException;
-import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.dto.AddLinkRequest;
-import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 @Component
 public class ScrapperRestClient implements IClient {
 
+    private final String DEFAULT_URL = "http://localhost:8081/";
     private final RestClient restClient;
 
     public ScrapperRestClient(String baseUrl) {
-        this.restClient = RestClient.create(baseUrl);
+        this.restClient = RestClient.builder()
+            .baseUrl(baseUrl != null ? baseUrl : DEFAULT_URL)
+            .build();
+    }
+
+    public ScrapperRestClient() {
+        this(null);
     }
 
     @Override
