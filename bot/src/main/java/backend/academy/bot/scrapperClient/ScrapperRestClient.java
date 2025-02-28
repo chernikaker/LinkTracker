@@ -54,17 +54,12 @@ public class ScrapperRestClient implements IClient {
 
     @Override
     public void deleteLinkSubscription(long userId, RemoveLinkRequest request) {
-        try {
-            restClient
-                .method(HttpMethod.DELETE)
-                .uri("/links")
-                .header("Tg-Chat-Id", String.valueOf(userId))
-                .body(request)
-                .retrieve()
-                .toBodilessEntity();
-        } catch (HttpClientErrorException e) {
-            ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
-            throw new BotInvalidLinkRequestException(error);
-        }
+        restClient
+            .method(HttpMethod.DELETE)
+            .uri("/links")
+            .header("Tg-Chat-Id", String.valueOf(userId))
+            .body(request)
+            .retrieve()
+            .toBodilessEntity();
     }
 }
