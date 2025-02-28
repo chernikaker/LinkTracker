@@ -6,13 +6,12 @@ import backend.academy.bot.exception.custom.scrapperClient.BotInvalidLinkRequest
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.ApiErrorResponse;
-import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
+import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.HttpClientErrorException;
-import java.util.Arrays;
 
 
 @AllArgsConstructor
@@ -63,6 +62,7 @@ public class ScrapperClientService {
             client.deleteLinkSubscription(chatId, request);
         } catch (HttpClientErrorException e) {
             ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
+            log.error("Scrapper client exception: "+error.exceptionMessage());
             throw new BotInvalidLinkRequestException(error);
         }
     }
