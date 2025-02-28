@@ -25,15 +25,10 @@ public class ScrapperRestClient implements IClient {
 
     @Override
     public void registerChat(long userId) {
-        try {
-            restClient.post()
-                .uri("tg-chat/{id}", userId)
-                .retrieve()
-                .toBodilessEntity();
-        } catch (HttpClientErrorException e) {
-            ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
-            throw new BotChatRegistrationException(error);
-        }
+        restClient.post()
+            .uri("tg-chat/{id}", userId)
+            .retrieve()
+            .toBodilessEntity();
     }
 
     @Override

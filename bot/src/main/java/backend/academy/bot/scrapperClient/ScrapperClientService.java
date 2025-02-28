@@ -11,6 +11,7 @@ import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.HttpClientErrorException;
 import java.util.Arrays;
 
 
@@ -20,19 +21,14 @@ public class ScrapperClientService {
 
     private IClient client;
 
-    public String registerNewClient(long chatId) {
+    public void registerNewClient(long chatId) {
         try {
             client.registerChat(chatId);
             log.info("Successfully registered new client with chat id " + chatId);
-            return "Чат успешно зарегистрирован";
-        } catch (BotChatRegistrationException ex) {
-            ApiErrorResponse response = ex.response();
-            if (response.exceptionName().equals("ScrapperUserAlreadyExistsException")) {
-                return "Вы уже зарегистрированы";
-            } else {
-                log.error("Scrapper client exception: "+ex.getMessage());
-                return "Регистрация отклонена, попробуйте ещё раз";
-            }
+        } catch (HttpClientErrorException e) {
+            ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
+            log.error("Scrapper client exception: "+error.exceptionMessage());
+            throw new BotChatRegistrationException(error);
         }
     }
 
