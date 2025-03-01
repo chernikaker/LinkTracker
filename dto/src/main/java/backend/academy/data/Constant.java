@@ -1,23 +1,15 @@
 package backend.academy.data;
 
-/**
- * Класс, содержащий константы, используемые в приложении.
- */
+/** Класс, содержащий константы, используемые в приложении. */
 public final class Constant {
 
-    private Constant() { }
-    /**
-     * Минимальное значение идентификатора.
-     */
+    private Constant() {}
+    /** Минимальное значение идентификатора. */
     public static final int MIN_ID = 1;
 
-    /**
-     * Максимальная длина URL.
-     */
+    /** Максимальная длина URL. */
     public static final int MAX_URL_LENGTH = 2048;
 
-    /**
-     * Максимальная длина описания.
-     */
+    /** Максимальная длина описания. */
     public static final int MAX_DESCRIPTION_LENGTH = 500;
 }

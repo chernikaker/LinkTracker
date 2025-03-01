@@ -1,7 +1,5 @@
 package backend.academy.bot.scrapperClient;
 
-import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException;
-import backend.academy.bot.exception.scrapperClient.BotInvalidChatIdException;
 import backend.academy.bot.exception.scrapperClient.BotInvalidLinkRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.dto.AddLinkRequest;
@@ -13,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
-
 
 @AllArgsConstructor
 @Slf4j
@@ -27,26 +24,23 @@ public class ScrapperClientService {
             client.registerChat(chatId);
             log.info("Successfully registered new client with chat id {}", chatId);
         } catch (HttpClientErrorException e) {
-           handleException(e);
+            handleException(e);
         }
     }
 
     public ListLinksResponse getUserLinks(long chatId) {
         try {
             return client.getUserLinks(chatId);
-        }  catch (HttpClientErrorException e) {
+        } catch (HttpClientErrorException e) {
             handleException(e);
             throw new BotInvalidLinkRequestException(e.getResponseBodyAs(ApiErrorResponse.class));
         }
     }
 
-    public void addLinkSubscription (long chatId, LinkTrackingObject linkData) {
+    public void addLinkSubscription(long chatId, LinkTrackingObject linkData) {
         try {
             AddLinkRequest request = new AddLinkRequest(
-                linkData.link(),
-                Arrays.asList(linkData.tags()),
-                Arrays.asList(linkData.filters())
-            );
+                    linkData.link(), Arrays.asList(linkData.tags()), Arrays.asList(linkData.filters()));
             client.addLinkSubscription(chatId, request);
         } catch (HttpClientErrorException e) {
             handleException(e);
@@ -64,10 +58,7 @@ public class ScrapperClientService {
 
     private void handleException(HttpClientErrorException e) {
         ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
-        log.error(
-            "Scrapper client exception: {}",
-            error.exceptionMessage()
-        );
+        log.error("Scrapper client exception: {}", error.exceptionMessage());
         throw new BotInvalidLinkRequestException(error);
     }
 }

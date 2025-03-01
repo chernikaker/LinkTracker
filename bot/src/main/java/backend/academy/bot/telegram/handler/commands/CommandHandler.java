@@ -12,7 +12,7 @@ public abstract class CommandHandler {
         this.repository = repository;
     }
 
-    public SendMessage handleMessage (Message message) {
+    public SendMessage handleMessage(Message message) {
         String responseMessage = processRequest(message);
         return new SendMessage(message.chat().id(), responseMessage);
     }

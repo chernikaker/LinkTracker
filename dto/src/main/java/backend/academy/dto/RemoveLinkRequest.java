@@ -6,8 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record RemoveLinkRequest(
-    @NotNull(message = "URL is required")
-    @NotEmpty(message = "URL cannot be empty")
-    @Size(max = Constant.MAX_URL_LENGTH, message = "URL must be less than 2048 characters")
-    String link
-) {}
+        @NotNull(message = "URL is required")
+                @NotEmpty(message = "URL cannot be empty")
+                @Size(max = Constant.MAX_URL_LENGTH, message = "URL must be less than 2048 characters")
+                String link) {}

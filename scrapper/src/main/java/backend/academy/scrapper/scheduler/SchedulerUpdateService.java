@@ -24,11 +24,10 @@ public class SchedulerUpdateService {
     private final BotClientService botClientService;
 
     public SchedulerUpdateService(
-        InMemoryLinkRepository linkRepository,
-        GithubClientService githubClientService,
-        BotClientService service,
-        StackoverflowClientService soClientService
-    ) {
+            InMemoryLinkRepository linkRepository,
+            GithubClientService githubClientService,
+            BotClientService service,
+            StackoverflowClientService soClientService) {
         this.linkRepository = linkRepository;
         this.githubClientService = githubClientService;
         this.botClientService = service;
@@ -36,19 +35,17 @@ public class SchedulerUpdateService {
     }
 
     @Scheduled(initialDelay = 10000, fixedDelay = 10000)
-    public void checkNewUpdates(){
+    public void checkNewUpdates() {
         log.debug("Scheduling checking link updates");
         Set<Link> links = linkRepository.getLinks();
         for (Link link : links) {
-            List<UpdateInfo> updates =
-                link.type() == LinkType.GITHUB
+            List<UpdateInfo> updates = link.type() == LinkType.GITHUB
                     ? githubClientService.getAllInfo(link)
                     : soClientService.getAllInfo(link);
-            List<UpdateInfo> actualCommits = updates
-                .stream()
-                .filter(info -> link.lastValidation().isBefore(info.time()))
-                .toList();
-            if(!actualCommits.isEmpty()){
+            List<UpdateInfo> actualCommits = updates.stream()
+                    .filter(info -> link.lastValidation().isBefore(info.time()))
+                    .toList();
+            if (!actualCommits.isEmpty()) {
                 botClientService.sendUpdates(link, actualCommits);
             }
             link.lastValidation(LocalDateTime.now());

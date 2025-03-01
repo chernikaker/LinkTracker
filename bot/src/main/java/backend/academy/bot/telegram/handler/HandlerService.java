@@ -4,10 +4,10 @@ import backend.academy.bot.telegram.handler.commands.CommandHandler;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
@@ -25,8 +25,8 @@ public class HandlerService {
     }
 
     private CommandHandler getHandlerByMessage(Message message) {
-        for(CommandHandler handler : handlers) {
-            if(handler.canHandle(message)) {
+        for (CommandHandler handler : handlers) {
+            if (handler.canHandle(message)) {
                 return handler;
             }
         }

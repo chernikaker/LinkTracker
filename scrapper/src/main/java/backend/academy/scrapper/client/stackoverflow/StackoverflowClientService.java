@@ -8,15 +8,15 @@ import backend.academy.scrapper.exception.client.StackoverflowResponseJsonIsInva
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Component
 @AllArgsConstructor
@@ -25,8 +25,7 @@ public class StackoverflowClientService {
 
     private final StackoverflowClient client;
 
-    public List<UpdateInfo> getAllInfo(Link link)
-    {
+    public List<UpdateInfo> getAllInfo(Link link) {
         String uri = processUrl(link.url());
         List<UpdateInfo> infoList = new ArrayList<>();
         try {
@@ -35,7 +34,7 @@ public class StackoverflowClientService {
             infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENT));
             infoList.addAll(parseInfo(answerData, UpdateInfoType.ANSWER));
             return infoList;
-        }  catch (HttpClientErrorException e) {
+        } catch (HttpClientErrorException e) {
             log.error("Error receiving data from github {}", e.getResponseBodyAsString());
             throw new ScrapperInternalResponseException("Error receiving data from github", e);
         }
@@ -79,9 +78,9 @@ public class StackoverflowClientService {
 
     private String processUrl(String url) {
         String uri = url.startsWith("https")
-            ? url.replace("https://stackoverflow.com", "")
-            : url.replace("http://stackoverflow.com", "");
-        if(!Character.isDigit(uri.charAt(uri.length()-1))) {
+                ? url.replace("https://stackoverflow.com", "")
+                : url.replace("http://stackoverflow.com", "");
+        if (!Character.isDigit(uri.charAt(uri.length() - 1))) {
             uri = uri.substring(0, uri.lastIndexOf("/"));
         }
         return uri;

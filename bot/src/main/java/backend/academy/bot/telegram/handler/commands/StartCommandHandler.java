@@ -5,7 +5,6 @@ import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Message;
-import org.springframework.stereotype.Component;
 
 public class StartCommandHandler extends CommandHandler {
 
@@ -18,9 +17,9 @@ public class StartCommandHandler extends CommandHandler {
 
     @Override
     protected String processRequest(Message message) {
-       if (repository.containsTrack(message.chat().id())) {
-           repository.removeTrack(message.chat().id());
-       }
+        if (repository.containsTrack(message.chat().id())) {
+            repository.removeTrack(message.chat().id());
+        }
         try {
             service.registerNewClient(message.chat().id());
             return "Чат успешно зарегистрирован";

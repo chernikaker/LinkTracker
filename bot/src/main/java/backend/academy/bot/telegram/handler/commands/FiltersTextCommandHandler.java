@@ -20,7 +20,8 @@ public class FiltersTextCommandHandler extends CommandHandler {
 
     @Override
     protected String processRequest(Message message) {
-        Optional<LinkTrackingObject> potentialTracking = repository.getTrack(message.chat().id());
+        Optional<LinkTrackingObject> potentialTracking =
+                repository.getTrack(message.chat().id());
         LinkTrackingObject tracking = potentialTracking.get();
         String writingResponse = writeFilters(message.text(), tracking);
         try {
@@ -32,20 +33,19 @@ public class FiltersTextCommandHandler extends CommandHandler {
             if (response.exceptionMessage().contains(message.chat().id() + " not exists")) {
                 return "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
             }
-            if(response.exceptionMessage().contains("Validation failed for argument [1]")) {
+            if (response.exceptionMessage().contains("Validation failed for argument [1]")) {
                 return "Введена невалидная ссылка. Запрос отклонен, попробуйте ещё раз";
             }
-            if(response.exceptionMessage().contains("unavailable")) {
+            if (response.exceptionMessage().contains("unavailable")) {
                 return "Введенная ссылка недоступна, запрос отклонен";
             }
             return "Запрос отклонен, попробуйте ещё раз";
         }
     }
 
-
     @Override
     public boolean canHandle(Message message) {
-        if(message.text().startsWith("/")) {
+        if (message.text().startsWith("/")) {
             return false;
         }
         Optional<LinkTrackingObject> link = repository.getTrack(message.chat().id());
@@ -55,7 +55,7 @@ public class FiltersTextCommandHandler extends CommandHandler {
     private String writeFilters(String filter, LinkTrackingObject tracking) {
         String message = "Фильтры не установлены";
         String[] filters = new String[0];
-        if(!"-".equals(filter)){
+        if (!"-".equals(filter)) {
             filters = filter.split(" ");
             message = "Фильтры установлены";
         }

@@ -1,11 +1,11 @@
 package backend.academy.bot.cache;
 
 import backend.academy.bot.model.LinkTrackingObject;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
@@ -18,7 +18,7 @@ public class InMemoryTrackingCache {
     }
 
     public Optional<LinkTrackingObject> getTrack(long id) {
-        if(tracks.containsKey(id)) {
+        if (tracks.containsKey(id)) {
             return Optional.of(tracks.get(id));
         } else {
             return Optional.empty();

@@ -5,7 +5,6 @@ import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionAlreadyExistsException;
 import backend.academy.scrapper.exception.repository.SubscriptionNotExistsException;
-import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 
 @Component
 public class InMemorySubscriptionRepository {
@@ -23,9 +23,8 @@ public class InMemorySubscriptionRepository {
     public long addSubscription(Subscription subscription) {
         long id = getSubscriptionId(subscription.userId(), subscription.linkId());
         if (id != -1) {
-            throw new ScrapperSubscriptionAlreadyExistsException(
-                "Subscription to " + subscription.link() + " already exists for user " + subscription.user()
-                + " untrack first");
+            throw new ScrapperSubscriptionAlreadyExistsException("Subscription to " + subscription.link()
+                    + " already exists for user " + subscription.user() + " untrack first");
         }
         long newLinkId = ID.incrementAndGet();
         subscriptions.put(newLinkId, subscription);
@@ -42,26 +41,22 @@ public class InMemorySubscriptionRepository {
 
     public Set<Subscription> deleteUserSubscriptions(User user) {
         Map<Long, Subscription> subscriptions = getUserSubscriptions(user);
-        for(Long id : subscriptions.keySet()) {
+        for (Long id : subscriptions.keySet()) {
             removeSubscriptionById(id);
         }
         return new HashSet<>(subscriptions.values());
     }
 
     public Map<Long, Subscription> getUserSubscriptions(User user) {
-        return subscriptions
-            .entrySet()
-            .stream()
-            .filter(entry -> entry.getValue().user().equals(user))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return subscriptions.entrySet().stream()
+                .filter(entry -> entry.getValue().user().equals(user))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public List<Subscription> getLinkSubscriptions(Link link) {
-        return subscriptions
-            .values()
-            .stream()
-            .filter(subscription -> subscription.link().equals(link))
-            .collect(Collectors.toList());
+        return subscriptions.values().stream()
+                .filter(subscription -> subscription.link().equals(link))
+                .collect(Collectors.toList());
     }
 
     public long getSubscriptionId(long userId, long linkId) {

@@ -3,9 +3,9 @@ package backend.academy.scrapper.repository;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.repository.ScrapperUserAlreadyExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
-import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 @Component
 public class InMemoryUserRepository {

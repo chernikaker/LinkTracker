@@ -14,7 +14,9 @@ public class BotController {
 
     private final BotService botService;
 
-    @PostMapping(value = "/updates", consumes = {"application/json"})
+    @PostMapping(
+            value = "/updates",
+            consumes = {"application/json"})
     public ResponseEntity<?> processUpdates(@RequestBody(required = false) @Valid LinkUpdate linkUpdate) {
         botService.sendUpdates(linkUpdate);
         return ResponseEntity.ok("Request processed successfully");

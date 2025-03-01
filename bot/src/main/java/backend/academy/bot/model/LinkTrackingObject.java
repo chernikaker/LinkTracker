@@ -11,7 +11,6 @@ public class LinkTrackingObject {
 
     private String link;
     private String[] tags;
-    private  String[] filters;
+    private String[] filters;
     private UserState state = UserState.TRACKING_LINK;
-
 }

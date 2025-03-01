@@ -22,7 +22,7 @@ public class ListCommandHandler extends CommandHandler {
         try {
             ListLinksResponse list = service.getUserLinks(message.chat().id());
             return makeLinksMessage(list);
-        }  catch (BotInvalidChatIdException ex) {
+        } catch (BotInvalidChatIdException ex) {
             ApiErrorResponse response = ex.response();
             if (response.exceptionMessage().contains("not exists")) {
                 return "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
@@ -34,25 +34,25 @@ public class ListCommandHandler extends CommandHandler {
 
     @Override
     public boolean canHandle(Message message) {
-        return !repository.containsTrack(message.chat().id())&&message.text().equals("/list");
+        return !repository.containsTrack(message.chat().id()) && message.text().equals("/list");
     }
 
     private String makeLinksMessage(ListLinksResponse links) {
-        if(links.size() == 0) {
+        if (links.size() == 0) {
             return "Отслеживаемых ссылок нет";
         }
         StringBuilder sb = new StringBuilder("Отслеживаемые ссылки:\n\n");
         for (LinkResponse link : links.links()) {
             sb.append(link.url()).append("\n");
-            if(!link.tags().isEmpty()) {
+            if (!link.tags().isEmpty()) {
                 sb.append("Теги: \n");
-                for(String tag : link.tags()) {
+                for (String tag : link.tags()) {
                     sb.append(tag).append("\n");
                 }
             }
-            if(!link.filters().isEmpty()) {
+            if (!link.filters().isEmpty()) {
                 sb.append("Фильтры\n");
-                for(String filter : link.filters()) {
+                for (String filter : link.filters()) {
                     sb.append(filter).append("\n");
                 }
             }

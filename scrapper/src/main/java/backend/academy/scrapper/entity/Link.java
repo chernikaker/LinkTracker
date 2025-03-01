@@ -1,10 +1,10 @@
 package backend.academy.scrapper.entity;
 
 import backend.academy.scrapper.exception.service.ScrapperUnsupportedLinkTypeException;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -16,9 +16,9 @@ public class Link {
     LocalDateTime lastValidation;
 
     public static LinkType getLinkType(String url) {
-        if (url.startsWith("https://stackoverflow.com/")  || url.startsWith("http://stackoverflow.com/")) {
+        if (url.startsWith("https://stackoverflow.com/") || url.startsWith("http://stackoverflow.com/")) {
             return LinkType.STACKOVERFLOW;
-        } else if (url.startsWith("https://github.com/")  || url.startsWith("http://github.com/")) {
+        } else if (url.startsWith("https://github.com/") || url.startsWith("http://github.com/")) {
             return LinkType.GITHUB;
         }
         throw new ScrapperUnsupportedLinkTypeException("Link type not supported: " + url);

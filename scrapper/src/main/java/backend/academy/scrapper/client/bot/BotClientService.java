@@ -6,11 +6,11 @@ import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @Slf4j
@@ -27,8 +27,8 @@ public class BotClientService {
     public void sendUpdates(Link link, List<UpdateInfo> info) {
         List<Subscription> subscriptionsOnLink = repository.getLinkSubscriptions(link);
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i<info.size(); i++) {
-            sb.append("#").append(i+1).append('\n');
+        for (int i = 0; i < info.size(); i++) {
+            sb.append("#").append(i + 1).append('\n');
             sb.append("Тип сообщения: ").append(info.get(i).type().message()).append('\n');
             sb.append("Автор: ").append(info.get(i).authorName()).append('\n');
             sb.append("Время обновления: ").append(info.get(i).time()).append('\n');
@@ -36,7 +36,7 @@ public class BotClientService {
         }
         long linkId = subscriptionsOnLink.getFirst().linkId();
         List<Long> chatIds = new ArrayList<>();
-        for(Subscription subscription : subscriptionsOnLink) {
+        for (Subscription subscription : subscriptionsOnLink) {
             chatIds.add(subscription.userId());
         }
         LinkUpdate update = new LinkUpdate(linkId, link.url(), sb.toString(), chatIds);

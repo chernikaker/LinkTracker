@@ -1,8 +1,8 @@
 package backend.academy.bot.server;
 
-import backend.academy.dto.LinkUpdate;
 import backend.academy.bot.telegram.TelegramBotService;
 import backend.academy.bot.validator.LinkUpdateValidator;
+import backend.academy.dto.LinkUpdate;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public class BotServiceImpl implements BotService {
     @Override
     public void sendUpdates(LinkUpdate update) {
         validator.validate(update);
-        for (long chat: update.tgChatIds()) {
+        for (long chat : update.tgChatIds()) {
             sendUpdateInfo(chat, update.url(), update.description());
         }
     }

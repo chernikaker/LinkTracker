@@ -9,10 +9,9 @@ public class BotClientImpl implements BotClient {
     private final RestClient restClient;
 
     public BotClientImpl(String baseUrl) {
-        restClient = RestClient
-            .builder()
-            .baseUrl(baseUrl == null ? DEFAULT_URL: baseUrl)
-            .build();
+        restClient = RestClient.builder()
+                .baseUrl(baseUrl == null ? DEFAULT_URL : baseUrl)
+                .build();
     }
 
     public BotClientImpl() {
@@ -21,10 +20,6 @@ public class BotClientImpl implements BotClient {
 
     @Override
     public void sendUpdates(LinkUpdate update) {
-        restClient.post()
-            .uri("/updates")
-            .body(update)
-            .retrieve()
-            .toBodilessEntity();
+        restClient.post().uri("/updates").body(update).retrieve().toBodilessEntity();
     }
 }

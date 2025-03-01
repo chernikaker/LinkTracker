@@ -16,13 +16,13 @@ import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkExcepti
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import backend.academy.scrapper.repository.InMemoryUserRepository;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
@@ -51,13 +51,12 @@ public class ScrapperService {
         User user = userRepository.getUserById(chatId);
         Map<Long, Subscription> subscriptions = subscrRepository.getUserSubscriptions(user);
         List<LinkResponse> links = new ArrayList<>();
-        for (Map.Entry<Long,Subscription> subscription : subscriptions.entrySet()) {
+        for (Map.Entry<Long, Subscription> subscription : subscriptions.entrySet()) {
             LinkResponse link = new LinkResponse(
-                subscription.getKey(),
-                subscription.getValue().link().url(),
-                subscription.getValue().tags(),
-                subscription.getValue().filters()
-            );
+                    subscription.getKey(),
+                    subscription.getValue().link().url(),
+                    subscription.getValue().tags(),
+                    subscription.getValue().filters());
             links.add(link);
         }
         return new ListLinksResponse(links, links.size());
@@ -66,23 +65,25 @@ public class ScrapperService {
     public LinkResponse addSubscription(long chatId, AddLinkRequest request) {
         User user = userRepository.getUserById(chatId);
         Link link = new Link(request.link(), Link.getLinkType(request.link()), LocalDateTime.now());
-        if(!isAvailable(link)) {
-            throw new ScrapperUnavailableLinkException("Link is unavailable "+link);
+        if (!isAvailable(link)) {
+            throw new ScrapperUnavailableLinkException("Link is unavailable " + link);
         }
         long linkId = linkRepository.addLink(link);
         Subscription newSubscription = new Subscription(chatId, user, linkId, link, request.tags(), request.filters());
         long subscriptionId = subscrRepository.addSubscription(newSubscription);
-        return new LinkResponse(subscriptionId, newSubscription.link().url(), newSubscription.tags(), newSubscription.filters());
+        return new LinkResponse(
+                subscriptionId, newSubscription.link().url(), newSubscription.tags(), newSubscription.filters());
     }
 
     public LinkResponse deleteSubscription(long chatId, RemoveLinkRequest request) {
         long linkId = linkRepository.getLinkIdByURL(request.link());
-        if(linkId == -1) {
+        if (linkId == -1) {
             throw new ScrapperLinkNotExistsException("Link with URL " + request.link() + " not found");
         }
         long subscriptionId = subscrRepository.getSubscriptionId(chatId, linkId);
-        if(subscriptionId == -1) {
-            throw new ScrapperSubscriptionNotExistsException("Subscription by user " + chatId + "on link wiht id "+linkId+" not found");
+        if (subscriptionId == -1) {
+            throw new ScrapperSubscriptionNotExistsException(
+                    "Subscription by user " + chatId + "on link wiht id " + linkId + " not found");
         }
         Subscription deleted = subscrRepository.removeSubscriptionById(subscriptionId);
         checkUnsubscribedLink(deleted);
@@ -91,12 +92,12 @@ public class ScrapperService {
 
     private void checkUnsubscribedLinks(Set<Subscription> unsubscribed) {
         for (Subscription s : unsubscribed) {
-           checkUnsubscribedLink(s);
+            checkUnsubscribedLink(s);
         }
     }
 
     private void checkUnsubscribedLink(Subscription s) {
-        if(subscrRepository.getLinkSubscriptions(s.link()).isEmpty()) {
+        if (subscrRepository.getLinkSubscriptions(s.link()).isEmpty()) {
             linkRepository.removeLinkById(s.linkId());
         }
     }

@@ -9,7 +9,8 @@ public enum UpdateInfoType {
     COMMIT("commit"),
     COMMENT("comment"),
     ISSUE("issue"),
-    ANSWER("answer"),;
+    ANSWER("answer"),
+    ;
 
     private final String message;
 }

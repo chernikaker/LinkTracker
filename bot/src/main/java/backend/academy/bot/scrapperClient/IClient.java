@@ -5,7 +5,6 @@ import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
 
-
 public interface IClient {
 
     void registerChat(long userId);

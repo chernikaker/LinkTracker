@@ -2,12 +2,12 @@ package backend.academy.scrapper.repository;
 
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
-import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.stereotype.Component;
 
 @Component
 public class InMemoryLinkRepository {
@@ -36,12 +36,11 @@ public class InMemoryLinkRepository {
     }
 
     public long getLinkIdByURL(String url) {
-        for(Map.Entry<Long, Link> entry : links.entrySet()) {
-            if(entry.getValue().url().equals(url)) {
+        for (Map.Entry<Long, Link> entry : links.entrySet()) {
+            if (entry.getValue().url().equals(url)) {
                 return entry.getKey();
             }
         }
         return -1;
     }
-
 }

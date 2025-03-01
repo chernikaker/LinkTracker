@@ -3,7 +3,7 @@ package backend.academy.bot.telegram.handler.commands;
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import com.pengrad.telegrambot.model.Message;
 
-public class HelpCommandHandler extends CommandHandler{
+public class HelpCommandHandler extends CommandHandler {
 
     public HelpCommandHandler(InMemoryTrackingCache repository) {
         super(repository);
@@ -11,7 +11,7 @@ public class HelpCommandHandler extends CommandHandler{
 
     @Override
     protected String processRequest(Message message) {
-        if(repository.containsTrack(message.chat().id())) {
+        if (repository.containsTrack(message.chat().id())) {
             repository.removeTrack(message.chat().id());
         }
         return """

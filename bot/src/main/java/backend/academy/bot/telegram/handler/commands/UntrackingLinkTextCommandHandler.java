@@ -10,7 +10,7 @@ import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Message;
 import java.util.Optional;
 
-public class UntrackingLinkTextCommandHandler extends CommandHandler{
+public class UntrackingLinkTextCommandHandler extends CommandHandler {
 
     private final ScrapperClientService service;
 
@@ -21,7 +21,7 @@ public class UntrackingLinkTextCommandHandler extends CommandHandler{
 
     @Override
     protected String processRequest(Message message) {
-        if(!LinkUrlValidator.isValid(message.text())) {
+        if (!LinkUrlValidator.isValid(message.text())) {
             return "Ссылка введена неверно или не поддерживается, попробуйте ещё раз.\n Подробнее в /help";
         }
         repository.removeTrack(message.chat().id());
@@ -30,23 +30,22 @@ public class UntrackingLinkTextCommandHandler extends CommandHandler{
             return "Ссылка успешно удалена";
         } catch (BotInvalidLinkRequestException ex) {
             ApiErrorResponse response = ex.response();
-            if (response.exceptionMessage().contains(message.chat().id()+" not exists")) {
+            if (response.exceptionMessage().contains(message.chat().id() + " not exists")) {
                 return "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
             }
-            if(response.exceptionMessage().contains("Validation failed for argument [1]")) {
+            if (response.exceptionMessage().contains("Validation failed for argument [1]")) {
                 return "Введена невалидная ссылка. Запрос отклонен, попробуйте ещё раз";
             }
             if (response.code().equals("404")) {
                 return "У вас нет подписки на данную ссылку";
             }
             return "Запрос отклонен, попробуйте ещё раз";
-
         }
     }
 
     @Override
     public boolean canHandle(Message message) {
-        if(message.text().startsWith("/")) {
+        if (message.text().startsWith("/")) {
             return false;
         }
         Optional<LinkTrackingObject> link = repository.getTrack(message.chat().id());

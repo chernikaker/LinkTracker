@@ -11,12 +11,9 @@ import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.util.Optional;
-
 
 @Getter
 @Slf4j
@@ -33,7 +30,7 @@ public class TelegramBotService extends TelegramBot {
     public void startBot() {
         registerCommands();
         setUpdatesListener(list -> {
-            for(Update update : list) {
+            for (Update update : list) {
                 handleUpdate(update);
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;

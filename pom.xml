@@ -17,9 +17,9 @@
 
     <modules>
         <module>bot</module>
+        <module>dto</module>
         <module>report</module>
         <module>scrapper</module>
-        <module>dto</module>
     </modules>
 
     <properties>

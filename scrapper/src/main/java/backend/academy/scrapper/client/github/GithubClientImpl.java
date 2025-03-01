@@ -2,7 +2,6 @@ package backend.academy.scrapper.client.github;
 
 import org.springframework.web.client.RestClient;
 
-
 public class GithubClientImpl implements GithubClient {
 
     private final String token;
@@ -12,8 +11,8 @@ public class GithubClientImpl implements GithubClient {
     public GithubClientImpl(String githubToken, String baseUrl) {
         this.token = githubToken;
         this.githubClient = RestClient.builder()
-            .baseUrl(baseUrl != null ? baseUrl : DEFAULT_URL)
-            .build();
+                .baseUrl(baseUrl != null ? baseUrl : DEFAULT_URL)
+                .build();
     }
 
     public GithubClientImpl(String githubToken) {
@@ -21,11 +20,12 @@ public class GithubClientImpl implements GithubClient {
     }
 
     public String getResponse(String uri) {
-        return   githubClient.get()
-            .uri(uri)
-            .header("Authorization", "Bearer "+token)
-            .retrieve()
-            .toEntity(String.class)
-            .getBody();
+        return githubClient
+                .get()
+                .uri(uri)
+                .header("Authorization", "Bearer " + token)
+                .retrieve()
+                .toEntity(String.class)
+                .getBody();
     }
 }

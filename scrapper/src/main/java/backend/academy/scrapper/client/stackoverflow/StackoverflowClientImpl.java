@@ -13,8 +13,8 @@ public class StackoverflowClientImpl implements StackoverflowClient {
         this.token = accessToken;
         this.apiKey = apiKey;
         this.restClient = RestClient.builder()
-            .baseUrl(baseUrl != null ? baseUrl : DEFAULT_URL)
-            .build();
+                .baseUrl(baseUrl != null ? baseUrl : DEFAULT_URL)
+                .build();
     }
 
     public StackoverflowClientImpl(String accessToken, String apiKey) {
@@ -23,15 +23,16 @@ public class StackoverflowClientImpl implements StackoverflowClient {
 
     @Override
     public String getResponse(String uri) {
-        return   restClient.get()
-            .uri(uriBuilder -> uriBuilder
-                .path(uri)
-                .queryParam("key", apiKey)
-                .queryParam("site", "stackoverflow")
-                .build())
-            .header("Authorization", "Bearer "+token)
-            .retrieve()
-            .toEntity(String.class)
-            .getBody();
+        return restClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path(uri)
+                        .queryParam("key", apiKey)
+                        .queryParam("site", "stackoverflow")
+                        .build())
+                .header("Authorization", "Bearer " + token)
+                .retrieve()
+                .toEntity(String.class)
+                .getBody();
     }
 }

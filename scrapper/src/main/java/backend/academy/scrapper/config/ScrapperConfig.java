@@ -14,20 +14,11 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 public record ScrapperConfig(
-    GithubCredentials github,
-    StackOverflowCredentials stackOverflow,
-    @NotEmpty String botUrl
-) {
-    public record GithubCredentials(
-        @NotEmpty String token,
-        @NotEmpty String baseUrl
-    ) { }
+        GithubCredentials github, StackOverflowCredentials stackOverflow, @NotEmpty String botUrl) {
+    public record GithubCredentials(@NotEmpty String token, @NotEmpty String baseUrl) {}
 
     public record StackOverflowCredentials(
-        @NotEmpty String key,
-        @NotEmpty String accessToken,
-        @NotEmpty String baseUrl
-    ) { }
+            @NotEmpty String key, @NotEmpty String accessToken, @NotEmpty String baseUrl) {}
 
     @Bean
     public GithubClient githubClient() {
@@ -41,10 +32,6 @@ public record ScrapperConfig(
 
     @Bean
     public StackoverflowClient stackoverflowClient() {
-        return new StackoverflowClientImpl(
-            stackOverflow.accessToken,
-            stackOverflow.key,
-            stackOverflow.baseUrl
-        );
+        return new StackoverflowClientImpl(stackOverflow.accessToken, stackOverflow.key, stackOverflow.baseUrl);
     }
 }

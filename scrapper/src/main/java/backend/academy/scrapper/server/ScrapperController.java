@@ -29,8 +29,7 @@ public class ScrapperController {
     /**
      * Регистрирует новый Telegram чат.<br>
      *
-     * @param id идентификатор Telegram чата,
-     * который необходимо зарегистрировать.
+     * @param id идентификатор Telegram чата, который необходимо зарегистрировать.
      * @return ResponseEntity с сообщением об успешной регистрации.
      */
     @PostMapping("/tg-chat/{id}")
@@ -44,6 +43,7 @@ public class ScrapperController {
 
     /**
      * Удаляет существующий Telegram чат.
+     *
      * @param id идентификатор Telegram чата, который необходимо удалить.
      * @return ResponseEntity с сообщением об успешном удалении.
      */
@@ -71,18 +71,14 @@ public class ScrapperController {
 
     @PostMapping("/links")
     public final ResponseEntity<?> addLinkSubscription(
-        @RequestHeader("Tg-Chat-Id") final Long id,
-        @RequestBody @Valid final AddLinkRequest request
-    ) {
+            @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final AddLinkRequest request) {
         LinkResponse response = scrapperService.addSubscription(id, request);
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
     }
 
     @DeleteMapping("/links")
     public final ResponseEntity<?> deleteLinkSubscription(
-        @RequestHeader("Tg-Chat-Id") final Long id,
-        @RequestBody @Valid final RemoveLinkRequest request
-    ) {
+            @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final RemoveLinkRequest request) {
         try {
             LinkResponse response = scrapperService.deleteSubscription(id, request);
             return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));

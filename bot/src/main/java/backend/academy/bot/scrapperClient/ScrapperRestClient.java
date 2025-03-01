@@ -7,7 +7,6 @@ import backend.academy.dto.RemoveLinkRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClient;
 
-
 public class ScrapperRestClient implements IClient {
 
     private final String DEFAULT_URL = "http://localhost:8081/";
@@ -15,8 +14,8 @@ public class ScrapperRestClient implements IClient {
 
     public ScrapperRestClient(String baseUrl) {
         this.restClient = RestClient.builder()
-            .baseUrl(baseUrl != null ? baseUrl : DEFAULT_URL)
-            .build();
+                .baseUrl(baseUrl != null ? baseUrl : DEFAULT_URL)
+                .build();
     }
 
     public ScrapperRestClient() {
@@ -25,41 +24,40 @@ public class ScrapperRestClient implements IClient {
 
     @Override
     public void registerChat(long userId) {
-        restClient.post()
-            .uri("tg-chat/{id}", userId)
-            .retrieve()
-            .toBodilessEntity();
+        restClient.post().uri("tg-chat/{id}", userId).retrieve().toBodilessEntity();
     }
 
     @Override
     public ListLinksResponse getUserLinks(long userId) {
-        return restClient.get()
-            .uri("/links")
-            .header("Tg-Chat-Id", String.valueOf(userId))
-            .retrieve()
-            .toEntity(ListLinksResponse.class)
-            .getBody();
+        return restClient
+                .get()
+                .uri("/links")
+                .header("Tg-Chat-Id", String.valueOf(userId))
+                .retrieve()
+                .toEntity(ListLinksResponse.class)
+                .getBody();
     }
 
     @Override
     public LinkResponse addLinkSubscription(long userId, AddLinkRequest request) {
-        return restClient.post()
-            .uri("/links")
-            .header("Tg-Chat-Id", String.valueOf(userId))
-            .body(request)
-            .retrieve()
-            .toEntity(LinkResponse.class)
-            .getBody();
+        return restClient
+                .post()
+                .uri("/links")
+                .header("Tg-Chat-Id", String.valueOf(userId))
+                .body(request)
+                .retrieve()
+                .toEntity(LinkResponse.class)
+                .getBody();
     }
 
     @Override
     public void deleteLinkSubscription(long userId, RemoveLinkRequest request) {
         restClient
-            .method(HttpMethod.DELETE)
-            .uri("/links")
-            .header("Tg-Chat-Id", String.valueOf(userId))
-            .body(request)
-            .retrieve()
-            .toBodilessEntity();
+                .method(HttpMethod.DELETE)
+                .uri("/links")
+                .header("Tg-Chat-Id", String.valueOf(userId))
+                .body(request)
+                .retrieve()
+                .toBodilessEntity();
     }
 }

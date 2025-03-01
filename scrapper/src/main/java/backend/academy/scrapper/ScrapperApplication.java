@@ -6,16 +6,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-
 @SpringBootApplication
 @EnableScheduling
 @EnableConfigurationProperties({ScrapperConfig.class})
 public class ScrapperApplication {
 
-    //костыль?
+    // костыль?
     private final int id = 1;
     /**
      * Главный метод для запуска приложения.
+     *
      * @param args аргументы командной строки.
      */
     public static void main(final String[] args) {

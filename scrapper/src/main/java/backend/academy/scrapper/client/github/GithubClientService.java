@@ -8,16 +8,15 @@ import backend.academy.scrapper.exception.client.ScrapperInternalResponseExcepti
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Component
 @AllArgsConstructor
@@ -26,8 +25,7 @@ public class GithubClientService {
 
     private final GithubClient githubClient;
 
-    public List<UpdateInfo> getAllInfo(Link link)
-    {
+    public List<UpdateInfo> getAllInfo(Link link) {
         String uri = processUrl(link.url());
         List<UpdateInfo> infoList = new ArrayList<>();
         try {
@@ -58,14 +56,14 @@ public class GithubClientService {
         String message = node.path("commit").path("message").asText();
         String committerName = node.path("author").path("login").asText();
         String date = node.path("commit").path("author").path("date").asText();
-       return new UpdateInfo(message, committerName, parseDate(date), UpdateInfoType.COMMIT);
+        return new UpdateInfo(message, committerName, parseDate(date), UpdateInfoType.COMMIT);
     }
 
     private UpdateInfo parseIssue(JsonNode node) {
         String message = node.path("title").asText();
         String authorName = node.path("user").path("login").asText();
         String date = node.path("created_at").asText();
-       return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.ISSUE);
+        return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.ISSUE);
     }
 
     private UpdateInfo parseComment(JsonNode node) {
@@ -107,7 +105,7 @@ public class GithubClientService {
 
     private String processUrl(String url) {
         return url.startsWith("https")
-            ? url.replace("https://github.com", "repos")
-            : url.replace("http://github.com", "repos");
+                ? url.replace("https://github.com", "repos")
+                : url.replace("http://github.com", "repos");
     }
 }
