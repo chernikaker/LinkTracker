@@ -2,7 +2,7 @@ package backend.academy.scrapper.client.bot;
 
 import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkUpdate;
-import backend.academy.scrapper.client.dto.GithubCommitInfo;
+import backend.academy.scrapper.client.dto.GithubInfo;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -25,12 +24,12 @@ public class BotClientService {
         this.repository = repository;
     }
 
-    public void sendUpdates(Link link, List<GithubCommitInfo> info) {
+    public void sendUpdates(Link link, List<GithubInfo> info) {
         List<Subscription> subscriptionsOnLink = repository.getLinkSubscriptions(link);
         StringBuilder sb = new StringBuilder("Обновления для ссылки ").append(link.url()).append('\n');
         for(int i = 0; i<info.size(); i++) {
             sb.append("#").append(i+1).append('\n');
-            sb.append("Автор: ").append(info.get(i).commiterName()).append('\n');
+            sb.append("Автор: ").append(info.get(i).authorName()).append('\n');
             sb.append("Время обновления: ").append(info.get(i).time()).append('\n');
             sb.append("Сообщение: ").append(info.get(i).message()).append('\n');
         }
