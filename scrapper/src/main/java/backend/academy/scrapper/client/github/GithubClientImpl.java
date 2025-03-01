@@ -20,25 +20,7 @@ public class GithubClientImpl implements GithubClient {
         this(githubToken, null);
     }
 
-    public String getCommits(String uri) {
-        return githubClient.get()
-            .uri(uri)
-            .header("Authorization", "Bearer "+token)
-            .retrieve()
-            .toEntity(String.class)
-            .getBody();
-    }
-
-    public String getIssues(String uri) {
-        return  githubClient.get()
-            .uri(uri)
-            .header("Authorization", "Bearer "+token)
-            .retrieve()
-            .toEntity(String.class)
-            .getBody();
-    }
-
-    public String getComments(String uri) {
+    public String getResponse(String uri) {
         return   githubClient.get()
             .uri(uri)
             .header("Authorization", "Bearer "+token)

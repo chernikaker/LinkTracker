@@ -25,12 +25,12 @@ public class GithubClientService {
     {
         String uri = link.url().replace("https://github.com", "repos");
         List<UpdateInfo> infoList = new ArrayList<>();
-        String commitData = githubClient.getCommits(uri.concat("/commits"));
-        String issueData = githubClient.getIssues(uri.concat("/issues"));
-        String commentData = githubClient.getComments(uri.concat("/comments"));
-        infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENTS));
-        infoList.addAll(parseInfo(issueData, UpdateInfoType.ISSUES));
-        infoList.addAll(parseInfo(commitData, UpdateInfoType.COMMITS));
+        String commitData = githubClient.getResponse(uri.concat("/commits"));
+        String issueData = githubClient.getResponse(uri.concat("/issues"));
+        String commentData = githubClient.getResponse(uri.concat("/comments"));
+        infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENT));
+        infoList.addAll(parseInfo(issueData, UpdateInfoType.ISSUE));
+        infoList.addAll(parseInfo(commitData, UpdateInfoType.COMMIT));
         return infoList;
     }
 
@@ -38,21 +38,21 @@ public class GithubClientService {
         String message = node.path("commit").path("message").asText();
         String committerName = node.path("author").path("login").asText();
         String date = node.path("commit").path("author").path("date").asText();
-       return new UpdateInfo(message, committerName, parseDate(date), UpdateInfoType.COMMITS);
+       return new UpdateInfo(message, committerName, parseDate(date), UpdateInfoType.COMMIT);
     }
 
     private UpdateInfo parseIssue(JsonNode node) {
         String message = node.path("title").asText();
         String authorName = node.path("user").path("login").asText();
         String date = node.path("created_at").asText();
-       return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.ISSUES);
+       return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.ISSUE);
     }
 
     private UpdateInfo parseComment(JsonNode node) {
         String message = node.path("body").asText();
         String authorName = node.path("user").path("login").asText();
         String date = node.path("created_at").asText();
-        return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.COMMENTS);
+        return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.COMMENT);
     }
 
     private LocalDateTime parseDate(String zonedDate) {
@@ -68,13 +68,13 @@ public class GithubClientService {
             List<UpdateInfo> commits = new ArrayList<>();
             for (JsonNode commitNode : commitsNode) {
                 switch (type) {
-                    case COMMITS:
+                    case COMMIT:
                         commits.add(parseCommit(commitNode));
                         break;
-                    case ISSUES:
+                    case ISSUE:
                         commits.add(parseIssue(commitNode));
                         break;
-                    case COMMENTS:
+                    case COMMENT:
                         commits.add(parseComment(commitNode));
                         break;
                 }
