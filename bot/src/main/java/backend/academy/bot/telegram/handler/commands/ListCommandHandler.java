@@ -2,7 +2,6 @@ package backend.academy.bot.telegram.handler.commands;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.custom.scrapperClient.BotInvalidChatIdException;
-import backend.academy.bot.scrapperClient.IClient;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkResponse;
@@ -25,7 +24,7 @@ public class ListCommandHandler extends CommandHandler {
             return makeLinksMessage(list);
         }  catch (BotInvalidChatIdException ex) {
             ApiErrorResponse response = ex.response();
-            if (response.exceptionName().equals("ScrapperUserNotExistsException")) {
+            if (response.exceptionMessage().contains("not exists")) {
                 return "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
             } else {
                 return "Запрос отклонен, попробуйте ещё раз";
@@ -35,7 +34,7 @@ public class ListCommandHandler extends CommandHandler {
 
     @Override
     public boolean canHandle(Message message) {
-        return message.text().equals("/list");
+        return !repository.containsTrack(message.chat().id())&&message.text().equals("/list");
     }
 
     private String makeLinksMessage(ListLinksResponse links) {

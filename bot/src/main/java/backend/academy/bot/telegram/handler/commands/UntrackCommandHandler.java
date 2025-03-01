@@ -15,10 +15,6 @@ public class UntrackCommandHandler extends CommandHandler {
 
     @Override
     protected String processRequest(Message message) {
-        Optional<LinkTrackingObject> potentialTracking = repository.getTrack(message.chat().id());
-        if(potentialTracking.isPresent()) {
-            return "Эта команда сейчас недоступна";
-        }
         LinkTrackingObject newTracking = new LinkTrackingObject();
         newTracking.state(UserState.UNTRACKING_LINK);
         repository.setTrack(message.chat().id(), newTracking);
@@ -27,6 +23,6 @@ public class UntrackCommandHandler extends CommandHandler {
 
     @Override
     public boolean canHandle(Message message) {
-        return message.text().equals("/untrack");
+        return !repository.containsTrack(message.chat().id()) && message.text().equals("/untrack");
     }
 }

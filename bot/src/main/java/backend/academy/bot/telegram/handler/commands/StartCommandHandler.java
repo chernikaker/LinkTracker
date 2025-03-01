@@ -25,7 +25,7 @@ public class StartCommandHandler extends CommandHandler {
             return "Чат успешно зарегистрирован";
         } catch (BotChatRegistrationException ex) {
             ApiErrorResponse response = ex.response();
-            if (response.exceptionName().equals("ScrapperUserAlreadyExistsException")) {
+            if (response.exceptionMessage().contains("already exists")) {
                 return "Вы уже зарегистрированы";
             } else {
                 return "Регистрация отклонена, попробуйте ещё раз";

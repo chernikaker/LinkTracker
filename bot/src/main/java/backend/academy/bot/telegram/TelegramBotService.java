@@ -68,7 +68,7 @@ public class TelegramBotService extends TelegramBot {
     public void sendResponse(SendMessage message) {
         SendResponse response = execute(message);
         if (!response.isOk()) {
-            throw new RuntimeException("Error sending response: " + response.message());
+            log.error("Error sending response: {}", response.message());
         }
     }
 

@@ -15,13 +15,25 @@ public class HelpCommandHandler extends CommandHandler{
             repository.removeTrack(message.chat().id());
         }
         return """
-            Основные команды
-            1) /start - регистрация в боте и сброс текущих команд
-            2) /track - добавление ссылки
-               параметры: тэги (опционально), фильтры(опционально)
-            3) /untrack - прекратить отслеживание ссылки
-            4) /list - показать список отслеживаемых ссылок
-            5) /help - помощь
+            Бот поддерживает следующие ссылки и обновления:
+
+            GITHUB
+            Ссылки вида:
+            https://github.com/{владелец-репозитория}/{название-репозитория}
+            * - также можно использовать http://
+            Обновления:
+            - commit
+            - issue
+            - comment
+
+            STACKOVERFLOW
+            Ссылки вида:
+            https://stackoverflow.com/questions/{id-вопроса}/{название-вопроса}
+            https://stackoverflow.com/questions/{id-вопроса}
+            * - также можно использовать http://
+            Обновления:
+            - answer
+            - comment
             """;
     }
 

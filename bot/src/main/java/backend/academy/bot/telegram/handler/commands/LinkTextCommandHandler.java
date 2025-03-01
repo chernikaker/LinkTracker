@@ -33,9 +33,12 @@ public class LinkTextCommandHandler extends CommandHandler{
         if(LinkUrlValidator.isValid(link)) {
             tracking.link(link);
             tracking.state(UserState.TRACKING_TAG);
-            return "Введите тэги(опционально)";
+            return "Введите тэги(опционально, введите '-' для пустых тегов)";
         } else {
-            return "Ссылка введена неверно или не поддерживается, попробуйте ещё раз.\n Подробнее в /help";
+            return """
+            Ссылка введена неверно или не поддерживается, попробуйте ещё раз.
+            Подробнее о формате в /help
+            """;
         }
     }
 }

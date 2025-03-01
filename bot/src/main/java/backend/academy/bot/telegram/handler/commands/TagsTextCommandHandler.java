@@ -29,11 +29,11 @@ public class TagsTextCommandHandler extends CommandHandler{
     }
 
     private String writeTags(String tagLine, LinkTrackingObject tracking) {
-        String message = "Тэги не установлены. Введите фильтры(опционально)";
+        String message = "Тэги не установлены. Введите фильтры(опционально, введите '-' для пустых фильтров)";
         String[] tags = new String[0];
         if(!"-".equals(tagLine)){
             tags = tagLine.split(" ");
-            message = "Тэги установлены. Введите фильтры(опционально)";
+            message = "Тэги установлены. Введите фильтры(опционально, введите '-' для пустых фильтров)";
         }
         tracking.tags(tags);
         tracking.state(UserState.TRACKING_FILTER);

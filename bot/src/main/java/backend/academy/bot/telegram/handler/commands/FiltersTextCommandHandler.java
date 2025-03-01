@@ -29,13 +29,13 @@ public class FiltersTextCommandHandler extends CommandHandler {
             return writingResponse + "\nСсылка успешно зарегистрирована!";
         } catch (BotInvalidLinkRequestException ex) {
             ApiErrorResponse response = ex.response();
-            if (response.exceptionName().equals("ScrapperUserNotExistsException")) {
+            if (response.exceptionMessage().contains(message.chat().id() + " not exists")) {
                 return "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
             }
             if(response.exceptionMessage().contains("Validation failed for argument [1]")) {
                 return "Введена невалидная ссылка. Запрос отклонен, попробуйте ещё раз";
             }
-            if(response.exceptionName().equals("ScrapperUnavailableLinkException")) {
+            if(response.exceptionMessage().contains("unavailable")) {
                 return "Введенная ссылка недоступна, запрос отклонен";
             }
             return "Запрос отклонен, попробуйте ещё раз";

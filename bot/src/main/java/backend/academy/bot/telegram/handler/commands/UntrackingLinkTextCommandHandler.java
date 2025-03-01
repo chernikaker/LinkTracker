@@ -25,22 +25,22 @@ public class UntrackingLinkTextCommandHandler extends CommandHandler{
             return "Ссылка введена неверно или не поддерживается, попробуйте ещё раз.\n Подробнее в /help";
         }
         repository.removeTrack(message.chat().id());
-        // TODO: validation
         try {
             service.removeLinkSubscription(message.chat().id(), message.text());
             return "Ссылка успешно удалена";
         } catch (BotInvalidLinkRequestException ex) {
             ApiErrorResponse response = ex.response();
-            if (response.exceptionName().equals("ScrapperUserNotExistsException")) {
+            if (response.exceptionMessage().contains(message.chat().id()+" not exists")) {
                 return "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
             }
             if(response.exceptionMessage().contains("Validation failed for argument [1]")) {
                 return "Введена невалидная ссылка. Запрос отклонен, попробуйте ещё раз";
-            } if(response.code().equals("404")) {
-                return "У вас нет подписки на данную ссылку";
-            } else {
-                return "Запрос отклонен, попробуйте ещё раз";
             }
+            if (response.code().equals("404")) {
+                return "У вас нет подписки на данную ссылку";
+            }
+            return "Запрос отклонен, попробуйте ещё раз";
+
         }
     }
 
