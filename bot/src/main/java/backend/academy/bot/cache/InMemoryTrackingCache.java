@@ -1,10 +1,14 @@
 package backend.academy.bot.cache;
 
 import backend.academy.bot.model.LinkTrackingObject;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Component
+@AllArgsConstructor
 public class InMemoryTrackingCache {
 
     private final Map<Long, LinkTrackingObject> tracks = new HashMap<>();
@@ -25,7 +29,7 @@ public class InMemoryTrackingCache {
         tracks.put(id, track);
     }
 
-    public boolean removeTrack(long id) {
-        return tracks.remove(id) != null;
+    public void removeTrack(long id) {
+        tracks.remove(id);
     }
 }

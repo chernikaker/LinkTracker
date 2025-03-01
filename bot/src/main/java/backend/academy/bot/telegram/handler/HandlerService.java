@@ -4,16 +4,16 @@ import backend.academy.bot.telegram.handler.commands.CommandHandler;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
+@Component
+@AllArgsConstructor
 public class HandlerService {
 
     private final List<CommandHandler> handlers;
-
-    public HandlerService(List<CommandHandler> handlers) {
-        this.handlers = handlers;
-    }
 
     public Optional<SendMessage> handle(Update update) {
         if (update.message() == null || update.message().text() == null) {

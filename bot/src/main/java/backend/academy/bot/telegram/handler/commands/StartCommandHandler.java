@@ -5,6 +5,7 @@ import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Message;
+import org.springframework.stereotype.Component;
 
 public class StartCommandHandler extends CommandHandler {
 

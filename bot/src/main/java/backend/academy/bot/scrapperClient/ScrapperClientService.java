@@ -11,11 +11,13 @@ import backend.academy.dto.RemoveLinkRequest;
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 
 
 @AllArgsConstructor
 @Slf4j
+@Component
 public class ScrapperClientService {
 
     private IClient client;
@@ -23,11 +25,9 @@ public class ScrapperClientService {
     public void registerNewClient(long chatId) {
         try {
             client.registerChat(chatId);
-            log.info("Successfully registered new client with chat id " + chatId);
+            log.info("Successfully registered new client with chat id {}", chatId);
         } catch (HttpClientErrorException e) {
-            ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
-            log.error("Scrapper client exception: "+error.exceptionMessage());
-            throw new BotChatRegistrationException(error);
+           handleException(e);
         }
     }
 
@@ -35,9 +35,8 @@ public class ScrapperClientService {
         try {
             return client.getUserLinks(chatId);
         }  catch (HttpClientErrorException e) {
-            ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
-            log.error("Scrapper client exception: "+error.exceptionMessage());
-            throw new BotInvalidChatIdException(error);
+            handleException(e);
+            throw new BotInvalidLinkRequestException(e.getResponseBodyAs(ApiErrorResponse.class));
         }
     }
 
@@ -50,9 +49,7 @@ public class ScrapperClientService {
             );
             client.addLinkSubscription(chatId, request);
         } catch (HttpClientErrorException e) {
-            ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
-            log.error("Scrapper client exception: "+error.exceptionMessage());
-            throw new BotInvalidLinkRequestException(error);
+            handleException(e);
         }
     }
 
@@ -61,9 +58,16 @@ public class ScrapperClientService {
             RemoveLinkRequest request = new RemoveLinkRequest(link);
             client.deleteLinkSubscription(chatId, request);
         } catch (HttpClientErrorException e) {
-            ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
-            log.error("Scrapper client exception: "+error.exceptionMessage());
-            throw new BotInvalidLinkRequestException(error);
+            handleException(e);
         }
+    }
+
+    private void handleException(HttpClientErrorException e) {
+        ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
+        log.error(
+            "Scrapper client exception: {}",
+            error.exceptionMessage()
+        );
+        throw new BotInvalidLinkRequestException(error);
     }
 }

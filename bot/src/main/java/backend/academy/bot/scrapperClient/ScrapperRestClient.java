@@ -5,7 +5,6 @@ import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 
