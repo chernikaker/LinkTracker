@@ -24,8 +24,8 @@ public class FiltersTextCommandHandler extends CommandHandler {
         LinkTrackingObject tracking = potentialTracking.get();
         String writingResponse = writeFilters(message.text(), tracking);
         try {
-            service.addLinkSubscription(message.chat().id(), tracking);
             repository.removeTrack(message.chat().id());
+            service.addLinkSubscription(message.chat().id(), tracking);
             return writingResponse + "\nСсылка успешно зарегистрирована!";
         } catch (BotInvalidLinkRequestException ex) {
             ApiErrorResponse response = ex.response();
@@ -34,9 +34,11 @@ public class FiltersTextCommandHandler extends CommandHandler {
             }
             if(response.exceptionMessage().contains("Validation failed for argument [1]")) {
                 return "Введена невалидная ссылка. Запрос отклонен, попробуйте ещё раз";
-            } else {
-                return "Запрос отклонен, попробуйте ещё раз";
             }
+            if(response.exceptionName().equals("ScrapperUnavailableLinkException")) {
+                return "Введенная ссылка недоступна, запрос отклонен";
+            }
+            return "Запрос отклонен, попробуйте ещё раз";
         }
     }
 

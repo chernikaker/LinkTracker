@@ -4,11 +4,15 @@ import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
+import backend.academy.scrapper.client.github.GithubClientService;
+import backend.academy.scrapper.client.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.entity.Link;
+import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.custom.repository.ScrapperLinkNotExistsException;
 import backend.academy.scrapper.exception.custom.repository.ScrapperSubscriptionNotExistsException;
+import backend.academy.scrapper.exception.custom.service.ScrapperUnavailableLinkException;
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import backend.academy.scrapper.repository.InMemoryUserRepository;
@@ -27,6 +31,9 @@ public class ScrapperService {
     private final InMemoryLinkRepository linkRepository;
     private final InMemorySubscriptionRepository subscrRepository;
     private final InMemoryUserRepository userRepository;
+
+    private final GithubClientService githubService;
+    private final StackoverflowClientService soService;
 
     public void registerUser(long chatId) {
         User user = new User(chatId);
@@ -59,6 +66,9 @@ public class ScrapperService {
     public LinkResponse addSubscription(long chatId, AddLinkRequest request) {
         User user = userRepository.getUserById(chatId);
         Link link = new Link(request.link(), Link.getLinkType(request.link()), LocalDateTime.now());
+        if(!isAvailable(link)) {
+            throw new ScrapperUnavailableLinkException("Link is unavailable "+link);
+        }
         long linkId = linkRepository.addLink(link);
         Subscription newSubscription = new Subscription(chatId, user, linkId, link, request.tags(), request.filters());
         long subscriptionId = subscrRepository.addSubscription(newSubscription);
@@ -88,6 +98,14 @@ public class ScrapperService {
     private void checkUnsubscribedLink(Subscription s) {
         if(subscrRepository.getLinkSubscriptions(s.link()).isEmpty()) {
             linkRepository.removeLinkById(s.linkId());
+        }
+    }
+
+    private boolean isAvailable(Link link) {
+        if (link.type() == LinkType.GITHUB) {
+            return githubService.isLinkAvailable(link);
+        } else {
+            return soService.isLinkAvailable(link);
         }
     }
 }

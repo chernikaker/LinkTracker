@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -23,9 +24,7 @@ public class GithubClientService {
 
     public List<UpdateInfo> getAllInfo(Link link)
     {
-        String uri = link.url().startsWith("https")
-            ? link.url().replace("https://github.com", "repos")
-            : link.url().replace("http://github.com", "repos");
+        String uri = processUrl(link.url());
         List<UpdateInfo> infoList = new ArrayList<>();
         String commitData = githubClient.getResponse(uri.concat("/commits"));
         String issueData = githubClient.getResponse(uri.concat("/issues"));
@@ -34,6 +33,16 @@ public class GithubClientService {
         infoList.addAll(parseInfo(issueData, UpdateInfoType.ISSUE));
         infoList.addAll(parseInfo(commitData, UpdateInfoType.COMMIT));
         return infoList;
+    }
+
+    public boolean isLinkAvailable(Link link) {
+        try {
+            String uri = processUrl(link.url());
+            githubClient.getResponse(uri);
+            return true;
+        } catch (HttpClientErrorException e) {
+            return (!e.getStatusCode().is4xxClientError());
+        }
     }
 
     private UpdateInfo parseCommit(JsonNode node) {
@@ -85,5 +94,11 @@ public class GithubClientService {
         } catch (JsonProcessingException e) {
             throw new GithubResponseJsonIsInvalid("Can't parse JSON response ", e);
         }
+    }
+
+    private String processUrl(String url) {
+        return url.startsWith("https")
+            ? url.replace("https://github.com", "repos")
+            : url.replace("http://github.com", "repos");
     }
 }

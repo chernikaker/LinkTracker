@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -24,18 +25,23 @@ public class StackoverflowClientService {
 
     public List<UpdateInfo> getAllInfo(Link link)
     {
-        String uri = link.url().startsWith("https")
-            ? link.url().replace("https://stackoverflow.com", "")
-            : link.url().replace("http://stackoverflow.com", "");
-        if(!Character.isDigit(uri.charAt(uri.length()-1))) {
-            uri = uri.substring(0, uri.lastIndexOf("/"));
-        }
+        String uri = processUrl(link.url());
         List<UpdateInfo> infoList = new ArrayList<>();
         String commentData = client.getResponse(uri.concat("/comments"));
         String answerData = client.getResponse(uri.concat("/answers"));
         infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENT));
         infoList.addAll(parseInfo(answerData, UpdateInfoType.ANSWER));
         return infoList;
+    }
+
+    public boolean isLinkAvailable(Link link) {
+        try {
+            String uri = processUrl(link.url());
+            client.getResponse(uri);
+            return true;
+        } catch (HttpClientErrorException e) {
+            return (!e.getStatusCode().is4xxClientError());
+        }
     }
 
     private UpdateInfo parseItem(JsonNode node, UpdateInfoType type) {
@@ -62,5 +68,15 @@ public class StackoverflowClientService {
         } catch (JsonProcessingException e) {
             throw new StackoverflowResponseJsonIsInvalid("Can't parse JSON response ", e);
         }
+    }
+
+    private String processUrl(String url) {
+        String uri = url.startsWith("https")
+            ? url.replace("https://stackoverflow.com", "")
+            : url.replace("http://stackoverflow.com", "");
+        if(!Character.isDigit(uri.charAt(uri.length()-1))) {
+            uri = uri.substring(0, uri.lastIndexOf("/"));
+        }
+        return uri;
     }
 }
