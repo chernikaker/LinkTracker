@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
-
 public class ScrapperController {
 
     private final ScrapperService scrapperService;

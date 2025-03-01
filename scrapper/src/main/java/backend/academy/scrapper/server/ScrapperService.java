@@ -65,7 +65,8 @@ public class ScrapperService {
 
     public LinkResponse addSubscription(long chatId, AddLinkRequest request) {
         User user = userRepository.getUserById(chatId);
-        Link link = new Link(request.link(), Link.getLinkType(request.link()), LocalDateTime.now(ZoneId.systemDefault()));
+        Link link =
+                new Link(request.link(), Link.getLinkType(request.link()), LocalDateTime.now(ZoneId.systemDefault()));
         if (!isAvailable(link)) {
             throw new ScrapperUnavailableLinkException("Link is unavailable " + link);
         }
