@@ -17,7 +17,7 @@ public class LinkTextCommandHandler extends CommandHandler {
     protected String processRequest(Message message) {
         Optional<LinkTrackingObject> potentialTracking =
                 repository.getTrack(message.chat().id());
-        LinkTrackingObject tracking = potentialTracking.get();
+        LinkTrackingObject tracking = potentialTracking.orElseThrow();
         return writeLink(message.text(), tracking);
     }
 
@@ -27,7 +27,7 @@ public class LinkTextCommandHandler extends CommandHandler {
             return false;
         }
         Optional<LinkTrackingObject> link = repository.getTrack(message.chat().id());
-        return link.isPresent() && link.get().state() == UserState.TRACKING_LINK;
+        return link.isPresent() && link.orElseThrow().state() == UserState.TRACKING_LINK;
     }
 
     private String writeLink(String link, LinkTrackingObject tracking) {

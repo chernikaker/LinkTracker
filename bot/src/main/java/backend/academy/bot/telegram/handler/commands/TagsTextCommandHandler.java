@@ -16,7 +16,7 @@ public class TagsTextCommandHandler extends CommandHandler {
     protected String processRequest(Message message) {
         Optional<LinkTrackingObject> potentialTracking =
                 repository.getTrack(message.chat().id());
-        LinkTrackingObject tracking = potentialTracking.get();
+        LinkTrackingObject tracking = potentialTracking.orElseThrow();
         return writeTags(message.text(), tracking);
     }
 
@@ -26,7 +26,7 @@ public class TagsTextCommandHandler extends CommandHandler {
             return false;
         }
         Optional<LinkTrackingObject> link = repository.getTrack(message.chat().id());
-        return link.isPresent() && link.get().state() == UserState.TRACKING_TAG;
+        return link.isPresent() && link.orElseThrow().state() == UserState.TRACKING_TAG;
     }
 
     private String writeTags(String tagLine, LinkTrackingObject tracking) {

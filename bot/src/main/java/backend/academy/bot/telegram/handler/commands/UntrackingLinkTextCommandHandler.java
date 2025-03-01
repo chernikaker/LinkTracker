@@ -49,6 +49,6 @@ public class UntrackingLinkTextCommandHandler extends CommandHandler {
             return false;
         }
         Optional<LinkTrackingObject> link = repository.getTrack(message.chat().id());
-        return link.isPresent() && link.get().state() == UserState.UNTRACKING_LINK;
+        return link.isPresent() && link.orElseThrow().state() == UserState.UNTRACKING_LINK;
     }
 }

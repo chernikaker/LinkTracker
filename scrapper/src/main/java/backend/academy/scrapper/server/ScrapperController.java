@@ -55,7 +55,7 @@ public class ScrapperController {
         try {
             scrapperService.deleteUser(id);
         } catch (ScrapperUserNotExistsException ex) {
-            throw new ScrapperControllerEntityNotFoundException(ex, ex.getMessage());
+            throw new ScrapperControllerEntityNotFoundException(ex.getMessage(), ex);
         }
         return ResponseEntity.ok().build();
     }
@@ -83,7 +83,7 @@ public class ScrapperController {
             LinkResponse response = scrapperService.deleteSubscription(id, request);
             return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
         } catch (ScrapperLinkNotExistsException | ScrapperSubscriptionNotExistsException ex) {
-            throw new ScrapperControllerEntityNotFoundException(ex, ex.getMessage());
+            throw new ScrapperControllerEntityNotFoundException(ex.getMessage(), ex);
         }
     }
 }
