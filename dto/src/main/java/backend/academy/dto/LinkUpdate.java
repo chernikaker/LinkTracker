@@ -10,10 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
-public class LinkUpdate {
+
+public record LinkUpdate (
 
     /**
      * Уникальный идентификатор обновления ссылки.
@@ -21,7 +19,7 @@ public class LinkUpdate {
      */
     @NotNull(message = "ID is required")
     @Min(value = Constant.MIN_ID, message = "ID can't be less than 1")
-    private Long id;
+    Long id,
 
     /**
      * URL для обновления ссылки.
@@ -33,7 +31,7 @@ public class LinkUpdate {
         max = Constant.MAX_URL_LENGTH,
         message = "URL must be less than 2048 characters"
     )
-    private String url;
+    String url,
 
     /**
      * Описание обновления ссылки.
@@ -45,7 +43,7 @@ public class LinkUpdate {
         max = Constant.MAX_DESCRIPTION_LENGTH,
         message = "Description must be less than 500 characters"
     )
-    private String description;
+    String description,
 
     /**
      * Список идентификаторов чатов Telegram для уведомлений.
@@ -53,5 +51,5 @@ public class LinkUpdate {
      */
     @NotNull(message = "tgChatIds is required")
     @NotEmpty(message = "tgChatIds cannot be empty")
-    private List<Long> tgChatIds;
-}
+    List<Long> tgChatIds)
+{ }
