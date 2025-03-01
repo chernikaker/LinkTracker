@@ -8,6 +8,7 @@ import backend.academy.scrapper.exception.custom.repository.SubscriptionNotExist
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -55,12 +56,12 @@ public class InMemorySubscriptionRepository {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    public Map<Long, Subscription> getLinkSubscriptions(Link link) {
+    public List<Subscription> getLinkSubscriptions(Link link) {
         return subscriptions
-            .entrySet()
+            .values()
             .stream()
-            .filter(entry -> entry.getValue().link().equals(link))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .filter(subscription -> subscription.link().equals(link))
+            .collect(Collectors.toList());
     }
 
     public long getSubscriptionId(long userId, long linkId) {

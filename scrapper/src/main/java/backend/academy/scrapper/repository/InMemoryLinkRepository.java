@@ -4,7 +4,9 @@ import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.custom.repository.ScrapperLinkNotExistsException;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
@@ -21,6 +23,10 @@ public class InMemoryLinkRepository {
         long newLinkId = ID.incrementAndGet();
         links.put(newLinkId, link);
         return newLinkId;
+    }
+
+    public Set<Link> getLinks() {
+        return new HashSet<>(links.values());
     }
 
     public void removeLinkById(long linkId) {
