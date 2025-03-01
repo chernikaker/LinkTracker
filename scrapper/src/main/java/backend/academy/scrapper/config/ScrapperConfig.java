@@ -4,6 +4,8 @@ import backend.academy.scrapper.client.bot.BotClient;
 import backend.academy.scrapper.client.bot.BotClientImpl;
 import backend.academy.scrapper.client.github.GithubClient;
 import backend.academy.scrapper.client.github.GithubClientImpl;
+import backend.academy.scrapper.client.stackoverflow.StackoverflowClient;
+import backend.academy.scrapper.client.stackoverflow.StackoverflowClientImpl;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +25,8 @@ public record ScrapperConfig(
 
     public record StackOverflowCredentials(
         @NotEmpty String key,
-        @NotEmpty String accessToken
+        @NotEmpty String accessToken,
+        @NotEmpty String baseUrl
     ) { }
 
     @Bean
@@ -34,5 +37,14 @@ public record ScrapperConfig(
     @Bean
     public BotClient botClient() {
         return new BotClientImpl(botUrl);
+    }
+
+    @Bean
+    public StackoverflowClient stackoverflowClient() {
+        return new StackoverflowClientImpl(
+            stackOverflow.accessToken,
+            stackOverflow.key,
+            stackOverflow.baseUrl
+        );
     }
 }
