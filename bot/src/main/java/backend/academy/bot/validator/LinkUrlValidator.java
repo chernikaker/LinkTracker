@@ -1,7 +1,6 @@
 package backend.academy.bot.validator;
 
 import lombok.experimental.UtilityClass;
-import org.springframework.stereotype.Component;
 
 @UtilityClass
 public class LinkUrlValidator {

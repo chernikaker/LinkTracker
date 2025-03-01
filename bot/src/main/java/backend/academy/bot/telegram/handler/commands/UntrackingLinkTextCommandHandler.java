@@ -5,6 +5,7 @@ import backend.academy.bot.exception.custom.scrapperClient.BotInvalidLinkRequest
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
+import backend.academy.bot.validator.LinkUrlValidator;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Message;
 import java.util.Optional;
@@ -20,6 +21,9 @@ public class UntrackingLinkTextCommandHandler extends CommandHandler{
 
     @Override
     protected String processRequest(Message message) {
+        if(!LinkUrlValidator.isValid(message.text())) {
+            return "Ссылка введена неверно или не поддерживается, попробуйте ещё раз.\n Подробнее в /help";
+        }
         repository.removeTrack(message.chat().id());
         // TODO: validation
         try {

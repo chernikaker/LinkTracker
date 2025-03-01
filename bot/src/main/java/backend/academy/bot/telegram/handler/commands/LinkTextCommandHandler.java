@@ -3,6 +3,7 @@ package backend.academy.bot.telegram.handler.commands;
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
+import backend.academy.bot.validator.LinkUrlValidator;
 import com.pengrad.telegrambot.model.Message;
 import java.util.Optional;
 
@@ -28,10 +29,13 @@ public class LinkTextCommandHandler extends CommandHandler{
         return link.isPresent() && link.get().state() == UserState.TRACKING_LINK;
     }
 
-    // TODO: validate link
     private String writeLink(String link, LinkTrackingObject tracking){
-        tracking.link(link);
-        tracking.state(UserState.TRACKING_TAG);
-        return "Введите тэги(опционально)";
+        if(LinkUrlValidator.isValid(link)) {
+            tracking.link(link);
+            tracking.state(UserState.TRACKING_TAG);
+            return "Введите тэги(опционально)";
+        } else {
+            return "Ссылка введена неверно или не поддерживается, попробуйте ещё раз.\n Подробнее в /help";
+        }
     }
 }
