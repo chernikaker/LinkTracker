@@ -27,6 +27,9 @@ public class StackoverflowClientService {
         String uri = link.url().startsWith("https")
             ? link.url().replace("https://stackoverflow.com", "")
             : link.url().replace("http://stackoverflow.com", "");
+        if(!Character.isDigit(uri.charAt(uri.length()-1))) {
+            uri = uri.substring(0, uri.lastIndexOf("/"));
+        }
         List<UpdateInfo> infoList = new ArrayList<>();
         String commentData = client.getResponse(uri.concat("/comments"));
         String answerData = client.getResponse(uri.concat("/answers"));
