@@ -12,7 +12,7 @@ public class HelpCommandHandler extends CommandHandler{
     @Override
     protected String processRequest(Message message) {
         if(repository.containsTrack(message.chat().id())) {
-            return "Команда сейчас недоступна. Для прекращения добавления ссылки выполните /start";
+            repository.removeTrack(message.chat().id());
         }
         return """
             Основные команды
