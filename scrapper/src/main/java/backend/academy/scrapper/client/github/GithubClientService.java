@@ -64,22 +64,22 @@ public class GithubClientService {
     private List<UpdateInfo> parseInfo(String jsonInfo, UpdateInfoType type) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode commitsNode = objectMapper.readTree(jsonInfo);
-            List<UpdateInfo> commits = new ArrayList<>();
-            for (JsonNode commitNode : commitsNode) {
+            JsonNode infoNode = objectMapper.readTree(jsonInfo);
+            List<UpdateInfo> infos = new ArrayList<>();
+            for (JsonNode n : infoNode) {
                 switch (type) {
                     case COMMIT:
-                        commits.add(parseCommit(commitNode));
+                        infos.add(parseCommit(n));
                         break;
                     case ISSUE:
-                        commits.add(parseIssue(commitNode));
+                        infos.add(parseIssue(n));
                         break;
                     case COMMENT:
-                        commits.add(parseComment(commitNode));
+                        infos.add(parseComment(n));
                         break;
                 }
             }
-            return commits;
+            return infos;
         } catch (JsonProcessingException e) {
             throw new GithubResponseJsonIsInvalid("Can't parse JSON response ", e);
         }
