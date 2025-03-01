@@ -1,8 +1,8 @@
 package backend.academy.bot.scrapperClient;
 
-import backend.academy.bot.exception.custom.scrapperClient.BotChatRegistrationException;
-import backend.academy.bot.exception.custom.scrapperClient.BotInvalidChatIdException;
-import backend.academy.bot.exception.custom.scrapperClient.BotInvalidLinkRequestException;
+import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException;
+import backend.academy.bot.exception.scrapperClient.BotInvalidChatIdException;
+import backend.academy.bot.exception.scrapperClient.BotInvalidLinkRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.ApiErrorResponse;

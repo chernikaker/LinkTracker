@@ -1,6 +1,6 @@
-package backend.academy.bot.exception.custom.scrapperClient;
+package backend.academy.bot.exception.scrapperClient;
 
-import backend.academy.bot.exception.custom.BotException;
+import backend.academy.bot.exception.BotException;
 import backend.academy.dto.ApiErrorResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

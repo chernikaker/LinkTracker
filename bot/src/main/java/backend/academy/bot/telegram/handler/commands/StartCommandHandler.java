@@ -1,7 +1,7 @@
 package backend.academy.bot.telegram.handler.commands;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
-import backend.academy.bot.exception.custom.scrapperClient.BotChatRegistrationException;
+import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Message;

@@ -1,4 +1,4 @@
-package backend.academy.bot.exception.custom;
+package backend.academy.bot.exception;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

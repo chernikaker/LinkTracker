@@ -2,8 +2,8 @@ package backend.academy.bot.validator;
 
 
 import backend.academy.dto.LinkUpdate;
-import backend.academy.bot.exception.custom.BotIllegalRequestArgumentException;
-import backend.academy.bot.exception.custom.BotValidationException;
+import backend.academy.bot.exception.validator.BotIllegalRequestArgumentException;
+import backend.academy.bot.exception.validator.BotValidationException;
 import org.springframework.stereotype.Component;
 
 @Component

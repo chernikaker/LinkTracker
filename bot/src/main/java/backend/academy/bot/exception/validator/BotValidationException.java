@@ -1,4 +1,6 @@
-package backend.academy.bot.exception.custom;
+package backend.academy.bot.exception.validator;
+
+import backend.academy.bot.exception.BotException;
 
 public class BotValidationException extends BotException {
 
