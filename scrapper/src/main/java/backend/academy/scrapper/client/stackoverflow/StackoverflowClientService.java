@@ -3,11 +3,13 @@ package backend.academy.scrapper.client.stackoverflow;
 import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.dto.UpdateInfoType;
 import backend.academy.scrapper.entity.Link;
+import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.exception.client.StackoverflowResponseJsonIsInvalid;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import java.time.Instant;
@@ -18,6 +20,7 @@ import java.util.List;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class StackoverflowClientService {
 
     private final StackoverflowClient client;
@@ -26,11 +29,16 @@ public class StackoverflowClientService {
     {
         String uri = processUrl(link.url());
         List<UpdateInfo> infoList = new ArrayList<>();
-        String commentData = client.getResponse(uri.concat("/comments"));
-        String answerData = client.getResponse(uri.concat("/answers"));
-        infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENT));
-        infoList.addAll(parseInfo(answerData, UpdateInfoType.ANSWER));
-        return infoList;
+        try {
+            String commentData = client.getResponse(uri.concat("/comments"));
+            String answerData = client.getResponse(uri.concat("/answers"));
+            infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENT));
+            infoList.addAll(parseInfo(answerData, UpdateInfoType.ANSWER));
+            return infoList;
+        }  catch (HttpClientErrorException e) {
+            log.error("Error receiving data from github {}", e.getResponseBodyAsString());
+            throw new ScrapperInternalResponseException("Error receiving data from github", e);
+        }
     }
 
     public boolean isLinkAvailable(Link link) {

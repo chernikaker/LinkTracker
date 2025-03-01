@@ -4,10 +4,12 @@ import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.dto.UpdateInfoType;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.client.GithubResponseJsonIsInvalid;
+import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import java.time.LocalDateTime;
@@ -16,8 +18,10 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Component
 @AllArgsConstructor
+@Slf4j
 public class GithubClientService {
 
     private final GithubClient githubClient;
@@ -26,13 +30,18 @@ public class GithubClientService {
     {
         String uri = processUrl(link.url());
         List<UpdateInfo> infoList = new ArrayList<>();
-        String commitData = githubClient.getResponse(uri.concat("/commits"));
-        String issueData = githubClient.getResponse(uri.concat("/issues"));
-        String commentData = githubClient.getResponse(uri.concat("/comments"));
-        infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENT));
-        infoList.addAll(parseInfo(issueData, UpdateInfoType.ISSUE));
-        infoList.addAll(parseInfo(commitData, UpdateInfoType.COMMIT));
-        return infoList;
+        try {
+            String commitData = githubClient.getResponse(uri.concat("/commits"));
+            String issueData = githubClient.getResponse(uri.concat("/issues"));
+            String commentData = githubClient.getResponse(uri.concat("/comments"));
+            infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENT));
+            infoList.addAll(parseInfo(issueData, UpdateInfoType.ISSUE));
+            infoList.addAll(parseInfo(commitData, UpdateInfoType.COMMIT));
+            return infoList;
+        } catch (HttpClientErrorException e) {
+            log.error("Error receiving data from github {}", e.getResponseBodyAsString());
+            throw new ScrapperInternalResponseException("Error receiving data from github", e);
+        }
     }
 
     public boolean isLinkAvailable(Link link) {
