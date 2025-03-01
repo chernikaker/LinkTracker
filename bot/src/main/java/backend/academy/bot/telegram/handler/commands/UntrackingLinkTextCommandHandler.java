@@ -42,6 +42,9 @@ public class UntrackingLinkTextCommandHandler extends CommandHandler{
 
     @Override
     public boolean canHandle(Message message) {
+        if(message.text().startsWith("/")) {
+            return false;
+        }
         Optional<LinkTrackingObject> link = repository.getTrack(message.chat().id());
         return link.isPresent() && link.get().state() == UserState.UNTRACKING_LINK;
     }
