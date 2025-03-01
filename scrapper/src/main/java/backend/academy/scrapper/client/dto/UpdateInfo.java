@@ -1,10 +1,10 @@
-package backend.academy.scrapper.client.github.dto;
+package backend.academy.scrapper.client.dto;
 
 import java.time.LocalDateTime;
 
-public record GithubInfo(
+public record UpdateInfo(
     String message,
     String authorName,
     LocalDateTime time,
-    GithubInfoType type
+    UpdateInfoType type
 ) { }

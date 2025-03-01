@@ -1,11 +1,11 @@
-package backend.academy.scrapper.client.github.dto;
+package backend.academy.scrapper.client.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum GithubInfoType {
+public enum UpdateInfoType {
     COMMITS("commit"),
     COMMENTS("comment"),
     ISSUES("issue");

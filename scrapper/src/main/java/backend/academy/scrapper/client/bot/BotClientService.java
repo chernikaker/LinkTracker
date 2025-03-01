@@ -2,7 +2,7 @@ package backend.academy.scrapper.client.bot;
 
 import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkUpdate;
-import backend.academy.scrapper.client.github.dto.GithubInfo;
+import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
@@ -24,7 +24,7 @@ public class BotClientService {
         this.repository = repository;
     }
 
-    public void sendUpdates(Link link, List<GithubInfo> info) {
+    public void sendUpdates(Link link, List<UpdateInfo> info) {
         List<Subscription> subscriptionsOnLink = repository.getLinkSubscriptions(link);
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i<info.size(); i++) {

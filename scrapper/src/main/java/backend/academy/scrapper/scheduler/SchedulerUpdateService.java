@@ -1,7 +1,7 @@
 package backend.academy.scrapper.scheduler;
 
 import backend.academy.scrapper.client.bot.BotClientService;
-import backend.academy.scrapper.client.github.dto.GithubInfo;
+import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.github.GithubClientService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
@@ -35,8 +35,8 @@ public class SchedulerUpdateService {
         log.info("Scheduling checking link updates");
         Set<Link> links = linkRepository.getLinks();
         for (Link link : links) {
-            List<GithubInfo> updates = githubClientService.getAllInfo(link);
-            List<GithubInfo> actualCommits = updates
+            List<UpdateInfo> updates = githubClientService.getAllInfo(link);
+            List<UpdateInfo> actualCommits = updates
                 .stream()
                 .filter(info -> link.lastValidation().isBefore(info.time()))
                 .toList();

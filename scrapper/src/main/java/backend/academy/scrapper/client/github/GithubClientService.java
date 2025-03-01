@@ -1,7 +1,7 @@
 package backend.academy.scrapper.client.github;
 
-import backend.academy.scrapper.client.github.dto.GithubInfo;
-import backend.academy.scrapper.client.github.dto.GithubInfoType;
+import backend.academy.scrapper.client.dto.UpdateInfo;
+import backend.academy.scrapper.client.dto.UpdateInfoType;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.custom.client.GithubResponseJsonIsInvalid;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,38 +21,38 @@ public class GithubClientService {
 
     private final GithubClient githubClient;
 
-    public List<GithubInfo> getAllInfo(Link link)
+    public List<UpdateInfo> getAllInfo(Link link)
     {
         String uri = link.url().replace("https://github.com", "repos");
-        List<GithubInfo> infoList = new ArrayList<>();
+        List<UpdateInfo> infoList = new ArrayList<>();
         String commitData = githubClient.getCommits(uri.concat("/commits"));
         String issueData = githubClient.getIssues(uri.concat("/issues"));
         String commentData = githubClient.getComments(uri.concat("/comments"));
-        infoList.addAll(parseInfo(commentData, GithubInfoType.COMMENTS));
-        infoList.addAll(parseInfo(issueData, GithubInfoType.ISSUES));
-        infoList.addAll(parseInfo(commitData, GithubInfoType.COMMITS));
+        infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENTS));
+        infoList.addAll(parseInfo(issueData, UpdateInfoType.ISSUES));
+        infoList.addAll(parseInfo(commitData, UpdateInfoType.COMMITS));
         return infoList;
     }
 
-    private GithubInfo parseCommit(JsonNode node) {
+    private UpdateInfo parseCommit(JsonNode node) {
         String message = node.path("commit").path("message").asText();
         String committerName = node.path("author").path("login").asText();
         String date = node.path("commit").path("author").path("date").asText();
-       return new GithubInfo(message, committerName, parseDate(date), GithubInfoType.COMMITS);
+       return new UpdateInfo(message, committerName, parseDate(date), UpdateInfoType.COMMITS);
     }
 
-    private GithubInfo parseIssue(JsonNode node) {
+    private UpdateInfo parseIssue(JsonNode node) {
         String message = node.path("title").asText();
         String authorName = node.path("user").path("login").asText();
         String date = node.path("created_at").asText();
-       return new GithubInfo(message, authorName, parseDate(date), GithubInfoType.ISSUES);
+       return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.ISSUES);
     }
 
-    private GithubInfo parseComment(JsonNode node) {
+    private UpdateInfo parseComment(JsonNode node) {
         String message = node.path("body").asText();
         String authorName = node.path("user").path("login").asText();
         String date = node.path("created_at").asText();
-        return new GithubInfo(message, authorName, parseDate(date), GithubInfoType.COMMENTS);
+        return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.COMMENTS);
     }
 
     private LocalDateTime parseDate(String zonedDate) {
@@ -61,11 +61,11 @@ public class GithubClientService {
         return timeInCurrentZone.toLocalDateTime();
     }
 
-    private List<GithubInfo> parseInfo(String jsonInfo, GithubInfoType type) {
+    private List<UpdateInfo> parseInfo(String jsonInfo, UpdateInfoType type) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode commitsNode = objectMapper.readTree(jsonInfo);
-            List<GithubInfo> commits = new ArrayList<>();
+            List<UpdateInfo> commits = new ArrayList<>();
             for (JsonNode commitNode : commitsNode) {
                 switch (type) {
                     case COMMITS:
