@@ -23,7 +23,9 @@ public class GithubClientService {
 
     public List<UpdateInfo> getAllInfo(Link link)
     {
-        String uri = link.url().replace("https://github.com", "repos");
+        String uri = link.url().startsWith("https")
+            ? link.url().replace("https://github.com", "repos")
+            : link.url().replace("http://github.com", "repos");
         List<UpdateInfo> infoList = new ArrayList<>();
         String commitData = githubClient.getResponse(uri.concat("/commits"));
         String issueData = githubClient.getResponse(uri.concat("/issues"));

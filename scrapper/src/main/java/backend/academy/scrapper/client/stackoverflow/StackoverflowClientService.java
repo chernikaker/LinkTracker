@@ -24,7 +24,9 @@ public class StackoverflowClientService {
 
     public List<UpdateInfo> getAllInfo(Link link)
     {
-        String uri = link.url().replace("https://stackoverflow.com", "");
+        String uri = link.url().startsWith("https")
+            ? link.url().replace("https://stackoverflow.com", "")
+            : link.url().replace("http://stackoverflow.com", "");
         List<UpdateInfo> infoList = new ArrayList<>();
         String commentData = client.getResponse(uri.concat("/comments"));
         String answerData = client.getResponse(uri.concat("/answers"));
