@@ -1,8 +1,18 @@
 package backend.academy.scrapper.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
-public record Link(String url, LinkType type, LocalDateTime lastValidation) {
+@Getter
+@Setter
+@AllArgsConstructor
+public class Link {
+
+    String url;
+    LinkType type;
+    LocalDateTime lastValidation;
 
     // TODO: validation?
     public static LinkType getLinkType(String url) {
