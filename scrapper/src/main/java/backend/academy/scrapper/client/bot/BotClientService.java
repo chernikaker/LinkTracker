@@ -26,9 +26,10 @@ public class BotClientService {
 
     public void sendUpdates(Link link, List<GithubInfo> info) {
         List<Subscription> subscriptionsOnLink = repository.getLinkSubscriptions(link);
-        StringBuilder sb = new StringBuilder("Обновления для ссылки ").append(link.url()).append('\n');
+        StringBuilder sb = new StringBuilder();
         for(int i = 0; i<info.size(); i++) {
             sb.append("#").append(i+1).append('\n');
+            sb.append("Тип сообщения: ").append(info.get(i).type().message()).append('\n');
             sb.append("Автор: ").append(info.get(i).authorName()).append('\n');
             sb.append("Время обновления: ").append(info.get(i).time()).append('\n');
             sb.append("Сообщение: ").append(info.get(i).message()).append('\n');
