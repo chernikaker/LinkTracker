@@ -1,4 +1,4 @@
-package backend.academy.scrapper.exception.custom;
+package backend.academy.scrapper.exception;
 
 import lombok.Getter;
 

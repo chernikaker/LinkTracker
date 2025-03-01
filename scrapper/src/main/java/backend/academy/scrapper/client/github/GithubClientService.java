@@ -3,7 +3,7 @@ package backend.academy.scrapper.client.github;
 import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.dto.UpdateInfoType;
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.exception.custom.client.GithubResponseJsonIsInvalid;
+import backend.academy.scrapper.exception.client.GithubResponseJsonIsInvalid;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

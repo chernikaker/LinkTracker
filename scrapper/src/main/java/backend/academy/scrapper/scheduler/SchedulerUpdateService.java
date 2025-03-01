@@ -37,7 +37,7 @@ public class SchedulerUpdateService {
 
     @Scheduled(initialDelay = 10000, fixedDelay = 10000)
     public void checkNewUpdates(){
-        log.info("Scheduling checking link updates");
+        log.debug("Scheduling checking link updates");
         Set<Link> links = linkRepository.getLinks();
         for (Link link : links) {
             List<UpdateInfo> updates =

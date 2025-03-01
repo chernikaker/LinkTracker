@@ -1,7 +1,7 @@
-package backend.academy.scrapper.exception;
+package backend.academy.scrapper.server;
 
 import backend.academy.dto.ApiErrorResponse;
-import backend.academy.scrapper.exception.custom.ScrapperException;
+import backend.academy.scrapper.exception.ScrapperException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;

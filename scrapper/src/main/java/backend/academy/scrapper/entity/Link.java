@@ -1,6 +1,6 @@
 package backend.academy.scrapper.entity;
 
-import backend.academy.scrapper.exception.custom.service.ScrapperUnsupportedLinkTypeException;
+import backend.academy.scrapper.exception.service.ScrapperUnsupportedLinkTypeException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
