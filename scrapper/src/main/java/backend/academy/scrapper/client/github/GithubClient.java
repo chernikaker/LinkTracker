@@ -1,4 +1,4 @@
-package backend.academy.scrapper.client;
+package backend.academy.scrapper.client.github;
 
 import backend.academy.scrapper.client.dto.GithubCommitInfo;
 import backend.academy.scrapper.entity.Link;

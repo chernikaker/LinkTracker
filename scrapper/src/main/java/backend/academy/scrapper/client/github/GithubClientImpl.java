@@ -1,15 +1,15 @@
-package backend.academy.scrapper.client;
+package backend.academy.scrapper.client.github;
 
-import backend.academy.dto.ListLinksResponse;
 import backend.academy.scrapper.client.dto.GithubCommitInfo;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.custom.client.GithubResponseJsonIsInvalid;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +25,7 @@ public class GithubClientImpl implements GithubClient {
         this.githubClient = RestClient.builder()
             .baseUrl(baseUrl != null ? baseUrl : DEFAULT_URL)
             .build();
+        System.out.println(githubToken);
     }
 
     public GithubClientImpl(String githubToken) {
@@ -32,11 +33,11 @@ public class GithubClientImpl implements GithubClient {
     }
 
     public List<GithubCommitInfo> getCommits(Link link) {
-        String uri = link.url().replace("https://github.com", "");
-
+        String uri = link.url().replace("https://github.com", "repos");
+        System.out.println(uri);
         String jsonAns =  githubClient.get()
-            .uri("uri")
-            .header("Authorization", token)
+            .uri(uri)
+            .header("Authorization", "Bearer "+token)
             .retrieve()
             .toEntity(String.class)
             .getBody();
@@ -53,7 +54,9 @@ public class GithubClientImpl implements GithubClient {
                 String message = commitNode.path("commit").path("message").asText();
                 String committerName = commitNode.path("commit").path("committer").path("name").asText();
                 String date = commitNode.path("commit").path("committer").path("date").asText();
-                commits.add(new GithubCommitInfo(message, committerName, LocalDateTime.parse(date)));
+                ZoneId currentZoneId = ZoneId.systemDefault();
+                ZonedDateTime timeInCurrentZone = ZonedDateTime.parse(date).withZoneSameInstant(currentZoneId);
+                commits.add(new GithubCommitInfo(message, committerName, timeInCurrentZone.toLocalDateTime()));
             }
             return commits;
         } catch (JsonProcessingException e) {
