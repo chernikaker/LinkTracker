@@ -1,4 +1,4 @@
-package backend.academy.scrapper.client.dto;
+package backend.academy.scrapper.client.github.dto;
 
 import java.time.LocalDateTime;
 

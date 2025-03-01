@@ -1,8 +1,7 @@
 package backend.academy.scrapper.scheduler;
 
 import backend.academy.scrapper.client.bot.BotClientService;
-import backend.academy.scrapper.client.dto.GithubInfo;
-import backend.academy.scrapper.client.github.GithubClient;
+import backend.academy.scrapper.client.github.dto.GithubInfo;
 import backend.academy.scrapper.client.github.GithubClientService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.InMemoryLinkRepository;

@@ -2,7 +2,7 @@ package backend.academy.scrapper.client.bot;
 
 import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkUpdate;
-import backend.academy.scrapper.client.dto.GithubInfo;
+import backend.academy.scrapper.client.github.dto.GithubInfo;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;

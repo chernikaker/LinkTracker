@@ -1,16 +1,14 @@
 package backend.academy.scrapper.client.github;
 
-import backend.academy.scrapper.client.dto.GithubInfo;
-import backend.academy.scrapper.client.dto.GithubInfoType;
+import backend.academy.scrapper.client.github.dto.GithubInfo;
+import backend.academy.scrapper.client.github.dto.GithubInfoType;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.custom.client.GithubResponseJsonIsInvalid;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-import org.springframework.data.web.JsonPath;
 import org.springframework.stereotype.Component;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
