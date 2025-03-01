@@ -6,9 +6,10 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum UpdateInfoType {
-    COMMITS("commit"),
-    COMMENTS("comment"),
-    ISSUES("issue");
+    COMMIT("commit"),
+    COMMENT("comment"),
+    ISSUE("issue"),
+    ANSWER("answer"),;
 
     private final String message;
 }
