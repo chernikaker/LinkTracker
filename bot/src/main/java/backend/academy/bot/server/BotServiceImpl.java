@@ -23,7 +23,7 @@ public class BotServiceImpl implements BotService {
     }
 
     public void sendUpdateInfo(long chatId, String url, String description) {
-        String messageText = "Link: " + url + " has new updates!\nDescription: " + description;
+        String messageText = "Новые уведомления для ссылки: " + url + " \nОписание: " + description;
         SendMessage sendMessage = new SendMessage(chatId, messageText);
         botService.sendResponse(sendMessage);
     }
