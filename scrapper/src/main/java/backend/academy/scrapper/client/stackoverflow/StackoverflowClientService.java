@@ -46,7 +46,7 @@ public class StackoverflowClientService {
             client.getResponse(uri);
             return true;
         } catch (HttpClientErrorException e) {
-            return (!e.getStatusCode().is4xxClientError());
+            return !e.getStatusCode().is4xxClientError();
         }
     }
 

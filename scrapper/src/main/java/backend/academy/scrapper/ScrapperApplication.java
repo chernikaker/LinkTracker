@@ -11,8 +11,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableConfigurationProperties({ScrapperConfig.class})
 public class ScrapperApplication {
 
-    // костыль?
-    private final int id = 1;
     /**
      * Главный метод для запуска приложения.
      *

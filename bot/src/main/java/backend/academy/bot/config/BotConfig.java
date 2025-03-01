@@ -12,11 +12,6 @@ import org.springframework.validation.annotation.Validated;
 public record BotConfig(@NotEmpty String telegramToken) {
 
     @Bean
-    public String telegramToken() {
-        return telegramToken;
-    }
-
-    @Bean
     public TelegramBotService telegramBot(HandlerService service) {
         return new TelegramBotService(telegramToken, service);
     }

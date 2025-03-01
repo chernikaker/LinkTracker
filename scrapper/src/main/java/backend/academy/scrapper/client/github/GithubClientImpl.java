@@ -5,7 +5,7 @@ import org.springframework.web.client.RestClient;
 public class GithubClientImpl implements GithubClient {
 
     private final String token;
-    private final String DEFAULT_URL = "https://api.github.com";
+    private final static String DEFAULT_URL = "https://api.github.com";
     private final RestClient githubClient;
 
     public GithubClientImpl(String githubToken, String baseUrl) {
@@ -19,6 +19,7 @@ public class GithubClientImpl implements GithubClient {
         this(githubToken, null);
     }
 
+    @Override
     public String getResponse(String uri) {
         return githubClient
                 .get()

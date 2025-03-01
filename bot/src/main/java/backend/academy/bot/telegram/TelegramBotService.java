@@ -57,7 +57,7 @@ public class TelegramBotService extends TelegramBot {
     private void handleUpdate(Update update) {
         Optional<SendMessage> responseMessage = handlerService.handle(update);
         if (responseMessage.isPresent()) {
-            SendMessage message = responseMessage.get();
+            SendMessage message = responseMessage.orElseThrow();
             sendResponse(message);
         }
     }

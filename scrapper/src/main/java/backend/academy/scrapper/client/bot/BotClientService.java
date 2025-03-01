@@ -44,7 +44,11 @@ public class BotClientService {
             botClient.sendUpdates(update);
         } catch (HttpClientErrorException e) {
             ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
-            log.error("Error while sending link update: {}", error.exceptionMessage());
+            if (error != null) {
+                log.error("Error while sending link update: {}", error.exceptionMessage());
+            } else {
+                log.error("Received a null error response.");
+            }
         }
     }
 }

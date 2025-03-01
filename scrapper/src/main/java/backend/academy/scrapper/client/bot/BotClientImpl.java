@@ -5,7 +5,7 @@ import org.springframework.web.client.RestClient;
 
 public class BotClientImpl implements BotClient {
 
-    private final String DEFAULT_URL = "http://localhost:8080";
+    private final static String DEFAULT_URL = "http://localhost:8080";
     private final RestClient restClient;
 
     public BotClientImpl(String baseUrl) {

@@ -4,6 +4,7 @@ import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.dto.UpdateInfoType;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.client.GithubResponseJsonIsInvalid;
+import backend.academy.scrapper.exception.client.GithubUnsupportedOptionException;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -48,7 +49,7 @@ public class GithubClientService {
             githubClient.getResponse(uri);
             return true;
         } catch (HttpClientErrorException e) {
-            return (!e.getStatusCode().is4xxClientError());
+            return !e.getStatusCode().is4xxClientError();
         }
     }
 
@@ -95,6 +96,8 @@ public class GithubClientService {
                     case COMMENT:
                         infos.add(parseComment(n));
                         break;
+                    default:
+                        throw new GithubUnsupportedOptionException("Unsupported update info type: " + type);
                 }
             }
             return infos;

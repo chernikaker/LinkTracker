@@ -6,7 +6,7 @@ public class StackoverflowClientImpl implements StackoverflowClient {
 
     private final String token;
     private final String apiKey;
-    private final String DEFAULT_URL = "https://api.stackexchange.com/2.3";
+    private final static String DEFAULT_URL = "https://api.stackexchange.com/2.3";
     private final RestClient restClient;
 
     public StackoverflowClientImpl(String accessToken, String apiKey, String baseUrl) {

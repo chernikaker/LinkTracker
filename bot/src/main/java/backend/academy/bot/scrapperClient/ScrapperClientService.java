@@ -58,7 +58,11 @@ public class ScrapperClientService {
 
     private void handleException(HttpClientErrorException e) {
         ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
-        log.error("Scrapper client exception: {}", error.exceptionMessage());
+        if (error != null) {
+            log.error("Error while sending link update: {}", error.exceptionMessage());
+        } else {
+            log.error("Received a null error response.");
+        }
         throw new BotInvalidLinkRequestException(error);
     }
 }

@@ -8,6 +8,7 @@ import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class SchedulerUpdateService {
             if (!actualCommits.isEmpty()) {
                 botClientService.sendUpdates(link, actualCommits);
             }
-            link.lastValidation(LocalDateTime.now());
+            link.lastValidation(LocalDateTime.now(ZoneId.systemDefault()));
         }
     }
 }

@@ -17,6 +17,7 @@ import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import backend.academy.scrapper.repository.InMemoryUserRepository;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class ScrapperService {
 
     public LinkResponse addSubscription(long chatId, AddLinkRequest request) {
         User user = userRepository.getUserById(chatId);
-        Link link = new Link(request.link(), Link.getLinkType(request.link()), LocalDateTime.now());
+        Link link = new Link(request.link(), Link.getLinkType(request.link()), LocalDateTime.now(ZoneId.systemDefault()));
         if (!isAvailable(link)) {
             throw new ScrapperUnavailableLinkException("Link is unavailable " + link);
         }
