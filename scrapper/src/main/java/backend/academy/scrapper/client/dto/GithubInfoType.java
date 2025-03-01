@@ -6,9 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum GithubInfoType {
-    COMMITS("коммит"),
-    COMMENTS("комментарий"),
-    ISSUES("проблема");
+    COMMITS("commit"),
+    COMMENTS("comment"),
+    ISSUES("issue");
 
     private final String message;
 }

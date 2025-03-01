@@ -25,7 +25,7 @@ public class GithubClientService {
 
     public List<GithubInfo> getAllInfo(Link link)
     {
-        String uri = link.url().replace("https://api.github.com", "repos/");
+        String uri = link.url().replace("https://github.com", "repos");
         List<GithubInfo> infoList = new ArrayList<>();
         String commitData = githubClient.getCommits(uri.concat("/commits"));
         String issueData = githubClient.getIssues(uri.concat("/issues"));
@@ -38,15 +38,15 @@ public class GithubClientService {
 
     private GithubInfo parseCommit(JsonNode node) {
         String message = node.path("commit").path("message").asText();
-        String committerName = node.path("commit").path("committer").path("name").asText();
-        String date = node.path("commit").path("committer").path("date").asText();
+        String committerName = node.path("author").path("login").asText();
+        String date = node.path("commit").path("author").path("date").asText();
        return new GithubInfo(message, committerName, parseDate(date), GithubInfoType.COMMITS);
     }
 
     private GithubInfo parseIssue(JsonNode node) {
         String message = node.path("title").asText();
         String authorName = node.path("user").path("login").asText();
-        String date = node.path("created-at").asText();
+        String date = node.path("created_at").asText();
        return new GithubInfo(message, authorName, parseDate(date), GithubInfoType.ISSUES);
     }
 

@@ -9,10 +9,12 @@ import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class SchedulerUpdateService {
 
     private final InMemoryLinkRepository linkRepository;
@@ -31,6 +33,7 @@ public class SchedulerUpdateService {
 
     @Scheduled(initialDelay = 10000, fixedDelay = 10000)
     public void checkNewUpdates(){
+        log.info("Scheduling checking link updates");
         Set<Link> links = linkRepository.getLinks();
         for (Link link : links) {
             List<GithubInfo> updates = githubClientService.getAllInfo(link);

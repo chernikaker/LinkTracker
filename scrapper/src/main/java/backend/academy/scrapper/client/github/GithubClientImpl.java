@@ -1,15 +1,6 @@
 package backend.academy.scrapper.client.github;
 
-import backend.academy.scrapper.client.dto.GithubInfo;
-import backend.academy.scrapper.exception.custom.client.GithubResponseJsonIsInvalid;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.client.RestClient;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class GithubClientImpl implements GithubClient {
@@ -23,7 +14,6 @@ public class GithubClientImpl implements GithubClient {
         this.githubClient = RestClient.builder()
             .baseUrl(baseUrl != null ? baseUrl : DEFAULT_URL)
             .build();
-        System.out.println(githubToken);
     }
 
     public GithubClientImpl(String githubToken) {
