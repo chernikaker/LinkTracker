@@ -43,11 +43,11 @@ public class SchedulerUpdateService {
             List<UpdateInfo> updates = link.type() == LinkType.GITHUB
                     ? githubClientService.getAllInfo(link)
                     : soClientService.getAllInfo(link);
-            List<UpdateInfo> actualCommits = updates.stream()
+            List<UpdateInfo> actualInfos = updates.stream()
                     .filter(info -> link.lastValidation().isBefore(info.time()))
                     .toList();
-            if (!actualCommits.isEmpty()) {
-                botClientService.sendUpdates(link, actualCommits);
+            if (!actualInfos.isEmpty()) {
+                botClientService.sendUpdates(link, actualInfos);
             }
             link.lastValidation(LocalDateTime.now(ZoneId.systemDefault()));
         }
