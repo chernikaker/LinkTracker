@@ -1,6 +1,7 @@
 package backend.academy.bot.telegram.handler;
 
 import backend.academy.bot.telegram.handler.commands.CommandHandler;
+import backend.academy.bot.telegram.handler.commands.UntrackCommandHandler;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -10,8 +11,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
-@AllArgsConstructor
 public class HandlerService {
+
+    public HandlerService(List<CommandHandler> commandHandlers) {
+        this.handlers = commandHandlers;
+    }
 
     private final List<CommandHandler> handlers;
 
@@ -24,7 +28,7 @@ public class HandlerService {
         return Optional.of(result);
     }
 
-    private CommandHandler getHandlerByMessage(Message message) {
+    public CommandHandler getHandlerByMessage(Message message) {
         for (CommandHandler handler : handlers) {
             if (handler.canHandle(message)) {
                 return handler;

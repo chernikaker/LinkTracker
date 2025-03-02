@@ -165,7 +165,6 @@ public class UntrackingLinkTextCommandHandlerTest {
         when(message.text()).thenReturn(command);
         LinkTrackingObject tracking = new LinkTrackingObject(EXAMPLE_LINK, new String[0], new String[0], UserState.UNTRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
-
         boolean result = untrackingLinkTextCommandHandler.canHandle(message);
 
         assertFalse(result);
