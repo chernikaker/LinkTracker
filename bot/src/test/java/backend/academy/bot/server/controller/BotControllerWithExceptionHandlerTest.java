@@ -3,6 +3,7 @@ package backend.academy.bot.server.controller;
 import backend.academy.bot.exception.BotException;
 import backend.academy.bot.server.ApplicationExceptionHandler;
 import backend.academy.bot.server.BotController;
+import backend.academy.bot.server.BotService;
 import backend.academy.dto.LinkUpdate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
