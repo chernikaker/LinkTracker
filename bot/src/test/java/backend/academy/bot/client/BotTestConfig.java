@@ -1,4 +1,4 @@
-package backend.academy.bot.server.client;
+package backend.academy.bot.client;
 
 import backend.academy.bot.scrapperClient.IClient;
 import backend.academy.bot.scrapperClient.ScrapperRestClient;

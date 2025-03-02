@@ -1,4 +1,4 @@
-package backend.academy.bot.server.client;
+package backend.academy.bot.client;
 
 import backend.academy.bot.exception.scrapperClient.BotInvalidLinkRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
