@@ -46,7 +46,7 @@ public class StackoverflowClientService {
             client.getResponse(uri);
             return true;
         } catch (HttpClientErrorException e) {
-            return !e.getStatusCode().is4xxClientError();
+            return false;
         }
     }
 
@@ -71,7 +71,7 @@ public class StackoverflowClientService {
                 infos.add(parseItem(n, type));
             }
             return infos;
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException | IllegalArgumentException e) {
             throw new StackoverflowResponseJsonIsInvalid("Can't parse JSON response ", e);
         }
     }
