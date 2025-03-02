@@ -12,6 +12,7 @@ import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
+import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkException;
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
@@ -78,6 +79,9 @@ public class ScrapperService {
     }
 
     public LinkResponse deleteSubscription(long chatId, RemoveLinkRequest request) {
+        if(!userRepository.containsUser(chatId)) {
+            throw new ScrapperUserNotExistsException("User not exists id:" + chatId);
+        }
         long linkId = linkRepository.getLinkIdByURL(request.link());
         if (linkId == -1) {
             throw new ScrapperLinkNotExistsException("Link with URL " + request.link() + " not found");

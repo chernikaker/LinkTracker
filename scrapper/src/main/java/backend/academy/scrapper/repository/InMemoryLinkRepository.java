@@ -48,6 +48,10 @@ public class InMemoryLinkRepository {
         return links.containsKey(linkId);
     }
 
+    public int size(){
+        return links.size();
+    }
+
     public void clear() {
         links.clear();
         ID.set(0);
