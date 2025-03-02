@@ -49,7 +49,7 @@ public class GithubClientService {
             githubClient.getResponse(uri);
             return true;
         } catch (HttpClientErrorException e) {
-            return !e.getStatusCode().is4xxClientError();
+            return false;
         }
     }
 
@@ -101,7 +101,7 @@ public class GithubClientService {
                 }
             }
             return infos;
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException | IllegalArgumentException e) {
             throw new GithubResponseJsonIsInvalid("Can't parse JSON response ", e);
         }
     }
