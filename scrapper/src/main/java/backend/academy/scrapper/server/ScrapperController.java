@@ -72,6 +72,9 @@ public class ScrapperController {
     @PostMapping("/links")
     public final ResponseEntity<?> addLinkSubscription(
             @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final AddLinkRequest request) {
+        if (id <= 0) {
+            throw new ScrapperInvalidIdException("Id must be a positive integer");
+        }
         LinkResponse response = scrapperService.addSubscription(id, request);
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
     }
@@ -79,6 +82,9 @@ public class ScrapperController {
     @DeleteMapping("/links")
     public final ResponseEntity<?> deleteLinkSubscription(
             @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final RemoveLinkRequest request) {
+        if (id <= 0) {
+            throw new ScrapperInvalidIdException("Id must be a positive integer");
+        }
         try {
             LinkResponse response = scrapperService.deleteSubscription(id, request);
             return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
