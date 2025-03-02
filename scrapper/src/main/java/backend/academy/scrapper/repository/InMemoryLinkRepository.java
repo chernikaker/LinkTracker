@@ -44,6 +44,10 @@ public class InMemoryLinkRepository {
         return -1;
     }
 
+    public boolean containsLink(long linkId) {
+        return links.containsKey(linkId);
+    }
+
     public void clear() {
         links.clear();
         ID.set(0);

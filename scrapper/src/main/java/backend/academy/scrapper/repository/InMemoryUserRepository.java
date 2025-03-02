@@ -21,6 +21,10 @@ public class InMemoryUserRepository {
         return id;
     }
 
+    public boolean containsUser(long id) {
+        return users.containsKey(id);
+    }
+
     public User getUserById(long userId) {
         User user = users.get(userId);
         if (user == null) {
