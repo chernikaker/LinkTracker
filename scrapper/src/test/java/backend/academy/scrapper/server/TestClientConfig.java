@@ -1,6 +1,9 @@
 package backend.academy.scrapper.server;
+import backend.academy.scrapper.client.bot.BotClient;
 import backend.academy.scrapper.client.bot.BotClientService;
+import backend.academy.scrapper.client.github.GithubClient;
 import backend.academy.scrapper.client.github.GithubClientService;
+import backend.academy.scrapper.client.stackoverflow.StackoverflowClient;
 import backend.academy.scrapper.client.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.scheduler.SchedulerUpdateService;
@@ -13,19 +16,13 @@ import static org.mockito.ArgumentMatchers.any;
 
 
 @TestConfiguration(proxyBeanMethods = false)
-public class TestClientServiceConfig {
+public class TestClientConfig {
 
     @MockitoBean
-    public GithubClientService githubClientService;
+    private GithubClientService githubClientService;
 
     @MockitoBean
-    public StackoverflowClientService soClientService;
-
-    @MockitoBean
-    public BotClientService botClientService;
-
-    @MockitoBean
-    public SchedulerUpdateService schedulerUpdateService;
+    private StackoverflowClientService soClientService;
 
 
     @Bean
@@ -54,5 +51,23 @@ public class TestClientServiceConfig {
     @Primary
     public SchedulerUpdateService schedulerUpdateService() {
         return Mockito.mock(SchedulerUpdateService.class);
+    }
+
+    @Bean
+    @Primary
+    public BotClient botClient() {
+        return Mockito.mock(BotClient.class);
+    }
+
+    @Bean
+    @Primary
+    public StackoverflowClient stackoverflowClient() {
+        return Mockito.mock(StackoverflowClient.class);
+    }
+
+    @Bean
+    @Primary
+    public GithubClient githubClient() {
+        return Mockito.mock(GithubClient.class);
     }
 }
