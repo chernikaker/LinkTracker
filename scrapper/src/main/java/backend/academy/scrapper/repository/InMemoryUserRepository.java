@@ -34,4 +34,8 @@ public class InMemoryUserRepository {
             throw new ScrapperUserNotExistsException("User " + userId + " does not exist");
         }
     }
+
+    public void clear() {
+        users.clear();
+    }
 }

@@ -43,4 +43,9 @@ public class InMemoryLinkRepository {
         }
         return -1;
     }
+
+    public void clear() {
+        links.clear();
+        ID.set(0);
+    }
 }

@@ -72,4 +72,9 @@ public class InMemorySubscriptionRepository {
         }
         return -1;
     }
+
+    public void clear() {
+        subscriptions.clear();
+        ID.set(0);
+    }
 }
