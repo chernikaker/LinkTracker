@@ -18,7 +18,7 @@ public class ListCommandHandler extends CommandHandler {
     }
 
     @Override
-    protected String processRequest(Message message) {
+    public String processRequest(Message message) {
         try {
             ListLinksResponse list = service.getUserLinks(message.chat().id());
             return makeLinksMessage(list);
@@ -45,13 +45,13 @@ public class ListCommandHandler extends CommandHandler {
         for (LinkResponse link : links.links()) {
             sb.append(link.url()).append("\n");
             if (!link.tags().isEmpty()) {
-                sb.append("Теги: \n");
+                sb.append("Теги:\n");
                 for (String tag : link.tags()) {
                     sb.append(tag).append("\n");
                 }
             }
             if (!link.filters().isEmpty()) {
-                sb.append("Фильтры\n");
+                sb.append("Фильтры:\n");
                 for (String filter : link.filters()) {
                     sb.append(filter).append("\n");
                 }

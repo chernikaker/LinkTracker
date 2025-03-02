@@ -20,7 +20,7 @@ public class UntrackingLinkTextCommandHandler extends CommandHandler {
     }
 
     @Override
-    protected String processRequest(Message message) {
+    public String processRequest(Message message) {
         if (!LinkUrlValidator.isValid(message.text())) {
             return "Ссылка введена неверно или не поддерживается, попробуйте ещё раз.\n Подробнее в /help";
         }
@@ -32,9 +32,6 @@ public class UntrackingLinkTextCommandHandler extends CommandHandler {
             ApiErrorResponse response = ex.response();
             if (response.exceptionMessage().contains(message.chat().id() + " not exists")) {
                 return "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
-            }
-            if (response.exceptionMessage().contains("Validation failed for argument [1]")) {
-                return "Введена невалидная ссылка. Запрос отклонен, попробуйте ещё раз";
             }
             if (response.code().equals("404")) {
                 return "У вас нет подписки на данную ссылку";

@@ -14,7 +14,7 @@ public class LinkTextCommandHandler extends CommandHandler {
     }
 
     @Override
-    protected String processRequest(Message message) {
+    public String processRequest(Message message) {
         Optional<LinkTrackingObject> potentialTracking =
                 repository.getTrack(message.chat().id());
         LinkTrackingObject tracking = potentialTracking.orElseThrow();

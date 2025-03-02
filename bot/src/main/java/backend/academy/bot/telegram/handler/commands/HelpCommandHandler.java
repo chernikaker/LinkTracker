@@ -10,7 +10,7 @@ public class HelpCommandHandler extends CommandHandler {
     }
 
     @Override
-    protected String processRequest(Message message) {
+    public String processRequest(Message message) {
         if (repository.containsTrack(message.chat().id())) {
             repository.removeTrack(message.chat().id());
         }

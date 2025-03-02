@@ -11,7 +11,7 @@ public class TrackCommandHandler extends CommandHandler {
     }
 
     @Override
-    protected String processRequest(Message message) {
+    public String processRequest(Message message) {
         LinkTrackingObject newTracking = new LinkTrackingObject();
         repository.setTrack(message.chat().id(), newTracking);
         return "Введите ссылку для отслеживания";

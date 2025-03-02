@@ -10,7 +10,7 @@ public class UnknownCommandHandler extends CommandHandler {
     }
 
     @Override
-    protected String processRequest(Message message) {
+    public String processRequest(Message message) {
         return "Команда неизвестна или недоступна на данный момент.";
     }
 

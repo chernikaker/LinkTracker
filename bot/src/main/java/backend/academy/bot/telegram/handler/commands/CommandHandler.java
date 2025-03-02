@@ -17,7 +17,7 @@ public abstract class CommandHandler {
         return new SendMessage(message.chat().id(), responseMessage);
     }
 
-    protected abstract String processRequest(Message message);
+    public abstract String processRequest(Message message);
 
     public abstract boolean canHandle(Message message);
 }

@@ -12,7 +12,7 @@ public class UntrackCommandHandler extends CommandHandler {
     }
 
     @Override
-    protected String processRequest(Message message) {
+    public String processRequest(Message message) {
         LinkTrackingObject newTracking = new LinkTrackingObject();
         newTracking.state(UserState.UNTRACKING_LINK);
         repository.setTrack(message.chat().id(), newTracking);
