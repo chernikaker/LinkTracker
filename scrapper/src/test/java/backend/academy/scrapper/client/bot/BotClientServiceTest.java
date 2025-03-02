@@ -1,5 +1,13 @@
 package backend.academy.scrapper.client.bot;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import backend.academy.dto.LinkUpdate;
 import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.dto.UpdateInfoType;
@@ -20,14 +28,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class BotClientServiceTest {
 
@@ -79,7 +79,8 @@ public class BotClientServiceTest {
         List<Subscription> subscriptions = List.of(subscription);
         when(repository.getLinkSubscriptions(link)).thenReturn(subscriptions);
         doThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad Request"))
-            .when(botClient).sendUpdates(any(LinkUpdate.class));
+                .when(botClient)
+                .sendUpdates(any(LinkUpdate.class));
 
         assertDoesNotThrow(() -> botClientService.sendUpdates(link, info));
 

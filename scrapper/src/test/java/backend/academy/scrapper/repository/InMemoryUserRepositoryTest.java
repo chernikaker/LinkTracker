@@ -1,13 +1,14 @@
 package backend.academy.scrapper.repository;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.repository.ScrapperUserAlreadyExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class InMemoryUserRepositoryTest {
 
@@ -33,7 +34,7 @@ public class InMemoryUserRepositoryTest {
         userRepository.registerUser(user);
 
         assertThatThrownBy(() -> userRepository.registerUser(user))
-            .isInstanceOf(ScrapperUserAlreadyExistsException.class);
+                .isInstanceOf(ScrapperUserAlreadyExistsException.class);
     }
 
     @Test
@@ -51,7 +52,7 @@ public class InMemoryUserRepositoryTest {
         long nonExistentUserId = 999L;
 
         assertThatThrownBy(() -> userRepository.getUserById(nonExistentUserId))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -60,8 +61,7 @@ public class InMemoryUserRepositoryTest {
         userRepository.registerUser(user);
 
         assertDoesNotThrow(() -> userRepository.deleteUserById(1L));
-        assertThatThrownBy(() -> userRepository.getUserById(1L))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+        assertThatThrownBy(() -> userRepository.getUserById(1L)).isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -69,6 +69,6 @@ public class InMemoryUserRepositoryTest {
         long nonExistentUserId = 999L;
 
         assertThatThrownBy(() -> userRepository.getUserById(nonExistentUserId))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 }

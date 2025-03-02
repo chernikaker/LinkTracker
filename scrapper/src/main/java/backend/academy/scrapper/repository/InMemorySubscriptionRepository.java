@@ -31,16 +31,16 @@ public class InMemorySubscriptionRepository {
         return newLinkId;
     }
 
-    public Subscription removeSubscriptionById(long id) {
-        Subscription deleted = subscriptions.remove(id);
+    public Subscription removeSubscriptionById(long ID) {
+        Subscription deleted = subscriptions.remove(ID);
         if (deleted == null) {
-            throw new SubscriptionNotExistsException("Subscription " + id + " does not exist");
+            throw new SubscriptionNotExistsException("Subscription " + ID + " does not exist");
         }
         return deleted;
     }
 
-    public boolean containsSubscription(long id) {
-        return subscriptions.containsKey(id);
+    public boolean containsSubscription(long ID) {
+        return subscriptions.containsKey(ID);
     }
 
     public Set<Subscription> deleteUserSubscriptions(User user) {

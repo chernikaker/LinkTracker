@@ -44,11 +44,11 @@ public class SchedulerUpdateService {
         for (Link link : links) {
             try {
                 List<UpdateInfo> updates = link.type() == LinkType.GITHUB
-                    ? githubClientService.getAllInfo(link)
-                    : soClientService.getAllInfo(link);
+                        ? githubClientService.getAllInfo(link)
+                        : soClientService.getAllInfo(link);
                 List<UpdateInfo> actualInfos = updates.stream()
-                    .filter(info -> link.lastValidation().isBefore(info.time()))
-                    .toList();
+                        .filter(info -> link.lastValidation().isBefore(info.time()))
+                        .toList();
                 if (!actualInfos.isEmpty()) {
                     botClientService.sendUpdates(link, actualInfos);
                 }

@@ -1,5 +1,12 @@
 package backend.academy.scrapper.client.github;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.dto.UpdateInfoType;
 import backend.academy.scrapper.entity.Link;
@@ -18,12 +25,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GithubClientServiceTest {
@@ -43,13 +44,15 @@ public class GithubClientServiceTest {
 
     @Test
     public void getAllInfo_DataIsValid() {
-        String commitJson = "[{\"commit\":{\"message\":\"Commit message\",\"author\":{\"date\":\"2023-10-01T12:00:00Z\"}},\"author\":{\"login\":\"author1\"}}]";
-        String issueJson = "[{\"title\":\"Issue title\",\"user\":{\"login\":\"author2\"},\"created_at\":\"2023-10-01T12:00:00Z\"}]";
-        String commentJson = "[{\"body\":\"Comment body\",\"user\":{\"login\":\"author3\"},\"created_at\":\"2023-10-01T12:00:00Z\"}]";
+        String commitJson =
+                "[{\"commit\":{\"message\":\"Commit message\",\"author\":{\"date\":\"2023-10-01T12:00:00Z\"}},\"author\":{\"login\":\"author1\"}}]";
+        String issueJson =
+                "[{\"title\":\"Issue title\",\"user\":{\"login\":\"author2\"},\"created_at\":\"2023-10-01T12:00:00Z\"}]";
+        String commentJson =
+                "[{\"body\":\"Comment body\",\"user\":{\"login\":\"author3\"},\"created_at\":\"2023-10-01T12:00:00Z\"}]";
         when(githubClient.getResponse("repos/author/repo/commits")).thenReturn(commitJson);
         when(githubClient.getResponse("repos/author/repo/issues")).thenReturn(issueJson);
         when(githubClient.getResponse("repos/author/repo/comments")).thenReturn(commentJson);
-
 
         List<UpdateInfo> updates = assertDoesNotThrow(() -> githubClientService.getAllInfo(link));
 
@@ -76,19 +79,17 @@ public class GithubClientServiceTest {
         String invalidJson = "invalid json";
         when(githubClient.getResponse("repos/author/repo/commits")).thenReturn(invalidJson);
 
-        assertThatThrownBy(() -> githubClientService.getAllInfo(link))
-            .isInstanceOf(GithubResponseJsonIsInvalid.class);
+        assertThatThrownBy(() -> githubClientService.getAllInfo(link)).isInstanceOf(GithubResponseJsonIsInvalid.class);
     }
 
     @Test
     public void getAllInfo_httpClientError() {
         HttpClientErrorException httpClientErrorException =
-            HttpClientErrorException.create(HttpStatus.BAD_REQUEST, "Bad Request",
-                HttpHeaders.EMPTY, null, null);
+                HttpClientErrorException.create(HttpStatus.BAD_REQUEST, "Bad Request", HttpHeaders.EMPTY, null, null);
         when(githubClient.getResponse("repos/author/repo/commits")).thenThrow(httpClientErrorException);
 
         assertThatThrownBy(() -> githubClientService.getAllInfo(link))
-            .isInstanceOf(ScrapperInternalResponseException.class);
+                .isInstanceOf(ScrapperInternalResponseException.class);
     }
 
     @Test

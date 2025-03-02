@@ -1,5 +1,13 @@
 package backend.academy.scrapper.server.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
@@ -27,13 +35,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ScrapperServiceTest {
@@ -113,22 +114,21 @@ public class ScrapperServiceTest {
             mockedStatic.when(() -> Link.getLinkType(request.link())).thenReturn(LinkType.GITHUB);
 
             assertThatThrownBy(() -> scrapperService.addSubscription(userId, request))
-                .isInstanceOf(ScrapperUnavailableLinkException.class)
-                .hasMessageContaining("Link is unavailable");
+                    .isInstanceOf(ScrapperUnavailableLinkException.class)
+                    .hasMessageContaining("Link is unavailable");
         }
     }
 
     @Test
-    public void deleteSubscriptionTest_Successful(){
+    public void deleteSubscriptionTest_Successful() {
         long userId = 3L;
         Link link = new Link("url", null, null);
         RemoveLinkRequest request = new RemoveLinkRequest("url");
         when(userRepository.containsUser(userId)).thenReturn(true);
         when(linkRepository.getLinkIdByURL(any())).thenReturn(1L);
         when(subscriptionRepository.getSubscriptionId(userId, 1L)).thenReturn(2L);
-        when(subscriptionRepository.removeSubscriptionById(2L)).thenReturn(
-            new Subscription(userId, null, 1L, link, List.of("tag"), List.of("filter"))
-        );
+        when(subscriptionRepository.removeSubscriptionById(2L))
+                .thenReturn(new Subscription(userId, null, 1L, link, List.of("tag"), List.of("filter")));
 
         LinkResponse response = assertDoesNotThrow(() -> scrapperService.deleteSubscription(userId, request));
 
@@ -150,7 +150,7 @@ public class ScrapperServiceTest {
         when(userRepository.containsUser(userId)).thenReturn(true);
 
         assertThatThrownBy(() -> scrapperService.deleteSubscription(userId, request))
-            .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
+                .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class ScrapperServiceTest {
         when(userRepository.containsUser(userId)).thenReturn(true);
 
         assertThatThrownBy(() -> scrapperService.deleteSubscription(userId, request))
-            .isInstanceOf(ScrapperLinkNotExistsException.class);
+                .isInstanceOf(ScrapperLinkNotExistsException.class);
     }
 
     @Test
@@ -170,6 +170,6 @@ public class ScrapperServiceTest {
         RemoveLinkRequest request = new RemoveLinkRequest("url");
 
         assertThatThrownBy(() -> scrapperService.deleteSubscription(userId, request))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 }

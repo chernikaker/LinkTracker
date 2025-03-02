@@ -18,7 +18,8 @@ public class ClientTestConfig {
     @Bean
     @Primary
     public WireMockServer wireMockServer() {
-        WireMockServer s =  new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort());
+        WireMockServer s =
+                new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort());
         s.start();
         return s;
     }

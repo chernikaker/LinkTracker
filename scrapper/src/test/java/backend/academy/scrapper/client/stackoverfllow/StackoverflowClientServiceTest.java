@@ -1,5 +1,9 @@
 package backend.academy.scrapper.client.stackoverfllow;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.dto.UpdateInfoType;
 import backend.academy.scrapper.client.stackoverflow.StackoverflowClient;
@@ -9,6 +13,9 @@ import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.exception.client.StackoverflowResponseJsonIsInvalid;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,14 +25,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class StackoverflowClientServiceTest {
@@ -40,7 +39,10 @@ public class StackoverflowClientServiceTest {
 
     @BeforeEach
     public void setUp() {
-        link = new Link("https://stackoverflow.com/questions/12345", LinkType.STACKOVERFLOW, LocalDateTime.now(ZoneId.systemDefault()));
+        link = new Link(
+                "https://stackoverflow.com/questions/12345",
+                LinkType.STACKOVERFLOW,
+                LocalDateTime.now(ZoneId.systemDefault()));
     }
 
     @Test
@@ -50,7 +52,6 @@ public class StackoverflowClientServiceTest {
 
         when(client.getResponse("/questions/12345/comments")).thenReturn(commentJson);
         when(client.getResponse("/questions/12345/answers")).thenReturn(answerJson);
-
 
         List<UpdateInfo> updates = stackoverflowClientService.getAllInfo(link);
         assertEquals(2, updates.size());
@@ -70,16 +71,14 @@ public class StackoverflowClientServiceTest {
         when(client.getResponse("/questions/12345/comments")).thenReturn(invalidJson);
 
         assertThatThrownBy(() -> stackoverflowClientService.getAllInfo(link))
-            .isInstanceOf(StackoverflowResponseJsonIsInvalid.class);
+                .isInstanceOf(StackoverflowResponseJsonIsInvalid.class);
     }
 
     @Test
     public void getAllInfo_httpClientError() {
         HttpClientErrorException httpClientErrorException =
-            HttpClientErrorException.create(HttpStatus.BAD_REQUEST, "Bad Request",
-                HttpHeaders.EMPTY, null, null);
+                HttpClientErrorException.create(HttpStatus.BAD_REQUEST, "Bad Request", HttpHeaders.EMPTY, null, null);
         when(client.getResponse("/questions/12345/comments")).thenThrow(httpClientErrorException);
-
 
         assertThrows(ScrapperInternalResponseException.class, () -> stackoverflowClientService.getAllInfo(link));
     }

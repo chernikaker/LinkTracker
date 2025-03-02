@@ -1,26 +1,25 @@
 package backend.academy.scrapper.repository;
 
-import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.LinkType;
-import backend.academy.scrapper.entity.Subscription;
-import backend.academy.scrapper.entity.User;
-import backend.academy.scrapper.exception.repository.ScrapperSubscriptionAlreadyExistsException;
-import backend.academy.scrapper.exception.repository.SubscriptionNotExistsException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import backend.academy.scrapper.entity.Link;
+import backend.academy.scrapper.entity.LinkType;
+import backend.academy.scrapper.entity.Subscription;
+import backend.academy.scrapper.entity.User;
+import backend.academy.scrapper.exception.repository.ScrapperSubscriptionAlreadyExistsException;
+import backend.academy.scrapper.exception.repository.SubscriptionNotExistsException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class InMemorySubscriptionRepositoryTest {
 
@@ -50,8 +49,8 @@ public class InMemorySubscriptionRepositoryTest {
         repository.addSubscription(subscription);
 
         assertThatThrownBy(() -> repository.addSubscription(subscription))
-            .isInstanceOf(ScrapperSubscriptionAlreadyExistsException.class)
-            .hasMessageContaining("already exists for user");
+                .isInstanceOf(ScrapperSubscriptionAlreadyExistsException.class)
+                .hasMessageContaining("already exists for user");
     }
 
     @Test
@@ -66,8 +65,8 @@ public class InMemorySubscriptionRepositoryTest {
     @Test
     public void removeSubscriptionById_NotExists() {
         assertThatThrownBy(() -> repository.removeSubscriptionById(1L))
-            .isInstanceOf(SubscriptionNotExistsException.class)
-            .hasMessageContaining("does not exist");
+                .isInstanceOf(SubscriptionNotExistsException.class)
+                .hasMessageContaining("does not exist");
     }
 
     @Test

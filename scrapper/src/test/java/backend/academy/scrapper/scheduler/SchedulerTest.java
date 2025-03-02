@@ -1,5 +1,12 @@
 package backend.academy.scrapper.scheduler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.client.bot.BotClientService;
 import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.dto.UpdateInfoType;
@@ -20,12 +27,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class SchedulerTest {
@@ -57,7 +58,8 @@ public class SchedulerTest {
     @BeforeEach
     public void setUp() {
         githubLink = new Link("https://github.com/mock", LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
-        stackoverflowLink = new Link("https://stackoverflow.com/mock", LinkType.STACKOVERFLOW, LocalDateTime.now(ZoneId.systemDefault()));
+        stackoverflowLink = new Link(
+                "https://stackoverflow.com/mock", LinkType.STACKOVERFLOW, LocalDateTime.now(ZoneId.systemDefault()));
     }
 
     @Test
@@ -105,7 +107,8 @@ public class SchedulerTest {
         when(linkRepository.getLinks()).thenReturn(Set.of(githubLink, stackoverflowLink));
         LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         UpdateInfo updateInfo1 = new UpdateInfo("New commit", "Author", now, UpdateInfoType.COMMIT);
-        UpdateInfo updateInfo2 = new UpdateInfo("New answer", "Author", linkUpdateTime2.minusDays(1), UpdateInfoType.ANSWER);
+        UpdateInfo updateInfo2 =
+                new UpdateInfo("New answer", "Author", linkUpdateTime2.minusDays(1), UpdateInfoType.ANSWER);
         when(githubClientService.getAllInfo(githubLink)).thenReturn(List.of(updateInfo1));
         when(soClientService.getAllInfo(stackoverflowLink)).thenReturn(List.of(updateInfo2));
 

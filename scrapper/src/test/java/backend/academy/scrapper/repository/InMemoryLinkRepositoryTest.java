@@ -1,5 +1,10 @@
 package backend.academy.scrapper.repository;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
@@ -8,10 +13,6 @@ import java.time.ZoneId;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InMemoryLinkRepositoryTest {
 
@@ -79,7 +80,7 @@ public class InMemoryLinkRepositoryTest {
         long nonExistentLinkId = 999L;
 
         assertThatThrownBy(() -> linkRepository.removeLinkById(nonExistentLinkId))
-            .isInstanceOf(ScrapperLinkNotExistsException.class);
+                .isInstanceOf(ScrapperLinkNotExistsException.class);
     }
 
     @Test

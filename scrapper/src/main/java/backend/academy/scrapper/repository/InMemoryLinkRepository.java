@@ -48,7 +48,7 @@ public class InMemoryLinkRepository {
         return links.containsKey(linkId);
     }
 
-    public int size(){
+    public int size() {
         return links.size();
     }
 

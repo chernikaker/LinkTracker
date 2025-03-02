@@ -1,5 +1,12 @@
 package backend.academy.scrapper.client.bot;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.client.ClientTestConfig;
 import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.dto.UpdateInfoType;
@@ -19,20 +26,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.Mockito.when;
 
-
-@SpringBootTest(
-    classes = {
-        BotClientService.class,
-    InMemorySubscriptionRepository.class
-    }
-)
+@SpringBootTest(classes = {BotClientService.class, InMemorySubscriptionRepository.class})
 @Import(ClientTestConfig.class)
 @WireMockTest
 public class BotClientServiceIntegrationTest {
@@ -53,16 +48,14 @@ public class BotClientServiceIntegrationTest {
 
     @Test
     public void testSendUpdates_Success() {
-        wireMockServer.stubFor(post(urlEqualTo("/updates"))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.OK.value())));
+        wireMockServer.stubFor(
+                post(urlEqualTo("/updates")).willReturn(aResponse().withStatus(HttpStatus.OK.value())));
         Link link = new Link("http://example.com", LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
         Subscription subscription = new Subscription(1L, null, 1L, link, List.of(), List.of());
         when(repository.getLinkSubscriptions(link)).thenReturn(List.of(subscription));
         List<UpdateInfo> updates = List.of(
-            new UpdateInfo("commit", "author1", LocalDateTime.now(), UpdateInfoType.COMMIT),
-            new UpdateInfo("issue", "author2", LocalDateTime.now(), UpdateInfoType.ISSUE)
-        );
+                new UpdateInfo("commit", "author1", LocalDateTime.now(), UpdateInfoType.COMMIT),
+                new UpdateInfo("issue", "author2", LocalDateTime.now(), UpdateInfoType.ISSUE));
 
         botClientService.sendUpdates(link, updates);
 
@@ -73,20 +66,18 @@ public class BotClientServiceIntegrationTest {
     public void testSendUpdates_HttpClientErrorException() {
 
         wireMockServer.stubFor(post(urlEqualTo("/updates"))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.BAD_REQUEST.value())
-                .withBody("{\"exceptionMessage\":\"Invalid request\"}")));
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.BAD_REQUEST.value())
+                        .withBody("{\"exceptionMessage\":\"Invalid request\"}")));
         Link link = new Link("http://example.com", LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
         Subscription subscription = new Subscription(1L, null, 1L, link, List.of(), List.of());
         when(repository.getLinkSubscriptions(link)).thenReturn(List.of(subscription));
         List<UpdateInfo> updates = List.of(
-            new UpdateInfo("commit", "author1", LocalDateTime.now(), UpdateInfoType.COMMIT),
-            new UpdateInfo("issue", "author2", LocalDateTime.now(), UpdateInfoType.ISSUE)
-        );
+                new UpdateInfo("commit", "author1", LocalDateTime.now(), UpdateInfoType.COMMIT),
+                new UpdateInfo("issue", "author2", LocalDateTime.now(), UpdateInfoType.ISSUE));
 
         assertDoesNotThrow(() -> botClientService.sendUpdates(link, updates));
 
         wireMockServer.verify(postRequestedFor(urlEqualTo("/updates")));
     }
-
 }

@@ -79,7 +79,7 @@ public class ScrapperService {
     }
 
     public LinkResponse deleteSubscription(long chatId, RemoveLinkRequest request) {
-        if(!userRepository.containsUser(chatId)) {
+        if (!userRepository.containsUser(chatId)) {
             throw new ScrapperUserNotExistsException("User not exists id:" + chatId);
         }
         long linkId = linkRepository.getLinkIdByURL(request.link());

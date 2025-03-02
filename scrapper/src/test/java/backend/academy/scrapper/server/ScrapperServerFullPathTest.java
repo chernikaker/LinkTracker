@@ -1,5 +1,14 @@
 package backend.academy.scrapper.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
@@ -19,18 +28,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.MOCK
-)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @Import(TestClientConfig.class)
 @AutoConfigureMockMvc
 public class ScrapperServerFullPathTest {
@@ -66,8 +65,7 @@ public class ScrapperServerFullPathTest {
     public void registerChatTest_validId() {
         long chatId = 1L;
 
-        mockMvc.perform(post("/tg-chat/{id}", chatId))
-            .andExpect(status().isOk());
+        mockMvc.perform(post("/tg-chat/{id}", chatId)).andExpect(status().isOk());
 
         assertTrue(userRepository.containsUser(1L));
     }
@@ -78,9 +76,8 @@ public class ScrapperServerFullPathTest {
         long invalidChatId = -1L;
 
         mockMvc.perform(post("/tg-chat/{id}", invalidChatId))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionMessage")
-                .value("Id must be a positive integer"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
 
         assertFalse(userRepository.containsUser(-1L));
     }
@@ -90,21 +87,19 @@ public class ScrapperServerFullPathTest {
     public void deleteChatTest_validId() {
         long chatId = userRepository.registerUser(user);
 
-        mockMvc.perform(delete("/tg-chat/{id}", chatId))
-            .andExpect(status().isOk());
+        mockMvc.perform(delete("/tg-chat/{id}", chatId)).andExpect(status().isOk());
 
         assertFalse(userRepository.containsUser(1L));
     }
 
     @Test
     @SneakyThrows
-    public void deleteChatTest_userNotExists()  {
+    public void deleteChatTest_userNotExists() {
         long chatId = 1L;
 
         mockMvc.perform(delete("/tg-chat/{id}", chatId))
-            .andExpect(status().is(404))
-            .andExpect(jsonPath("$.exceptionName")
-                .value("ScrapperControllerEntityNotFoundException"));
+                .andExpect(status().is(404))
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
     }
 
     @Test
@@ -113,36 +108,30 @@ public class ScrapperServerFullPathTest {
         long chatId = 1L;
         userRepository.registerUser(user);
 
-        mockMvc.perform(get("/links")
-                .header("Tg-Chat-Id", chatId)
-                .accept(MediaType.ALL))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.size").value(0));
+        mockMvc.perform(get("/links").header("Tg-Chat-Id", chatId).accept(MediaType.ALL))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size").value(0));
     }
-
 
     @Test
     @SneakyThrows
     public void getLinksTest_invalidId() {
         long invalidChatId = -1L;
 
-        mockMvc.perform(get("/links")
-                .header("Tg-Chat-Id", invalidChatId))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
-            .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
+        mockMvc.perform(get("/links").header("Tg-Chat-Id", invalidChatId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
+                .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
     }
 
     @Test
     @SneakyThrows
-    public void getLinksTest_serviceException_userNotFound()  {
+    public void getLinksTest_serviceException_userNotFound() {
         long chatId = 1L;
 
-        mockMvc.perform(get("/links")
-                .header("Tg-Chat-Id", chatId))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName")
-                .value("ScrapperUserNotExistsException"));
+        mockMvc.perform(get("/links").header("Tg-Chat-Id", chatId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperUserNotExistsException"));
     }
 
     @Test
@@ -150,21 +139,23 @@ public class ScrapperServerFullPathTest {
     public void addLinkSubscriptionTest_newLinkSuccess() {
         long chatId = 1L;
         userRepository.registerUser(user);
-        mockMvc.perform(post("/links")
-                .header("Tg-Chat-Id", chatId)
-                .contentType("application/json")
-                .content("""
+        mockMvc.perform(
+                        post("/links")
+                                .header("Tg-Chat-Id", chatId)
+                                .contentType("application/json")
+                                .content(
+                                        """
                             {
                                 "link": "https://github.com/mock",
                                 "tags": [],
                                 "filters": []
                             }
                             """))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(1L))
-            .andExpect(jsonPath("$.url").value("https://github.com/mock"))
-            .andExpect(jsonPath("$.tags").isEmpty())
-            .andExpect(jsonPath("$.filters").isEmpty());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.url").value("https://github.com/mock"))
+                .andExpect(jsonPath("$.tags").isEmpty())
+                .andExpect(jsonPath("$.filters").isEmpty());
 
         assertTrue(linkRepository.containsLink(1L));
         assertTrue(subscriptionRepository.getUserSubscriptions(user).containsKey(1L));
@@ -176,21 +167,23 @@ public class ScrapperServerFullPathTest {
         long chatId = 1L;
         userRepository.registerUser(user);
         linkRepository.addLink(link);
-        mockMvc.perform(post("/links")
-                .header("Tg-Chat-Id", chatId)
-                .contentType("application/json")
-                .content("""
+        mockMvc.perform(
+                        post("/links")
+                                .header("Tg-Chat-Id", chatId)
+                                .contentType("application/json")
+                                .content(
+                                        """
                             {
                                 "link": "https://github.com/mock",
                                 "tags": [],
                                 "filters": []
                             }
                             """))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(1L))
-            .andExpect(jsonPath("$.url").value("https://github.com/mock"))
-            .andExpect(jsonPath("$.tags").isEmpty())
-            .andExpect(jsonPath("$.filters").isEmpty());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.url").value("https://github.com/mock"))
+                .andExpect(jsonPath("$.tags").isEmpty())
+                .andExpect(jsonPath("$.filters").isEmpty());
 
         assertEquals(1, linkRepository.size());
         assertTrue(subscriptionRepository.getUserSubscriptions(user).containsKey(1L));
@@ -203,18 +196,20 @@ public class ScrapperServerFullPathTest {
         userRepository.registerUser(user);
         linkRepository.addLink(link);
         subscriptionRepository.addSubscription(subscription);
-        mockMvc.perform(post("/links")
-                .header("Tg-Chat-Id", chatId)
-                .contentType("application/json")
-                .content("""
+        mockMvc.perform(
+                        post("/links")
+                                .header("Tg-Chat-Id", chatId)
+                                .contentType("application/json")
+                                .content(
+                                        """
                             {
                                 "link": "https://github.com/mock",
                                 "tags": [],
                                 "filters": []
                             }
                             """))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperSubscriptionAlreadyExistsException"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperSubscriptionAlreadyExistsException"));
     }
 
     @Test
@@ -225,17 +220,19 @@ public class ScrapperServerFullPathTest {
         linkRepository.addLink(link);
         subscriptionRepository.addSubscription(subscription);
 
-        mockMvc.perform(delete("/links")
-                .header("Tg-Chat-Id", chatId)
-                .contentType("application/json")
-                .content("""
+        mockMvc.perform(
+                        delete("/links")
+                                .header("Tg-Chat-Id", chatId)
+                                .contentType("application/json")
+                                .content(
+                                        """
                             {
                                 "link": "https://github.com/mock"
                             }
                             """))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(1L))
-            .andExpect(jsonPath("$.url").value(link.url()));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.url").value(link.url()));
 
         assertTrue(subscriptionRepository.getUserSubscriptions(user).isEmpty());
         assertEquals(0, linkRepository.size());
@@ -251,17 +248,19 @@ public class ScrapperServerFullPathTest {
         subscriptionRepository.addSubscription(subscription);
         subscriptionRepository.addSubscription(s);
 
-        mockMvc.perform(delete("/links")
-                .header("Tg-Chat-Id", chatId)
-                .contentType("application/json")
-                .content("""
+        mockMvc.perform(
+                        delete("/links")
+                                .header("Tg-Chat-Id", chatId)
+                                .contentType("application/json")
+                                .content(
+                                        """
                             {
                                 "link": "https://github.com/mock"
                             }
                             """))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(1L))
-            .andExpect(jsonPath("$.url").value(link.url()));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.url").value(link.url()));
 
         assertTrue(subscriptionRepository.getUserSubscriptions(user).isEmpty());
         assertEquals(1, linkRepository.size());
@@ -272,16 +271,18 @@ public class ScrapperServerFullPathTest {
     public void deleteLinkSubscription_linkNotExistsException() {
         long chatId = 1L;
         userRepository.registerUser(user);
-        mockMvc.perform(delete("/links")
-                .header("Tg-Chat-Id", chatId)
-                .contentType("application/json")
-                .content("""
+        mockMvc.perform(
+                        delete("/links")
+                                .header("Tg-Chat-Id", chatId)
+                                .contentType("application/json")
+                                .content(
+                                        """
                             {
                                 "link": "url"
                             }
                             """))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
     }
 
     @Test
@@ -290,15 +291,17 @@ public class ScrapperServerFullPathTest {
         long chatId = 1L;
         userRepository.registerUser(user);
         linkRepository.addLink(link);
-        mockMvc.perform(delete("/links")
-                .header("Tg-Chat-Id", chatId)
-                .contentType("application/json")
-                .content("""
+        mockMvc.perform(
+                        delete("/links")
+                                .header("Tg-Chat-Id", chatId)
+                                .contentType("application/json")
+                                .content(
+                                        """
                             {
                                 "link": "url"
                             }
                             """))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
     }
 }

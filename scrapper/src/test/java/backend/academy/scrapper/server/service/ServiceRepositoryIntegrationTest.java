@@ -1,5 +1,14 @@
 package backend.academy.scrapper.server.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
@@ -27,21 +36,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
-@SpringBootTest(classes = {
-    ScrapperService.class,
-    InMemoryLinkRepository.class,
-    InMemorySubscriptionRepository.class,
-    InMemoryUserRepository.class
-})
+@SpringBootTest(
+        classes = {
+            ScrapperService.class,
+            InMemoryLinkRepository.class,
+            InMemorySubscriptionRepository.class,
+            InMemoryUserRepository.class
+        })
 public class ServiceRepositoryIntegrationTest {
 
     @Autowired
@@ -61,7 +63,6 @@ public class ServiceRepositoryIntegrationTest {
 
     @MockitoBean
     private StackoverflowClientService stackoverflowClientService;
-
 
     private User user;
     private Link link;
@@ -130,8 +131,7 @@ public class ServiceRepositoryIntegrationTest {
         linkRepository.addLink(link);
         subscriptionRepository.addSubscription(subscription);
 
-        assertThatThrownBy(() -> scrapperService.getUserLinks(1L))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+        assertThatThrownBy(() -> scrapperService.getUserLinks(1L)).isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -185,8 +185,8 @@ public class ServiceRepositoryIntegrationTest {
         when(githubClientService.isLinkAvailable(any(Link.class))).thenReturn(false);
         AddLinkRequest request = new AddLinkRequest("https://github.com/mock", List.of(), List.of());
 
-        assertThatThrownBy(()-> scrapperService.addSubscription(1L, request))
-            .isInstanceOf(ScrapperUnavailableLinkException.class);
+        assertThatThrownBy(() -> scrapperService.addSubscription(1L, request))
+                .isInstanceOf(ScrapperUnavailableLinkException.class);
     }
 
     @Test
@@ -194,8 +194,8 @@ public class ServiceRepositoryIntegrationTest {
         when(githubClientService.isLinkAvailable(any(Link.class))).thenReturn(true);
         AddLinkRequest request = new AddLinkRequest("https://github.com/mock", List.of(), List.of());
 
-        assertThatThrownBy(()-> scrapperService.addSubscription(1L, request))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+        assertThatThrownBy(() -> scrapperService.addSubscription(1L, request))
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -207,8 +207,8 @@ public class ServiceRepositoryIntegrationTest {
 
         AddLinkRequest request = new AddLinkRequest("https://github.com/mock", List.of(), List.of());
 
-        assertThatThrownBy(()-> scrapperService.addSubscription(1L, request))
-            .isInstanceOf(ScrapperSubscriptionAlreadyExistsException.class);
+        assertThatThrownBy(() -> scrapperService.addSubscription(1L, request))
+                .isInstanceOf(ScrapperSubscriptionAlreadyExistsException.class);
     }
 
     @Test
@@ -250,7 +250,7 @@ public class ServiceRepositoryIntegrationTest {
         RemoveLinkRequest request = new RemoveLinkRequest("url");
 
         assertThatThrownBy(() -> scrapperService.deleteSubscription(1L, request))
-            .isInstanceOf(ScrapperLinkNotExistsException.class);
+                .isInstanceOf(ScrapperLinkNotExistsException.class);
     }
 
     @Test
@@ -258,7 +258,7 @@ public class ServiceRepositoryIntegrationTest {
         RemoveLinkRequest request = new RemoveLinkRequest("url");
 
         assertThatThrownBy(() -> scrapperService.deleteSubscription(1L, request))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -269,7 +269,6 @@ public class ServiceRepositoryIntegrationTest {
         RemoveLinkRequest request = new RemoveLinkRequest("https://github.com/mock");
 
         assertThatThrownBy(() -> scrapperService.deleteSubscription(1L, request))
-            .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
+                .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
     }
-
 }
