@@ -25,7 +25,7 @@ public class TestClientConfig {
     @MockitoBean
     private StackoverflowClientService soClientService;
 
-    @Bean
+    @Bean("testGitHubClientService")
     @Primary
     public GithubClientService githubClientService() {
         GithubClientService mock = Mockito.mock(GithubClientService.class);
@@ -33,7 +33,7 @@ public class TestClientConfig {
         return mock;
     }
 
-    @Bean
+    @Bean("testSOClientService")
     @Primary
     public StackoverflowClientService soClientService() {
         StackoverflowClientService mock = Mockito.mock(StackoverflowClientService.class);
@@ -41,33 +41,33 @@ public class TestClientConfig {
         return mock;
     }
 
-    @Bean
+    @Bean("testBotClientService")
     @Primary
     public BotClientService botClientService() {
         return Mockito.mock(BotClientService.class);
     }
 
-    @Bean
+    @Bean("testScheduler")
     @Primary
     public SchedulerUpdateService schedulerUpdateService() {
         return Mockito.mock(SchedulerUpdateService.class);
     }
 
-    @Bean
+    @Bean("testBotClient")
     @Primary
     public BotClient botClient() {
         return Mockito.mock(BotClient.class);
     }
 
-    @Bean
+    @Bean("testSOClient")
     @Primary
-    public StackoverflowClient stackoverflowClient() {
+    public StackoverflowClient soClient() {
         return Mockito.mock(StackoverflowClient.class);
     }
 
-    @Bean
+    @Bean("testGithubClient")
     @Primary
-    public GithubClient githubClient() {
+    public GithubClient gitClient() {
         return Mockito.mock(GithubClient.class);
     }
 }

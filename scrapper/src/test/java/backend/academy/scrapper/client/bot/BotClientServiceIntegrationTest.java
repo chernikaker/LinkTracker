@@ -7,7 +7,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.when;
 
-import backend.academy.scrapper.client.ClientTestConfig;
+import backend.academy.scrapper.client.WireMockClientTestConfig;
 import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.dto.UpdateInfoType;
 import backend.academy.scrapper.entity.Link;
@@ -28,7 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(classes = {BotClientService.class, InMemorySubscriptionRepository.class})
-@Import(ClientTestConfig.class)
+@Import(WireMockClientTestConfig.class)
 @WireMockTest
 public class BotClientServiceIntegrationTest {
 

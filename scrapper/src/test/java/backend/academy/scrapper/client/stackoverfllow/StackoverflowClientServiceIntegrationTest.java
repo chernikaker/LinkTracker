@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import backend.academy.scrapper.client.ClientTestConfig;
+import backend.academy.scrapper.client.WireMockClientTestConfig;
 import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.client.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.entity.Link;
@@ -25,7 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 @SpringBootTest(classes = {StackoverflowClientService.class})
-@Import(ClientTestConfig.class)
+@Import(WireMockClientTestConfig.class)
 @WireMockTest
 public class StackoverflowClientServiceIntegrationTest {
 

@@ -57,9 +57,9 @@ public class SchedulerTest {
 
     @BeforeEach
     public void setUp() {
-        githubLink = new Link("https://github.com/mock", LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
+        githubLink = new Link("https://github.com/mock", LinkType.GITHUB, LocalDateTime.of(2023, 10, 1, 12, 0));
         stackoverflowLink = new Link(
-                "https://stackoverflow.com/mock", LinkType.STACKOVERFLOW, LocalDateTime.now(ZoneId.systemDefault()));
+                "https://stackoverflow.com/mock", LinkType.STACKOVERFLOW, LocalDateTime.of(2023, 10, 1, 12, 0));
     }
 
     @Test

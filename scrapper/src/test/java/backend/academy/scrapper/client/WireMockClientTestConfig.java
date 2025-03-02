@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
 @TestConfiguration
-public class ClientTestConfig {
+public class WireMockClientTestConfig {
 
     @Bean
     @Primary
