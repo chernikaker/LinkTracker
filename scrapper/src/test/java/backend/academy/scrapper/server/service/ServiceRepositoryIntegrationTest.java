@@ -244,7 +244,7 @@ public class ServiceRepositoryIntegrationTest {
     }
 
     @Test
-    public void testDeleteSubscriptionThrowsExceptionWhenLinkNotExists() {
+    public void testDeleteSubscription_LinkNotExists() {
         userRepository.registerUser(user);
 
         RemoveLinkRequest request = new RemoveLinkRequest("url");
@@ -254,15 +254,15 @@ public class ServiceRepositoryIntegrationTest {
     }
 
     @Test
-    public void testDeleteSubscriptionThrowsExceptionWhenUserNotExists() {
+    public void testDeleteSubscription_UserNotExists() {
         RemoveLinkRequest request = new RemoveLinkRequest("url");
 
         assertThatThrownBy(() -> scrapperService.deleteSubscription(1L, request))
-            .isInstanceOf(ScrapperLinkNotExistsException.class);
+            .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
-    public void testDeleteSubscriptionThrowsExceptionWhenSubscriptionNotExists() {
+    public void testDeleteSubscription_SubscriptionNotExists() {
         userRepository.registerUser(user);
         linkRepository.addLink(link);
 

@@ -11,6 +11,7 @@ import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
+import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkException;
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
@@ -122,6 +123,7 @@ public class ScrapperServiceTest {
         long userId = 3L;
         Link link = new Link("url", null, null);
         RemoveLinkRequest request = new RemoveLinkRequest("url");
+        when(userRepository.containsUser(userId)).thenReturn(true);
         when(linkRepository.getLinkIdByURL(any())).thenReturn(1L);
         when(subscriptionRepository.getSubscriptionId(userId, 1L)).thenReturn(2L);
         when(subscriptionRepository.removeSubscriptionById(2L)).thenReturn(
@@ -145,6 +147,7 @@ public class ScrapperServiceTest {
         RemoveLinkRequest request = new RemoveLinkRequest("url");
         when(linkRepository.getLinkIdByURL(any())).thenReturn(1L);
         when(subscriptionRepository.getSubscriptionId(userId, 1L)).thenReturn(-1L);
+        when(userRepository.containsUser(userId)).thenReturn(true);
 
         assertThatThrownBy(() -> scrapperService.deleteSubscription(userId, request))
             .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
@@ -155,7 +158,18 @@ public class ScrapperServiceTest {
         long userId = 3L;
         RemoveLinkRequest request = new RemoveLinkRequest("url");
         when(linkRepository.getLinkIdByURL(any())).thenReturn(-1L);
+        when(userRepository.containsUser(userId)).thenReturn(true);
+
         assertThatThrownBy(() -> scrapperService.deleteSubscription(userId, request))
             .isInstanceOf(ScrapperLinkNotExistsException.class);
+    }
+
+    @Test
+    public void deleteSubscriptionTest_NoUserException() {
+        long userId = 3L;
+        RemoveLinkRequest request = new RemoveLinkRequest("url");
+
+        assertThatThrownBy(() -> scrapperService.deleteSubscription(userId, request))
+            .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 }
