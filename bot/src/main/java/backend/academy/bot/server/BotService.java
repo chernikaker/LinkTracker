@@ -14,7 +14,6 @@ public class BotService {
     private final TelegramBotService botService;
     private final LinkUpdateValidator validator;
 
-    
     public void sendUpdates(LinkUpdate update) {
         validator.validate(update);
         for (long chat : update.tgChatIds()) {

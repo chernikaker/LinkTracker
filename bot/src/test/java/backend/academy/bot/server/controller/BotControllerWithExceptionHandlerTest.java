@@ -1,5 +1,12 @@
 package backend.academy.bot.server.controller;
 
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import backend.academy.bot.exception.BotException;
 import backend.academy.bot.server.ApplicationExceptionHandler;
 import backend.academy.bot.server.BotController;
@@ -15,12 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = {BotController.class, ApplicationExceptionHandler.class})
 @ContextConfiguration(classes = {BotController.class, ApplicationExceptionHandler.class})
@@ -32,7 +33,6 @@ public class BotControllerWithExceptionHandlerTest {
     @MockitoBean
     private BotService botService;
 
-
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
@@ -41,10 +41,10 @@ public class BotControllerWithExceptionHandlerTest {
         LinkUpdate linkUpdate = new LinkUpdate(1L, "https://example.com", "Test message", List.of(1L, 2L));
 
         mockMvc.perform(post("/updates")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(linkUpdate)))
-            .andExpect(status().isOk())
-            .andExpect(content().string("Request processed successfully"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(linkUpdate)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Request processed successfully"));
 
         verify(botService).sendUpdates(linkUpdate);
     }
@@ -55,12 +55,12 @@ public class BotControllerWithExceptionHandlerTest {
         LinkUpdate linkUpdate = new LinkUpdate(null, null, null, null);
 
         mockMvc.perform(post("/updates")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(linkUpdate)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.description").value("Incorrect update params"))
-            .andExpect(jsonPath("$.code").value("400"))
-            .andExpect(jsonPath("$.exceptionName").value("MethodArgumentNotValidException"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(linkUpdate)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.description").value("Incorrect update params"))
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.exceptionName").value("MethodArgumentNotValidException"));
     }
 
     @Test
@@ -69,12 +69,12 @@ public class BotControllerWithExceptionHandlerTest {
         LinkUpdate linkUpdate = new LinkUpdate(1L, "", "description", List.of(1L, 2L));
 
         mockMvc.perform(post("/updates")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(linkUpdate)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.description").value("Incorrect update params"))
-            .andExpect(jsonPath("$.code").value("400"))
-            .andExpect(jsonPath("$.exceptionName").value("MethodArgumentNotValidException"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(linkUpdate)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.description").value("Incorrect update params"))
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.exceptionName").value("MethodArgumentNotValidException"));
     }
 
     @Test
@@ -83,12 +83,12 @@ public class BotControllerWithExceptionHandlerTest {
         LinkUpdate linkUpdate = new LinkUpdate(1L, "url", "description", List.of());
 
         mockMvc.perform(post("/updates")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(linkUpdate)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.description").value("Incorrect update params"))
-            .andExpect(jsonPath("$.code").value("400"))
-            .andExpect(jsonPath("$.exceptionName").value("MethodArgumentNotValidException"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(linkUpdate)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.description").value("Incorrect update params"))
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.exceptionName").value("MethodArgumentNotValidException"));
     }
 
     @Test
@@ -97,12 +97,12 @@ public class BotControllerWithExceptionHandlerTest {
         LinkUpdate linkUpdate = new LinkUpdate(-1L, "url", "description", List.of(1L));
 
         mockMvc.perform(post("/updates")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(linkUpdate)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.description").value("Incorrect update params"))
-            .andExpect(jsonPath("$.code").value("400"))
-            .andExpect(jsonPath("$.exceptionName").value("MethodArgumentNotValidException"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(linkUpdate)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.description").value("Incorrect update params"))
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.exceptionName").value("MethodArgumentNotValidException"));
     }
 
     @Test
@@ -112,10 +112,10 @@ public class BotControllerWithExceptionHandlerTest {
         doThrow(new BotException("error")).when(botService).sendUpdates(linkUpdate);
 
         mockMvc.perform(post("/updates")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(linkUpdate)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.code").value("400"))
-            .andExpect(jsonPath("$.exceptionName").value("BotException"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(linkUpdate)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.exceptionName").value("BotException"));
     }
 }

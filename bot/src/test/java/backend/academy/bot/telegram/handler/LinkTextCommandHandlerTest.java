@@ -1,11 +1,17 @@
 package backend.academy.bot.telegram.handler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.telegram.handler.commands.LinkTextCommandHandler;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,13 +19,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
 
 public class LinkTextCommandHandlerTest {
 
@@ -42,7 +41,8 @@ public class LinkTextCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("https://github.com/owner/repo");
-        LinkTrackingObject tracking = new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
+        LinkTrackingObject tracking =
+                new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
 
         String result = linkTextCommandHandler.processRequest(message);
@@ -61,12 +61,14 @@ public class LinkTextCommandHandlerTest {
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("invalid-link");
 
-        LinkTrackingObject tracking = new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
+        LinkTrackingObject tracking =
+                new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
 
         String result = linkTextCommandHandler.processRequest(message);
 
-        String expectedMessage = """
+        String expectedMessage =
+                """
             Ссылка введена неверно или не поддерживается, попробуйте ещё раз.
             Подробнее о формате в /help
             """;
@@ -82,7 +84,8 @@ public class LinkTextCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("https://github.com/owner/repo");
-        LinkTrackingObject tracking = new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
+        LinkTrackingObject tracking =
+                new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
 
         boolean result = linkTextCommandHandler.canHandle(message);
@@ -107,7 +110,7 @@ public class LinkTextCommandHandlerTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"/help","/track","/start", "/any"})
+    @CsvSource({"/help", "/track", "/start", "/any"})
     public void canHandle_shouldReturnFalse_TextIsCommand(String command) {
         long chatId = 123L;
         Message message = mock(Message.class);
@@ -116,7 +119,8 @@ public class LinkTextCommandHandlerTest {
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn(command);
 
-        LinkTrackingObject tracking = new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
+        LinkTrackingObject tracking =
+                new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
 
         boolean result = linkTextCommandHandler.canHandle(message);

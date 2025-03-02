@@ -1,5 +1,10 @@
 package backend.academy.bot.telegram.handler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotInvalidChatIdException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
@@ -9,19 +14,13 @@ import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
 
 public class ListCommandHandlerTest {
 
@@ -48,18 +47,16 @@ public class ListCommandHandlerTest {
         when(chat.id()).thenReturn(chatId);
         when(repository.containsTrack(chatId)).thenReturn(false);
         ListLinksResponse listLinksResponse = new ListLinksResponse(
-            List.of(
-                new LinkResponse(1L, "https://example.com", List.of("tag1"), List.of("filter1")),
-                new LinkResponse(2L, "https://example.org", List.of("tag2"), List.of("filter2"))
-            ),
-            2
-        );
+                List.of(
+                        new LinkResponse(1L, "https://example.com", List.of("tag1"), List.of("filter1")),
+                        new LinkResponse(2L, "https://example.org", List.of("tag2"), List.of("filter2"))),
+                2);
         when(service.getUserLinks(chatId)).thenReturn(listLinksResponse);
-
 
         String result = listCommandHandler.processRequest(message);
 
-        String expectedMessage = """
+        String expectedMessage =
+                """
             Отслеживаемые ссылки:
 
             https://example.com
@@ -105,9 +102,9 @@ public class ListCommandHandlerTest {
         when(chat.id()).thenReturn(chatId);
 
         when(repository.containsTrack(chatId)).thenReturn(false);
-        when(service.getUserLinks(chatId)).thenThrow(new BotInvalidChatIdException(new ApiErrorResponse(
-            "User not exists", "404", "NotFoundException", "User not exists", List.of()
-        )));
+        when(service.getUserLinks(chatId))
+                .thenThrow(new BotInvalidChatIdException(new ApiErrorResponse(
+                        "User not exists", "404", "NotFoundException", "User not exists", List.of())));
 
         String result = listCommandHandler.processRequest(message);
 
@@ -123,9 +120,9 @@ public class ListCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(repository.containsTrack(chatId)).thenReturn(false);
-        when(service.getUserLinks(chatId)).thenThrow(new BotInvalidChatIdException(new ApiErrorResponse(
-            "Request rejected", "400", "BadRequestException", "Invalid request", List.of()
-        )));
+        when(service.getUserLinks(chatId))
+                .thenThrow(new BotInvalidChatIdException(new ApiErrorResponse(
+                        "Request rejected", "400", "BadRequestException", "Invalid request", List.of())));
 
         String result = listCommandHandler.processRequest(message);
 
@@ -149,7 +146,7 @@ public class ListCommandHandlerTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"/help","/track","/start", "text"})
+    @CsvSource({"/help", "/track", "/start", "text"})
     public void canHandle_shouldReturnFalseForOtherCommands(String request) {
         long chatId = 123L;
         Message message = mock(Message.class);

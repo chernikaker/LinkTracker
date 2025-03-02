@@ -1,12 +1,15 @@
 package backend.academy.bot.telegram.handlerService;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.config.HandlersConfig;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.bot.telegram.handler.HandlerService;
-import backend.academy.bot.telegram.handler.ListCommandHandlerTest;
 import backend.academy.bot.telegram.handler.commands.CommandHandler;
 import backend.academy.bot.telegram.handler.commands.FiltersTextCommandHandler;
 import backend.academy.bot.telegram.handler.commands.HelpCommandHandler;
@@ -19,18 +22,13 @@ import backend.academy.bot.telegram.handler.commands.UnknownCommandHandler;
 import backend.academy.bot.telegram.handler.commands.UntrackCommandHandler;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import java.util.Optional;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = HandlerService.class)
@@ -153,7 +151,8 @@ public class HandlerServiceTest {
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("some_text");
         when(cache.containsTrack(chatId)).thenReturn(true);
-        LinkTrackingObject trackingObject = new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_LINK);
+        LinkTrackingObject trackingObject =
+                new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_LINK);
         when(cache.getTrack(chatId)).thenReturn(Optional.of(trackingObject));
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);
@@ -170,7 +169,8 @@ public class HandlerServiceTest {
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("some tags");
         when(cache.containsTrack(chatId)).thenReturn(true);
-        LinkTrackingObject trackingObject = new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_TAG);
+        LinkTrackingObject trackingObject =
+                new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_TAG);
         when(cache.getTrack(chatId)).thenReturn(Optional.of(trackingObject));
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);
@@ -187,7 +187,8 @@ public class HandlerServiceTest {
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("some filters");
         when(cache.containsTrack(chatId)).thenReturn(true);
-        LinkTrackingObject trackingObject = new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_FILTER);
+        LinkTrackingObject trackingObject =
+                new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_FILTER);
         when(cache.getTrack(chatId)).thenReturn(Optional.of(trackingObject));
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);

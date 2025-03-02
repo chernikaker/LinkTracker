@@ -1,5 +1,10 @@
 package backend.academy.bot.telegram.handler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.telegram.handler.commands.UntrackCommandHandler;
@@ -12,11 +17,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
 
 public class UntrackCommandHandlerTest {
 
@@ -63,7 +63,7 @@ public class UntrackCommandHandlerTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"/help","/track","text"})
+    @CsvSource({"/help", "/track", "text"})
     public void canHandle_shouldReturnFalse_commandIsNotUntrack() {
         long chatId = 123L;
         Message message = mock(Message.class);

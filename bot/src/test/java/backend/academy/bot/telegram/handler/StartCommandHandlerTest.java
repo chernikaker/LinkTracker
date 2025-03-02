@@ -1,5 +1,10 @@
 package backend.academy.bot.telegram.handler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
@@ -7,7 +12,7 @@ import backend.academy.bot.telegram.handler.commands.StartCommandHandler;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.request.SendMessage;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,12 +20,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.List;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
 
 public class StartCommandHandlerTest {
 
@@ -63,9 +62,9 @@ public class StartCommandHandlerTest {
         when(chat.id()).thenReturn(chatId);
         when(repository.containsTrack(chatId)).thenReturn(false);
         doThrow(new BotChatRegistrationException(new ApiErrorResponse(
-            "Client already exists", "400", "BadRequestException", "Client already exists", List.of()
-        ))).when(service).registerNewClient(chatId);
-
+                        "Client already exists", "400", "BadRequestException", "Client already exists", List.of())))
+                .when(service)
+                .registerNewClient(chatId);
 
         String result = startCommandHandler.processRequest(message);
 
@@ -82,8 +81,9 @@ public class StartCommandHandlerTest {
         when(chat.id()).thenReturn(chatId);
         when(repository.containsTrack(chatId)).thenReturn(false);
         doThrow(new BotChatRegistrationException(new ApiErrorResponse(
-            "Registration rejected", "400", "BadRequestException", "Invalid request", List.of()
-        ))).when(service).registerNewClient(chatId);
+                        "Registration rejected", "400", "BadRequestException", "Invalid request", List.of())))
+                .when(service)
+                .registerNewClient(chatId);
 
         String result = startCommandHandler.processRequest(message);
 
@@ -102,7 +102,7 @@ public class StartCommandHandlerTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"/help","/track","text"})
+    @CsvSource({"/help", "/track", "text"})
     public void canHandle_shouldReturnFalseForOtherCommands(String command) {
         Message message = mock(Message.class);
         when(message.text()).thenReturn(command);

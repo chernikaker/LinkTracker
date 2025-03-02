@@ -1,13 +1,11 @@
 package backend.academy.bot.telegram.handler;
 
 import backend.academy.bot.telegram.handler.commands.CommandHandler;
-import backend.academy.bot.telegram.handler.commands.UntrackCommandHandler;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import java.util.List;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component

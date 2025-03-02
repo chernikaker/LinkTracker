@@ -1,5 +1,10 @@
 package backend.academy.bot.telegram.handler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.telegram.handler.commands.HelpCommandHandler;
 import com.pengrad.telegrambot.model.Chat;
@@ -12,11 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
-
 public class HelpCommandHandlerTest {
 
     @Mock
@@ -25,7 +25,8 @@ public class HelpCommandHandlerTest {
     @InjectMocks
     private HelpCommandHandler helpCommandHandler;
 
-    private String expectedMessage = """
+    private String expectedMessage =
+            """
             Бот поддерживает следующие ссылки и обновления:
 
             GITHUB
@@ -96,7 +97,7 @@ public class HelpCommandHandlerTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"/start","/track","text"})
+    @CsvSource({"/start", "/track", "text"})
     public void canHandle_shouldReturnFalseForOtherCommands(String command) {
         Message message = mock(Message.class);
         when(message.text()).thenReturn("command");

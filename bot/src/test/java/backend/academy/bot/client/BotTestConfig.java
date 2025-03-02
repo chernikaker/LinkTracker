@@ -13,7 +13,7 @@ public class BotTestConfig {
     @Primary
     public WireMockServer wireMockServer() {
         WireMockServer s =
-            new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort());
+                new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort());
         s.start();
         return s;
     }

@@ -1,15 +1,21 @@
 package backend.academy.bot.telegram.handler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotInvalidLinkRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.bot.telegram.handler.commands.UntrackingLinkTextCommandHandler;
-import backend.academy.bot.validator.LinkUrlValidator;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,18 +24,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
-
 public class UntrackingLinkTextCommandHandlerTest {
 
     public static final String gitRepo = "https://github.com/owner/repo";
     public static final String EXAMPLE_LINK = "https://example.com";
+
     @Mock
     private InMemoryTrackingCache repository;
 
@@ -52,7 +51,8 @@ public class UntrackingLinkTextCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn(gitRepo);
-        LinkTrackingObject tracking = new LinkTrackingObject(gitRepo, new String[0], new String[0], UserState.UNTRACKING_LINK);
+        LinkTrackingObject tracking =
+                new LinkTrackingObject(gitRepo, new String[0], new String[0], UserState.UNTRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
 
         String result = untrackingLinkTextCommandHandler.processRequest(message);
@@ -70,7 +70,8 @@ public class UntrackingLinkTextCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("invalid-link");
-        LinkTrackingObject tracking = new LinkTrackingObject("invalid-link", new String[0], new String[0], UserState.UNTRACKING_LINK);
+        LinkTrackingObject tracking =
+                new LinkTrackingObject("invalid-link", new String[0], new String[0], UserState.UNTRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
 
         String result = untrackingLinkTextCommandHandler.processRequest(message);
@@ -88,11 +89,13 @@ public class UntrackingLinkTextCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn(gitRepo);
-        LinkTrackingObject tracking = new LinkTrackingObject(gitRepo, new String[0], new String[0], UserState.UNTRACKING_LINK);
+        LinkTrackingObject tracking =
+                new LinkTrackingObject(gitRepo, new String[0], new String[0], UserState.UNTRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
         doThrow(new BotInvalidLinkRequestException(new ApiErrorResponse(
-            "User not exists", "404", "NotFoundException", "123 not exists", List.of()
-        ))).when(service).removeLinkSubscription(chatId, gitRepo);
+                        "User not exists", "404", "NotFoundException", "123 not exists", List.of())))
+                .when(service)
+                .removeLinkSubscription(chatId, gitRepo);
 
         String result = untrackingLinkTextCommandHandler.processRequest(message);
 
@@ -109,11 +112,13 @@ public class UntrackingLinkTextCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn(gitRepo);
-        LinkTrackingObject tracking = new LinkTrackingObject(gitRepo, new String[0], new String[0], UserState.UNTRACKING_LINK);
+        LinkTrackingObject tracking =
+                new LinkTrackingObject(gitRepo, new String[0], new String[0], UserState.UNTRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
         doThrow(new BotInvalidLinkRequestException(new ApiErrorResponse(
-            "Link not found", "404", "NotFoundException", "Link not found", List.of()
-        ))).when(service).removeLinkSubscription(chatId, gitRepo);
+                        "Link not found", "404", "NotFoundException", "Link not found", List.of())))
+                .when(service)
+                .removeLinkSubscription(chatId, gitRepo);
 
         String result = untrackingLinkTextCommandHandler.processRequest(message);
 
@@ -130,7 +135,8 @@ public class UntrackingLinkTextCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn(EXAMPLE_LINK);
-        LinkTrackingObject tracking = new LinkTrackingObject(EXAMPLE_LINK, new String[0], new String[0], UserState.UNTRACKING_LINK);
+        LinkTrackingObject tracking =
+                new LinkTrackingObject(EXAMPLE_LINK, new String[0], new String[0], UserState.UNTRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
 
         boolean result = untrackingLinkTextCommandHandler.canHandle(message);
@@ -146,7 +152,8 @@ public class UntrackingLinkTextCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn(EXAMPLE_LINK);
-        LinkTrackingObject tracking = new LinkTrackingObject(EXAMPLE_LINK, new String[0], new String[0], UserState.DEFAULT);
+        LinkTrackingObject tracking =
+                new LinkTrackingObject(EXAMPLE_LINK, new String[0], new String[0], UserState.DEFAULT);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
 
         boolean result = untrackingLinkTextCommandHandler.canHandle(message);
@@ -155,7 +162,7 @@ public class UntrackingLinkTextCommandHandlerTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"/help","/track","/start", "/any"})
+    @CsvSource({"/help", "/track", "/start", "/any"})
     public void canHandle_shouldReturnFalse_whenTextIsCommand(String command) {
         long chatId = 123L;
         Message message = mock(Message.class);
@@ -163,7 +170,8 @@ public class UntrackingLinkTextCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn(command);
-        LinkTrackingObject tracking = new LinkTrackingObject(EXAMPLE_LINK, new String[0], new String[0], UserState.UNTRACKING_LINK);
+        LinkTrackingObject tracking =
+                new LinkTrackingObject(EXAMPLE_LINK, new String[0], new String[0], UserState.UNTRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
         boolean result = untrackingLinkTextCommandHandler.canHandle(message);
 
