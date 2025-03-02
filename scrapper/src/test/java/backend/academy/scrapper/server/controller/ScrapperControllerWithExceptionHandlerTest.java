@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = {ScrapperController.class, ApplicationExceptionHandler.class})
-public class ScrapperControllerTest {
+public class ScrapperControllerWithExceptionHandlerTest {
 
     @Autowired
     private MockMvc mockMvc;

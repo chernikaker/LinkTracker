@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class InMemorySubscriptionRepository {
 
-    private static final AtomicLong ID = new AtomicLong(0);
+    private final AtomicLong ID = new AtomicLong(0);
     private final Map<Long, Subscription> subscriptions = new HashMap<>();
 
     public long addSubscription(Subscription subscription) {
@@ -37,6 +37,10 @@ public class InMemorySubscriptionRepository {
             throw new SubscriptionNotExistsException("Subscription " + id + " does not exist");
         }
         return deleted;
+    }
+
+    public boolean containsSubscription(long id) {
+        return subscriptions.containsKey(id);
     }
 
     public Set<Subscription> deleteUserSubscriptions(User user) {
