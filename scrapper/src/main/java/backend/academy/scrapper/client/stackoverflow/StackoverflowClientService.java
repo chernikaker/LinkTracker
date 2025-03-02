@@ -35,8 +35,7 @@ public class StackoverflowClientService {
             infoList.addAll(parseInfo(answerData, UpdateInfoType.ANSWER));
             return infoList;
         } catch (HttpClientErrorException e) {
-            log.error("Error receiving data from github {}", e.getResponseBodyAsString());
-            throw new ScrapperInternalResponseException("Error receiving data from github", e);
+            throw new ScrapperInternalResponseException("Error receiving data from stackoverflow", e);
         }
     }
 

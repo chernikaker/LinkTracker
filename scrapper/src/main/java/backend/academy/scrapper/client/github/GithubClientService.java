@@ -38,7 +38,6 @@ public class GithubClientService {
             infoList.addAll(parseInfo(commitData, UpdateInfoType.COMMIT));
             return infoList;
         } catch (HttpClientErrorException e) {
-            log.error("Error receiving data from github {}", e.getResponseBodyAsString());
             throw new ScrapperInternalResponseException("Error receiving data from github", e);
         }
     }

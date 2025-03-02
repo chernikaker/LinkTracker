@@ -6,6 +6,8 @@ import backend.academy.scrapper.client.github.GithubClientService;
 import backend.academy.scrapper.client.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
+import backend.academy.scrapper.exception.client.GithubResponseJsonIsInvalid;
+import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -40,14 +42,18 @@ public class SchedulerUpdateService {
         log.debug("Scheduling checking link updates");
         Set<Link> links = linkRepository.getLinks();
         for (Link link : links) {
-            List<UpdateInfo> updates = link.type() == LinkType.GITHUB
+            try {
+                List<UpdateInfo> updates = link.type() == LinkType.GITHUB
                     ? githubClientService.getAllInfo(link)
                     : soClientService.getAllInfo(link);
-            List<UpdateInfo> actualInfos = updates.stream()
+                List<UpdateInfo> actualInfos = updates.stream()
                     .filter(info -> link.lastValidation().isBefore(info.time()))
                     .toList();
-            if (!actualInfos.isEmpty()) {
-                botClientService.sendUpdates(link, actualInfos);
+                if (!actualInfos.isEmpty()) {
+                    botClientService.sendUpdates(link, actualInfos);
+                }
+            } catch (ScrapperInternalResponseException | GithubResponseJsonIsInvalid e) {
+                log.error("Error while getting update {}", e.getMessage());
             }
             link.lastValidation(LocalDateTime.now(ZoneId.systemDefault()));
         }
