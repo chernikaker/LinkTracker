@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class InMemoryLinkRepository {
 
-    private static final AtomicLong ID = new AtomicLong(0);
+    private final AtomicLong ID = new AtomicLong(0);
     private final Map<Long, Link> links = new HashMap<>();
 
     public long addLink(Link link) {
