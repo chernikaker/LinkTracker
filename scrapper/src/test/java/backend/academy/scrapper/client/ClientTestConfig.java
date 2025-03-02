@@ -1,5 +1,7 @@
 package backend.academy.scrapper.client;
 
+import backend.academy.scrapper.client.bot.BotClient;
+import backend.academy.scrapper.client.bot.BotClientImpl;
 import backend.academy.scrapper.client.github.GithubClient;
 import backend.academy.scrapper.client.github.GithubClientImpl;
 import backend.academy.scrapper.client.stackoverflow.StackoverflowClient;
@@ -31,5 +33,11 @@ public class ClientTestConfig {
     @Primary
     public StackoverflowClient stackoverflowClient(WireMockServer wireMockServer) {
         return new StackoverflowClientImpl("access-token", "key", "http://localhost:" + wireMockServer.port());
+    }
+
+    @Bean
+    @Primary
+    public BotClient botClient(WireMockServer wireMockServer) {
+        return new BotClientImpl("http://localhost:" + wireMockServer.port());
     }
 }
