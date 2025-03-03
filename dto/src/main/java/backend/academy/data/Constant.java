@@ -1,6 +1,6 @@
 package backend.academy.data;
 
-/** Класс, содержащий константы, используемые в приложении. */
+/** Класс, содержащий константы, используемые в DTO. */
 public final class Constant {
 
     private Constant() {}

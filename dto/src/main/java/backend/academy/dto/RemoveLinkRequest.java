@@ -5,6 +5,11 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+/**
+ * DTO запроса на удаление подписки на ссылку
+ *
+ * @param link ссылка
+ */
 public record RemoveLinkRequest(
         @NotNull(message = "URL is required")
                 @NotEmpty(message = "URL cannot be empty")

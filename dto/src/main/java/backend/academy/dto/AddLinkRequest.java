@@ -6,6 +6,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 
+/**
+ * DTO запроса на добавление подписки на ссылку
+ *
+ * @param link URL ссылки
+ * @param tags теги
+ * @param filters фильтры
+ */
 public record AddLinkRequest(
         @NotNull(message = "URL is required")
                 @NotEmpty(message = "URL cannot be empty")
