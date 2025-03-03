@@ -47,7 +47,7 @@ public class LinkTextCommandHandlerTest {
 
         String result = linkTextCommandHandler.processRequest(message);
 
-        assertEquals("Введите тэги(опционально, введите '-' для пустых тегов)", result);
+        assertEquals(Constant.TAGS_TRACKING_MESSAGE.formatted(Constant.EMPTY_INPUT), result);
         assertEquals("https://github.com/owner/repo", tracking.link()); // Проверяем, что ссылка обновлена
         assertEquals(UserState.TRACKING_TAG, tracking.state()); // Проверяем, что состояние обновлено
     }
@@ -60,19 +60,13 @@ public class LinkTextCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("invalid-link");
-
         LinkTrackingObject tracking =
                 new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
 
         String result = linkTextCommandHandler.processRequest(message);
 
-        String expectedMessage =
-                """
-            Ссылка введена неверно или не поддерживается, попробуйте ещё раз.
-            Подробнее о формате в /help
-            """;
-        assertEquals(expectedMessage, result);
+        assertEquals(Constant.LINK_NOT_VALID, result);
         assertEquals(UserState.TRACKING_LINK, tracking.state());
     }
 

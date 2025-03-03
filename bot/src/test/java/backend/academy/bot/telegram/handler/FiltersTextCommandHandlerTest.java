@@ -54,7 +54,7 @@ public class FiltersTextCommandHandlerTest {
 
         String result = filtersTextCommandHandler.processRequest(message);
 
-        assertEquals("Фильтры установлены\nСсылка успешно зарегистрирована!", result);
+        assertEquals(Constant.FILTERS_REGISTERED+Constant.LINK_REGISTERED, result);
         verify(repository).removeTrack(chatId);
         verify(service).addLinkSubscription(chatId, tracking);
     }
@@ -73,7 +73,7 @@ public class FiltersTextCommandHandlerTest {
 
         String result = filtersTextCommandHandler.processRequest(message);
 
-        assertEquals("Фильтры не установлены\nСсылка успешно зарегистрирована!", result);
+        assertEquals(Constant.FILTERS_NOT_REGISTERD+Constant.LINK_REGISTERED, result);
         verify(repository).removeTrack(chatId);
         verify(service).addLinkSubscription(chatId, tracking);
     }
@@ -96,7 +96,7 @@ public class FiltersTextCommandHandlerTest {
 
         String result = filtersTextCommandHandler.processRequest(message);
 
-        assertEquals("Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start", result);
+        assertEquals(Constant.NOT_REGISTERED, result);
         verify(repository).removeTrack(chatId);
         verify(service).addLinkSubscription(chatId, tracking);
     }
@@ -119,7 +119,7 @@ public class FiltersTextCommandHandlerTest {
 
         String result = filtersTextCommandHandler.processRequest(message);
 
-        assertEquals("Введенная ссылка недоступна, запрос отклонен", result);
+        assertEquals(Constant.LINK_UNABAILABLE, result);
         verify(repository).removeTrack(chatId);
         verify(service).addLinkSubscription(chatId, tracking);
     }

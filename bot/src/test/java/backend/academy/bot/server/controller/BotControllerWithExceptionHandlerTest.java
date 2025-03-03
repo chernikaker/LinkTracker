@@ -32,7 +32,7 @@ public class BotControllerWithExceptionHandlerTest {
     @MockitoBean
     private BotService botService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     @SneakyThrows

@@ -43,7 +43,7 @@ public class UntrackCommandHandlerTest {
 
         String result = untrackCommandHandler.processRequest(message);
 
-        assertEquals("Введите ссылку для удаления", result);
+        assertEquals(Constant.LINK_UNTRACK_TEXT, result);
         verify(repository).setTrack(eq(chatId), any(LinkTrackingObject.class));
     }
 

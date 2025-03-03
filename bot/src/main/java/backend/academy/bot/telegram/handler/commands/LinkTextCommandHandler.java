@@ -1,5 +1,6 @@
 package backend.academy.bot.telegram.handler.commands;
 
+import static backend.academy.bot.telegram.handler.Constant.EMPTY_INPUT;
 import static backend.academy.bot.telegram.handler.Constant.LINK_NOT_VALID;
 import static backend.academy.bot.telegram.handler.Constant.TAGS_TRACKING_MESSAGE;
 
@@ -42,7 +43,7 @@ public class LinkTextCommandHandler extends CommandHandler {
         if (LinkUrlValidator.isValid(link)) {
             tracking.link(link);
             tracking.state(UserState.TRACKING_TAG);
-            return TAGS_TRACKING_MESSAGE;
+            return TAGS_TRACKING_MESSAGE.formatted(EMPTY_INPUT);
         } else {
             return LINK_NOT_VALID;
         }

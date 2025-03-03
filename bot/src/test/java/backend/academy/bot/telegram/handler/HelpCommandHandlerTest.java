@@ -25,29 +25,6 @@ public class HelpCommandHandlerTest {
     @InjectMocks
     private HelpCommandHandler helpCommandHandler;
 
-    private String expectedMessage =
-            """
-            Бот поддерживает следующие ссылки и обновления:
-
-            GITHUB
-            Ссылки вида:
-            https://github.com/{владелец-репозитория}/{название-репозитория}
-            * - также можно использовать http://
-            Обновления:
-            - commit
-            - issue
-            - comment
-
-            STACKOVERFLOW
-            Ссылки вида:
-            https://stackoverflow.com/questions/{id-вопроса}/{название-вопроса}
-            https://stackoverflow.com/questions/{id-вопроса}
-            * - также можно использовать http://
-            Обновления:
-            - answer
-            - comment
-            """;
-
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -65,7 +42,7 @@ public class HelpCommandHandlerTest {
 
         String result = helpCommandHandler.processRequest(message);
 
-        assertEquals(expectedMessage, result);
+        assertEquals(Constant.HELP_MESSAGE, result);
         verify(repository, never()).removeTrack(chatId);
     }
 
@@ -82,7 +59,7 @@ public class HelpCommandHandlerTest {
 
         String result = helpCommandHandler.processRequest(message);
 
-        assertEquals(expectedMessage, result);
+        assertEquals(Constant.HELP_MESSAGE, result);
         verify(repository).removeTrack(chatId);
     }
 

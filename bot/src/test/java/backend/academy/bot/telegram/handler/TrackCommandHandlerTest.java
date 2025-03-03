@@ -44,7 +44,7 @@ public class TrackCommandHandlerTest {
 
         String result = trackCommandHandler.processRequest(message);
 
-        assertEquals("Введите ссылку для отслеживания", result);
+        assertEquals(Constant.LINK_TRACK_MESSAGE, result);
         verify(repository).setTrack(eq(chatId), any(LinkTrackingObject.class));
     }
 

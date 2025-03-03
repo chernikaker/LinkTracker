@@ -49,7 +49,7 @@ public class StartCommandHandlerTest {
 
         String result = startCommandHandler.processRequest(message);
 
-        assertEquals("Чат успешно зарегистрирован", result);
+        assertEquals(Constant.CHAT_REGISTERED, result);
         verify(service).registerNewClient(chatId);
     }
 
@@ -68,7 +68,7 @@ public class StartCommandHandlerTest {
 
         String result = startCommandHandler.processRequest(message);
 
-        assertEquals("Вы уже зарегистрированы", result);
+        assertEquals(Constant.ALREADY_REGISTERED, result);
         verify(service).registerNewClient(chatId);
     }
 
@@ -87,7 +87,7 @@ public class StartCommandHandlerTest {
 
         String result = startCommandHandler.processRequest(message);
 
-        assertEquals("Регистрация отклонена, попробуйте ещё раз", result);
+        assertEquals(Constant.REGISTRATION_CANCELLED, result);
         verify(service).registerNewClient(chatId);
     }
 

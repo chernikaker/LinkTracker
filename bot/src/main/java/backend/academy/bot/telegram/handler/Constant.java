@@ -46,7 +46,7 @@ public class Constant {
         """;
 
     // LinkTextCommandHandler
-    public static final String TAGS_TRACKING_MESSAGE = "Введите тэги(опционально, введите '-' для пустых тегов)";
+    public static final String TAGS_TRACKING_MESSAGE = "Введите тэги(опционально, введите %s для пустых тегов)";
 
     // ListCommandHandler
     public static final String NO_LINKS = "Отслеживаемых ссылок нет";

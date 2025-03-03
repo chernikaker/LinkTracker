@@ -32,6 +32,24 @@ public class ListCommandHandlerTest {
 
     private ListCommandHandler listCommandHandler;
 
+    private final static String EXPECTED =
+        """
+    Отслеживаемые ссылки:
+
+    https://example.com
+    Теги:
+    tag1
+    Фильтры:
+    filter1
+
+    https://example.org
+    Теги:
+    tag2
+    Фильтры:
+    filter2
+
+    """;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -55,24 +73,7 @@ public class ListCommandHandlerTest {
 
         String result = listCommandHandler.processRequest(message);
 
-        String expectedMessage =
-                """
-            Отслеживаемые ссылки:
-
-            https://example.com
-            Теги:
-            tag1
-            Фильтры:
-            filter1
-
-            https://example.org
-            Теги:
-            tag2
-            Фильтры:
-            filter2
-
-            """;
-        assertEquals(expectedMessage, result);
+        assertEquals(EXPECTED, result);
     }
 
     @Test
@@ -89,7 +90,7 @@ public class ListCommandHandlerTest {
 
         String result = listCommandHandler.processRequest(message);
 
-        assertEquals("Отслеживаемых ссылок нет", result);
+        assertEquals(Constant.NO_LINKS, result);
         verify(service).getUserLinks(chatId);
     }
 
@@ -108,7 +109,7 @@ public class ListCommandHandlerTest {
 
         String result = listCommandHandler.processRequest(message);
 
-        assertEquals("Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start", result);
+        assertEquals(Constant.NOT_REGISTERED, result);
         verify(service).getUserLinks(chatId);
     }
 
@@ -126,7 +127,7 @@ public class ListCommandHandlerTest {
 
         String result = listCommandHandler.processRequest(message);
 
-        assertEquals("Запрос отклонен, попробуйте ещё раз", result);
+        assertEquals(Constant.REQUEST_CANCELLED, result);
         verify(service).getUserLinks(chatId);
     }
 

@@ -99,7 +99,7 @@ public class UntrackingLinkTextCommandHandlerTest {
 
         String result = untrackingLinkTextCommandHandler.processRequest(message);
 
-        assertEquals("Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start", result);
+        assertEquals(Constant.NOT_REGISTERED, result);
         verify(repository).removeTrack(chatId);
         verify(service).removeLinkSubscription(chatId, gitRepo);
     }
@@ -122,7 +122,7 @@ public class UntrackingLinkTextCommandHandlerTest {
 
         String result = untrackingLinkTextCommandHandler.processRequest(message);
 
-        assertEquals("У вас нет подписки на данную ссылку", result);
+        assertEquals(Constant.NO_SUBSCRIPTION, result);
         verify(repository).removeTrack(chatId);
         verify(service).removeLinkSubscription(chatId, gitRepo);
     }
