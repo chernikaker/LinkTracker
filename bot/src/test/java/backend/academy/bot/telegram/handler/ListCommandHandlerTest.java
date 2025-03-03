@@ -32,8 +32,8 @@ public class ListCommandHandlerTest {
 
     private ListCommandHandler listCommandHandler;
 
-    private final static String EXPECTED =
-        """
+    private static final String EXPECTED =
+            """
     Отслеживаемые ссылки:
 
     https://example.com

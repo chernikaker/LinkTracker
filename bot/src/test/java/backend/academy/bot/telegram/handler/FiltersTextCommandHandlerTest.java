@@ -54,7 +54,7 @@ public class FiltersTextCommandHandlerTest {
 
         String result = filtersTextCommandHandler.processRequest(message);
 
-        assertEquals(Constant.FILTERS_REGISTERED+Constant.LINK_REGISTERED, result);
+        assertEquals(Constant.FILTERS_REGISTERED + Constant.LINK_REGISTERED, result);
         verify(repository).removeTrack(chatId);
         verify(service).addLinkSubscription(chatId, tracking);
     }
@@ -73,7 +73,7 @@ public class FiltersTextCommandHandlerTest {
 
         String result = filtersTextCommandHandler.processRequest(message);
 
-        assertEquals(Constant.FILTERS_NOT_REGISTERD+Constant.LINK_REGISTERED, result);
+        assertEquals(Constant.FILTERS_NOT_REGISTERD + Constant.LINK_REGISTERED, result);
         verify(repository).removeTrack(chatId);
         verify(service).addLinkSubscription(chatId, tracking);
     }
