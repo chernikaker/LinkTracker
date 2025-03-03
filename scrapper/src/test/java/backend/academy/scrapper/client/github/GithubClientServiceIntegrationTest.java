@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import backend.academy.scrapper.client.WireMockClientTestConfig;
-import backend.academy.scrapper.client.dto.UpdateInfo;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
+import backend.academy.scrapper.model.UpdateInfo;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import java.time.LocalDateTime;

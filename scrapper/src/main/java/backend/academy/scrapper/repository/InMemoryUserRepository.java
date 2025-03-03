@@ -7,13 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
+/** Репозиторий для хранения информации о пользователях */
 @Component
 public class InMemoryUserRepository {
 
     private final Map<Long, User> users = new HashMap<>();
 
     public long registerUser(User user) {
+        // id в репозитории == id чата
         long id = user.chatId();
+        // если пользователь уже зарегистрирован, выкидывается исключение
         if (users.containsKey(id)) {
             throw new ScrapperUserAlreadyExistsException("User " + id + " already exists");
         }

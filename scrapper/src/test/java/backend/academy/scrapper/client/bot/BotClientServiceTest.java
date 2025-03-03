@@ -9,12 +9,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import backend.academy.dto.LinkUpdate;
-import backend.academy.scrapper.client.dto.UpdateInfo;
-import backend.academy.scrapper.client.dto.UpdateInfoType;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.User;
+import backend.academy.scrapper.model.UpdateInfo;
+import backend.academy.scrapper.model.UpdateInfoType;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import java.time.LocalDateTime;
 import java.time.ZoneId;

@@ -7,12 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import backend.academy.scrapper.client.dto.UpdateInfo;
-import backend.academy.scrapper.client.dto.UpdateInfoType;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.client.GithubResponseJsonIsInvalid;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
+import backend.academy.scrapper.model.UpdateInfo;
+import backend.academy.scrapper.model.UpdateInfoType;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;

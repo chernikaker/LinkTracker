@@ -21,16 +21,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+/** Главный контроллер сервера Scrapper */
 @RestController
 @AllArgsConstructor
 public class ScrapperController {
 
     private final ScrapperService scrapperService;
+
     /**
-     * Регистрирует новый Telegram чат.<br>
+     * Регистрирует новый Telegram чат.
      *
      * @param id идентификатор Telegram чата, который необходимо зарегистрировать.
-     * @return ResponseEntity с сообщением об успешной регистрации.
+     * @return ResponseEntity с кодом 200.
+     * @throws ScrapperInvalidIdException если идентификатор не положительный.
      */
     @PostMapping("/tg-chat/{id}")
     public ResponseEntity<?> registerChat(@PathVariable final Long id) {
@@ -45,7 +48,9 @@ public class ScrapperController {
      * Удаляет существующий Telegram чат.
      *
      * @param id идентификатор Telegram чата, который необходимо удалить.
-     * @return ResponseEntity с сообщением об успешном удалении.
+     * @return ResponseEntity с кодом 200.
+     * @throws ScrapperInvalidIdException если идентификатор не положительный.
+     * @throws ScrapperControllerEntityNotFoundException если чат с данным идентификатором не существует (код 404).
      */
     @DeleteMapping("/tg-chat/{id}")
     public final ResponseEntity<?> deleteChat(@PathVariable final Long id) {
@@ -60,6 +65,13 @@ public class ScrapperController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Получает список ссылок для указанного Telegram чата.
+     *
+     * @param id идентификатор Telegram чата, для которого необходимо получить ссылки.
+     * @return ResponseEntity с кодом 200 и списком ссылок в теле ответа.
+     * @throws ScrapperInvalidIdException если идентификатор не положительный.
+     */
     @GetMapping("/links")
     public final ResponseEntity<?> getLinks(@RequestHeader("Tg-Chat-Id") final Long id) {
         if (id <= 0) {
@@ -69,6 +81,14 @@ public class ScrapperController {
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
     }
 
+    /**
+     * Добавляет подписку на ссылку для указанного Telegram чата.
+     *
+     * @param id идентификатор Telegram чата, для которого необходимо добавить подписку.
+     * @param request объект запроса, содержащий данные для добавления подписки.
+     * @return ResponseEntity с кодом 200 и информацией о добавленной подписке в теле ответа.
+     * @throws ScrapperInvalidIdException если идентификатор не положительный.
+     */
     @PostMapping("/links")
     public final ResponseEntity<?> addLinkSubscription(
             @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final AddLinkRequest request) {
@@ -79,6 +99,15 @@ public class ScrapperController {
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
     }
 
+    /**
+     * Удаляет подписку на ссылку для указанного Telegram чата.
+     *
+     * @param id идентификатор Telegram чата, для которого необходимо удалить подписку.
+     * @param request объект запроса, содержащий данные для удаления подписки.
+     * @return ResponseEntity с кодом 200 и информацией о удалённой подписке в теле ответа.
+     * @throws ScrapperInvalidIdException если идентификатор не положительный.
+     * @throws ScrapperControllerEntityNotFoundException если подписка или ссылка не найдены (код 404).
+     */
     @DeleteMapping("/links")
     public final ResponseEntity<?> deleteLinkSubscription(
             @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final RemoveLinkRequest request) {

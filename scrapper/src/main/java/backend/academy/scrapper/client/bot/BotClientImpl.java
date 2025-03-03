@@ -3,8 +3,10 @@ package backend.academy.scrapper.client.bot;
 import backend.academy.dto.LinkUpdate;
 import org.springframework.web.client.RestClient;
 
+/** Реализация клиента Bot с помощью RestClient */
 public class BotClientImpl implements BotClient {
 
+    // дефолтный путь для API Bot
     private static final String DEFAULT_URL = "http://localhost:8080";
     private final RestClient restClient;
 

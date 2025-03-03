@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.client.WireMockClientTestConfig;
-import backend.academy.scrapper.client.dto.UpdateInfo;
-import backend.academy.scrapper.client.dto.UpdateInfoType;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
+import backend.academy.scrapper.model.UpdateInfo;
+import backend.academy.scrapper.model.UpdateInfoType;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;

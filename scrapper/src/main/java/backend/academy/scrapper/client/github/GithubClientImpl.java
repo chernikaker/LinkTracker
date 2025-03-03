@@ -2,9 +2,11 @@ package backend.academy.scrapper.client.github;
 
 import org.springframework.web.client.RestClient;
 
+/** Реализация клиента Github с помощью RestClient */
 public class GithubClientImpl implements GithubClient {
 
     private final String token;
+    // дефолтный путь для API Github
     private static final String DEFAULT_URL = "https://api.github.com";
     private final RestClient githubClient;
 

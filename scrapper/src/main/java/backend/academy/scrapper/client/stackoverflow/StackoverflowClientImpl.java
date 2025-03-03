@@ -2,10 +2,12 @@ package backend.academy.scrapper.client.stackoverflow;
 
 import org.springframework.web.client.RestClient;
 
+/** Реализация клиента StackOverflow с помощью RestClient */
 public class StackoverflowClientImpl implements StackoverflowClient {
 
     private final String token;
     private final String apiKey;
+    // дефолтный путь для API StackOverflow
     private static final String DEFAULT_URL = "https://api.stackexchange.com/2.3";
     private final RestClient restClient;
 

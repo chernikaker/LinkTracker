@@ -1,8 +1,9 @@
-package backend.academy.scrapper.client.dto;
+package backend.academy.scrapper.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/** Класс, описывающий все виды поддерживаемых обновлений */
 @AllArgsConstructor
 @Getter
 public enum UpdateInfoType {

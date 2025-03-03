@@ -16,9 +16,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+/**
+ * Глобальный обработчик ошибок для контроллера. В случае ошибки возвращается DTO, соответствующее OpenAPI контракту.
+ */
 @RestControllerAdvice
 public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler {
 
+    /**
+     * Обработка исключения валидации DTO в запросе
+     *
+     * @param ex исключение MethodArgumentNotValidException
+     * @return обертка над объектом ApiErrorResponse для HTTP ответа
+     */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             @NotNull MethodArgumentNotValidException ex,
@@ -28,6 +37,12 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
         return handleIncorrectRequest(ex, status);
     }
 
+    /**
+     * Обработка исключения несоответствия типа данных из запроса ожидаемому типу.
+     *
+     * @param ex исключение TypeMismatchException
+     * @return обертка над объектом ApiErrorResponse для HTTP ответа
+     */
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(
             @NotNull TypeMismatchException ex,
@@ -37,6 +52,12 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
         return handleIncorrectRequest(ex, status);
     }
 
+    /**
+     * Обработка исключения привязки запроса.
+     *
+     * @param ex исключение ServletRequestBindingException
+     * @return обертка над объектом ApiErrorResponse для HTTP ответа
+     */
     @Override
     protected ResponseEntity<Object> handleServletRequestBindingException(
             @NotNull ServletRequestBindingException ex,
@@ -46,6 +67,12 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
         return handleIncorrectRequest(ex, status);
     }
 
+    /**
+     * Обработка исключения чтения тела HTTP-запроса.
+     *
+     * @param ex исключение HttpMessageNotReadableException
+     * @return обертка над объектом ApiErrorResponse для HTTP ответа
+     */
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
             @NotNull HttpMessageNotReadableException ex,
@@ -55,6 +82,13 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
         return handleIncorrectRequest(ex, status);
     }
 
+    /**
+     * Метод формирует ApiErrorResponse из стандартного исключения
+     *
+     * @param ex возникшее исключение
+     * @param status статус ответа
+     * @return обертка над объектом ApiErrorResponse для HTTP ответа
+     */
     private ResponseEntity<Object> handleIncorrectRequest(Exception ex, HttpStatusCode status) {
         return new ResponseEntity<>(
                 new ApiErrorResponse(
@@ -68,6 +102,13 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
                 status);
     }
 
+    /**
+     * Обработка кастомного исключения приложения Все исключения Scrapper имеют статус ответа 400
+     * ScrapperControllerEntityNotFoundException - 404
+     *
+     * @param ex исключение Scrapper
+     * @return обертка над объектом ApiErrorResponse для HTTP ответа
+     */
     @ExceptionHandler(ScrapperException.class)
     public ResponseEntity<ApiErrorResponse> handleScrapperException(ScrapperException ex) {
         return new ResponseEntity<>(

@@ -9,14 +9,17 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.stereotype.Component;
 
+/** Репозиторий для хранения отслеживаемых ссылок */
 @Component
 public class InMemoryLinkRepository {
 
+    // уникальный счетчик ID
     private final AtomicLong ID = new AtomicLong(0);
     private final Map<Long, Link> links = new HashMap<>();
 
     public long addLink(Link link) {
         long linkId = getLinkIdByURL(link.url());
+        // если ссылка уже была в репозитории, новая не добавляется
         if (linkId != -1) {
             return linkId;
         }
