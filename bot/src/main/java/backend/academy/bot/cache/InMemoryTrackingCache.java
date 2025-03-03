@@ -7,6 +7,10 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * Кэш, отвечающий за временное хранение информации о ссылке для отслеживания. Хранит данные, пока пользователь не
+ * введет всю необходимую информацию для отправки в Scrapper
+ */
 @Component
 @AllArgsConstructor
 public class InMemoryTrackingCache {

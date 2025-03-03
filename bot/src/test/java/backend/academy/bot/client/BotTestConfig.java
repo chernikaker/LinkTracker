@@ -1,7 +1,7 @@
 package backend.academy.bot.client;
 
-import backend.academy.bot.scrapperClient.IClient;
-import backend.academy.bot.scrapperClient.ScrapperRestClient;
+import backend.academy.bot.scrapperClient.ScrapperClient;
+import backend.academy.bot.scrapperClient.ScrapperClientImpl;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +20,7 @@ public class BotTestConfig {
 
     @Bean("testClient")
     @Primary
-    public IClient scrapperClient(WireMockServer wireMockServer) {
-        return new ScrapperRestClient("http://localhost:" + wireMockServer.port());
+    public ScrapperClient scrapperClient(WireMockServer wireMockServer) {
+        return new ScrapperClientImpl("http://localhost:" + wireMockServer.port());
     }
 }

@@ -76,7 +76,7 @@ public class UntrackingLinkTextCommandHandlerTest {
 
         String result = untrackingLinkTextCommandHandler.processRequest(message);
 
-        assertEquals("Ссылка введена неверно или не поддерживается, попробуйте ещё раз.\n Подробнее в /help", result);
+        assertEquals(Constant.LINK_NOT_VALID, result);
         verify(repository, never()).removeTrack(chatId);
         verify(service, never()).removeLinkSubscription(anyLong(), anyString());
     }

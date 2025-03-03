@@ -49,7 +49,7 @@ public class TagsTextCommandHandlerTest {
 
         String result = tagsTextCommandHandler.processRequest(message);
 
-        assertEquals("Тэги установлены. Введите фильтры(опционально, введите '-' для пустых фильтров)", result);
+        assertEquals(Constant.ENTER_FILTER.formatted(Constant.EMPTY_INPUT), result);
         assertEquals(2, tracking.tags().length);
         assertEquals(UserState.TRACKING_FILTER, tracking.state());
     }
@@ -68,7 +68,7 @@ public class TagsTextCommandHandlerTest {
 
         String result = tagsTextCommandHandler.processRequest(message);
 
-        assertEquals("Тэги не установлены. Введите фильтры(опционально, введите '-' для пустых фильтров)", result);
+        assertEquals(Constant.ENTER_FILTER_NO_TAGS.formatted(Constant.EMPTY_INPUT), result);
         assertEquals(0, tracking.tags().length);
         assertEquals(UserState.TRACKING_FILTER, tracking.state());
     }

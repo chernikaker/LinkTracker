@@ -14,9 +14,16 @@ public class BotController {
 
     private final BotService botService;
 
+    /**
+     * Метод принимает запросы с обновлениями ссылок для пользователей
+     *
+     * @param linkUpdate DTO с обновлениями
+     * @return пустой ответ с кодом 200 в случае успешной рассылки. DTO ошибки с кодом 400 в случае исключения
+     * @see ApplicationExceptionHandler
+     */
     @PostMapping("/updates")
     public ResponseEntity<?> processUpdates(@RequestBody(required = false) @Valid LinkUpdate linkUpdate) {
         botService.sendUpdates(linkUpdate);
-        return ResponseEntity.ok("Request processed successfully");
+        return ResponseEntity.ok().build();
     }
 }

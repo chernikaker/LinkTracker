@@ -7,6 +7,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.validation.annotation.Validated;
 
+/**
+ * Класс Spring конфгигурации для телеграм-бота, предоставляет токен для его работы, определенный в application.yaml
+ *
+ * @param telegramToken токен телеграм-бота
+ */
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 public record BotConfig(@NotEmpty String telegramToken) {

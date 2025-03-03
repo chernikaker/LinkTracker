@@ -46,7 +46,6 @@ public class HandlerServiceTest {
 
     @Test
     public void getHandler_StartCommand() {
-        long chatId = 123L;
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
         when(message.chat()).thenReturn(chat);
@@ -59,7 +58,6 @@ public class HandlerServiceTest {
 
     @Test
     public void getHandler_HelpCommand() {
-        long chatId = 123L;
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
         when(message.chat()).thenReturn(chat);
@@ -72,7 +70,6 @@ public class HandlerServiceTest {
 
     @Test
     public void getHandler_ListCommand() {
-        long chatId = 123L;
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
         when(message.chat()).thenReturn(chat);

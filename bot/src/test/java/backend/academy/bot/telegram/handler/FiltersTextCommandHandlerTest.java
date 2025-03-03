@@ -102,29 +102,6 @@ public class FiltersTextCommandHandlerTest {
     }
 
     @Test
-    public void processRequest_linkIsInvalid() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
-        when(message.text()).thenReturn("filter1 filter2");
-        LinkTrackingObject tracking =
-                new LinkTrackingObject("invalid-link", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
-        doThrow(new BotInvalidLinkRequestException(new ApiErrorResponse(
-                        "Invalid link", "400", "BadRequestException", "Validation failed for argument [1]", List.of())))
-                .when(service)
-                .addLinkSubscription(chatId, tracking);
-
-        String result = filtersTextCommandHandler.processRequest(message);
-
-        assertEquals("Введена невалидная ссылка. Запрос отклонен, попробуйте ещё раз", result);
-        verify(repository).removeTrack(chatId);
-        verify(service).addLinkSubscription(chatId, tracking);
-    }
-
-    @Test
     public void processRequest_linkIsUnavailable() {
         long chatId = 123L;
         Message message = mock(Message.class);

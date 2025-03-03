@@ -5,7 +5,8 @@ import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
 
-public interface IClient {
+/** Контракт для клиента Scrapper. Методы, принимаемые и возвращаемые значения соответствуют контракту OpenAPI */
+public interface ScrapperClient {
 
     void registerChat(long userId);
 

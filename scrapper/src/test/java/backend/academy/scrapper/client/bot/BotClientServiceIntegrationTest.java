@@ -54,8 +54,8 @@ public class BotClientServiceIntegrationTest {
         Subscription subscription = new Subscription(1L, null, 1L, link, List.of(), List.of());
         when(repository.getLinkSubscriptions(link)).thenReturn(List.of(subscription));
         List<UpdateInfo> updates = List.of(
-                new UpdateInfo("commit", "author1", LocalDateTime.now(), UpdateInfoType.COMMIT),
-                new UpdateInfo("issue", "author2", LocalDateTime.now(), UpdateInfoType.ISSUE));
+                new UpdateInfo("commit", "author1", LocalDateTime.now(ZoneId.systemDefault()), UpdateInfoType.COMMIT),
+                new UpdateInfo("issue", "author2", LocalDateTime.now(ZoneId.systemDefault()), UpdateInfoType.ISSUE));
 
         botClientService.sendUpdates(link, updates);
 
@@ -73,8 +73,8 @@ public class BotClientServiceIntegrationTest {
         Subscription subscription = new Subscription(1L, null, 1L, link, List.of(), List.of());
         when(repository.getLinkSubscriptions(link)).thenReturn(List.of(subscription));
         List<UpdateInfo> updates = List.of(
-                new UpdateInfo("commit", "author1", LocalDateTime.now(), UpdateInfoType.COMMIT),
-                new UpdateInfo("issue", "author2", LocalDateTime.now(), UpdateInfoType.ISSUE));
+                new UpdateInfo("commit", "author1", LocalDateTime.now(ZoneId.systemDefault()), UpdateInfoType.COMMIT),
+                new UpdateInfo("issue", "author2", LocalDateTime.now(ZoneId.systemDefault()), UpdateInfoType.ISSUE));
 
         assertDoesNotThrow(() -> botClientService.sendUpdates(link, updates));
 

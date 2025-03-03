@@ -1,19 +1,10 @@
 package backend.academy.bot.model;
 
-import lombok.Getter;
-
-@Getter
+/** Класс описывает все возможные состояния ввода пользователя при вводе ссылки на добавление/удаление */
 public enum UserState {
-    DEFAULT(1),
-    TRACKING_LINK(2),
-    TRACKING_TAG(3),
-    TRACKING_FILTER(4),
-    UNTRACKING_LINK(5),
-    ;
-
-    private final int stateValue;
-
-    UserState(int stateValue) {
-        this.stateValue = stateValue;
-    }
+    DEFAULT,
+    TRACKING_LINK,
+    TRACKING_TAG,
+    TRACKING_FILTER,
+    UNTRACKING_LINK;
 }

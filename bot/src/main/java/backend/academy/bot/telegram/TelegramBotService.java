@@ -1,5 +1,6 @@
 package backend.academy.bot.telegram;
 
+import backend.academy.bot.telegram.handler.Command;
 import backend.academy.bot.telegram.handler.HandlerService;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
@@ -15,10 +16,12 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+/** Основной класс телеграм бота, получает и отправляет сообщения */
 @Getter
 @Slf4j
 public class TelegramBotService extends TelegramBot {
 
+    /** Сервис для выбора обработчика сообщения */
     private final HandlerService handlerService;
 
     public TelegramBotService(String telegramBotToken, HandlerService handlerService) {
@@ -37,13 +40,14 @@ public class TelegramBotService extends TelegramBot {
         });
     }
 
+    /** Регистрация доступных команд */
     private void registerCommands() {
         BotCommand[] commands = {
-            new BotCommand("/start", "Запуск бота и регистрация пользователя"),
-            new BotCommand("/help", "Помощь"),
-            new BotCommand("/track", "Добавить ссылку для отслеживания"),
-            new BotCommand("/untrack", "Прекратить отслеживание ссылки"),
-            new BotCommand("/list", "Список отслеживаемых ссылок")
+            new BotCommand(Command.START.command(), Command.START.description()),
+            new BotCommand(Command.HELP.command(), Command.HELP.description()),
+            new BotCommand(Command.TRACK.command(), Command.TRACK.description()),
+            new BotCommand(Command.UNTRACK.command(), Command.UNTRACK.description()),
+            new BotCommand(Command.LIST.command(), Command.LIST.description())
         };
         SetMyCommands setMyCommands = new SetMyCommands(commands);
         BaseResponse response = execute(setMyCommands);
@@ -54,6 +58,11 @@ public class TelegramBotService extends TelegramBot {
         }
     }
 
+    /**
+     * Обработка обновлений с помощью HandlerService. Отправляет сообщение в случае ответа на обновление.
+     *
+     * @param update входное обновление
+     */
     private void handleUpdate(Update update) {
         Optional<SendMessage> responseMessage = handlerService.handle(update);
         if (responseMessage.isPresent()) {
@@ -62,6 +71,11 @@ public class TelegramBotService extends TelegramBot {
         }
     }
 
+    /**
+     * Метод отправки сообщения пользователю
+     *
+     * @param message сообщение
+     */
     public void sendResponse(SendMessage message) {
         SendResponse response = execute(message);
         if (!response.isOk()) {

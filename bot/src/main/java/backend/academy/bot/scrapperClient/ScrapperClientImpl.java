@@ -7,18 +7,19 @@ import backend.academy.dto.RemoveLinkRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClient;
 
-public class ScrapperRestClient implements IClient {
+/** Реализация клиента с помощью RestClient. Присутствует возможность указать базовый URL или использовать дефолтный. */
+public class ScrapperClientImpl implements ScrapperClient {
 
     private static final String DEFAULT_URL = "http://localhost:8081/";
     private final RestClient restClient;
 
-    public ScrapperRestClient(String baseUrl) {
+    public ScrapperClientImpl(String baseUrl) {
         this.restClient = RestClient.builder()
                 .baseUrl(baseUrl != null ? baseUrl : DEFAULT_URL)
                 .build();
     }
 
-    public ScrapperRestClient() {
+    public ScrapperClientImpl() {
         this(null);
     }
 

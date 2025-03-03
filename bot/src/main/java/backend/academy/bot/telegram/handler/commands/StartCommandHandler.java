@@ -1,11 +1,17 @@
 package backend.academy.bot.telegram.handler.commands;
 
+import static backend.academy.bot.telegram.handler.Constant.ALREADY_REGISTERED;
+import static backend.academy.bot.telegram.handler.Constant.CHAT_REGISTERED;
+import static backend.academy.bot.telegram.handler.Constant.REGISTRATION_CANCELLED;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
+import backend.academy.bot.telegram.handler.Command;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Message;
 
+/** Обработчик команды /start */
 public class StartCommandHandler extends CommandHandler {
 
     private final ScrapperClientService service;
@@ -17,24 +23,29 @@ public class StartCommandHandler extends CommandHandler {
 
     @Override
     public String processRequest(Message message) {
+        // возврат в начальное состояние из процесса ввода
         if (repository.containsTrack(message.chat().id())) {
             repository.removeTrack(message.chat().id());
         }
         try {
+            // успешная регистрация
             service.registerNewClient(message.chat().id());
-            return "Чат успешно зарегистрирован";
+            return CHAT_REGISTERED;
         } catch (BotChatRegistrationException ex) {
             ApiErrorResponse response = ex.response();
+            // Scrapper вернул ответ, что пользователь уже существует
             if (response.exceptionMessage().contains("already exists")) {
-                return "Вы уже зарегистрированы";
+                return ALREADY_REGISTERED;
             } else {
-                return "Регистрация отклонена, попробуйте ещё раз";
+                // другая ошибка обработки запроса, не зависящая от пользователя
+                return REGISTRATION_CANCELLED;
             }
         }
     }
 
     @Override
     public boolean canHandle(Message message) {
-        return message.text().equals("/start");
+        // может обработать сообщение, если оно равно команде /start
+        return message.text().equals(Command.START.command());
     }
 }

@@ -3,7 +3,6 @@ package backend.academy.bot.server.controller;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,8 +42,7 @@ public class BotControllerWithExceptionHandlerTest {
         mockMvc.perform(post("/updates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(linkUpdate)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Request processed successfully"));
+                .andExpect(status().isOk());
 
         verify(botService).sendUpdates(linkUpdate);
     }

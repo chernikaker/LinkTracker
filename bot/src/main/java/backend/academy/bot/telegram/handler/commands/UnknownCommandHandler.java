@@ -1,5 +1,7 @@
 package backend.academy.bot.telegram.handler.commands;
 
+import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_COMMAND_MESSAGE;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import com.pengrad.telegrambot.model.Message;
 
@@ -11,7 +13,7 @@ public class UnknownCommandHandler extends CommandHandler {
 
     @Override
     public String processRequest(Message message) {
-        return "Команда неизвестна или недоступна на данный момент.";
+        return UNKNOWN_COMMAND_MESSAGE;
     }
 
     @Override

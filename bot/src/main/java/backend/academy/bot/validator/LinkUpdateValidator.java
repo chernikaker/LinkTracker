@@ -3,15 +3,17 @@ package backend.academy.bot.validator;
 import backend.academy.bot.exception.validator.BotIllegalRequestArgumentException;
 import backend.academy.bot.exception.validator.BotValidationException;
 import backend.academy.dto.LinkUpdate;
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 
-@Component
+/** Валидатор для DTO с обновлением ссылки */
+@UtilityClass
 public class LinkUpdateValidator {
 
     public void validate(LinkUpdate link) {
         if (link == null) {
             throw new BotValidationException("Link object in body is null");
         }
+        // проверяет ID чатов для рассылки обновления
         for (Long chatId : link.tgChatIds()) {
             if (chatId == null) {
                 throw new BotIllegalRequestArgumentException("Chat id is null in link update " + link.id());

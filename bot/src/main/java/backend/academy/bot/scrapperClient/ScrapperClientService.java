@@ -9,15 +9,19 @@ import backend.academy.dto.RemoveLinkRequest;
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
+/**
+ * Класс обёртка для удобной работы со ScrapperClient. Преобразует внутренние модели объектов в DTO, обрабатывает и
+ * логирует исключения клиента.
+ */
 @AllArgsConstructor
 @Slf4j
-@Component
+@Service
 public class ScrapperClientService {
 
-    private IClient client;
+    private ScrapperClient client;
 
     public void registerNewClient(long chatId) {
         try {

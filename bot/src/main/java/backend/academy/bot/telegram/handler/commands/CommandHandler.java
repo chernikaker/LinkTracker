@@ -4,6 +4,7 @@ import backend.academy.bot.cache.InMemoryTrackingCache;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.request.SendMessage;
 
+/** Абстрактный класс обработчика */
 public abstract class CommandHandler {
 
     protected final InMemoryTrackingCache repository;

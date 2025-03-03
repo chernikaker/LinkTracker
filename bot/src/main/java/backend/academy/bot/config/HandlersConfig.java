@@ -17,6 +17,7 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/** Класс Spring когнигурации для обработчиков ввода пользователя в телеграм-бот */
 @Configuration
 public class HandlersConfig {
 
@@ -73,18 +74,29 @@ public class HandlersConfig {
         return new UntrackingLinkTextCommandHandler(userRepository, service);
     }
 
+    /**
+     * Метод, определяющий, каким образом Spring инжектит список обработчиков в соответствующий сервис. Список
+     * используется для выбора текущего обработчика, поэтому в нем имеет место быть порядок заполнения. Сначала идут
+     * обработчики команд, потом обработчики текста, потом дефолтный обработчик. Впрочем, обязательно только условие,
+     * что дефолтный обработчик добавляется в список последним, так как кейсы выбора остальных обработчиков не
+     * пересекаются.
+     *
+     * @param cache - кэш для временной информации
+     * @param service - сервис клиента для взаимодействия со Scrapper
+     * @return список обработчиков команд
+     */
     @Bean
-    public List<CommandHandler> commandHandlers(InMemoryTrackingCache repository, ScrapperClientService service) {
+    public List<CommandHandler> commandHandlers(InMemoryTrackingCache cache, ScrapperClientService service) {
         return List.of(
-                startCommandHandler(repository, service),
-                trackCommandHandler(repository),
-                helpCommandHandler(repository),
-                listCommandHandler(repository, service),
-                untrackCommandHandler(repository),
-                linkTextCommandHandler(repository),
-                tagsTextCommandHandler(repository),
-                filtersTextCommandHandler(repository, service),
-                untrackLinkTextCommandHandler(repository, service),
-                unknownCommandHandler(repository));
+                startCommandHandler(cache, service),
+                trackCommandHandler(cache),
+                helpCommandHandler(cache),
+                listCommandHandler(cache, service),
+                untrackCommandHandler(cache),
+                linkTextCommandHandler(cache),
+                tagsTextCommandHandler(cache),
+                filtersTextCommandHandler(cache, service),
+                untrackLinkTextCommandHandler(cache, service),
+                unknownCommandHandler(cache));
     }
 }
