@@ -12,6 +12,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException;
 import backend.academy.bot.exception.scrapperClient.BotInvalidLinkRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
@@ -65,7 +66,7 @@ public class ScrapperClientServiceIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(errorResponseBody)));
 
-        assertThatThrownBy(() -> service.registerNewClient(123)).isInstanceOf(BotInvalidLinkRequestException.class);
+        assertThatThrownBy(() -> service.registerNewClient(123)).isInstanceOf(BotChatRegistrationException.class);
     }
 
     @Test

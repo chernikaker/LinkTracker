@@ -1,5 +1,6 @@
 package backend.academy.bot.scrapperClient;
 
+import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException;
 import backend.academy.bot.exception.scrapperClient.BotInvalidLinkRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.dto.AddLinkRequest;
@@ -28,7 +29,8 @@ public class ScrapperClientService {
             client.registerChat(chatId);
             log.info("Successfully registered new client with chat id {}", chatId);
         } catch (HttpClientErrorException e) {
-            handleException(e);
+            ApiErrorResponse r = handleException(e);
+            throw new BotChatRegistrationException(r);
         }
     }
 
@@ -36,8 +38,8 @@ public class ScrapperClientService {
         try {
             return client.getUserLinks(chatId);
         } catch (HttpClientErrorException e) {
-            handleException(e);
-            throw new BotInvalidLinkRequestException(e.getResponseBodyAs(ApiErrorResponse.class));
+            ApiErrorResponse r = handleException(e);
+            throw new BotInvalidLinkRequestException(r);
         }
     }
 
@@ -47,7 +49,8 @@ public class ScrapperClientService {
                     linkData.link(), Arrays.asList(linkData.tags()), Arrays.asList(linkData.filters()));
             client.addLinkSubscription(chatId, request);
         } catch (HttpClientErrorException e) {
-            handleException(e);
+            ApiErrorResponse r = handleException(e);
+            throw new BotInvalidLinkRequestException(r);
         }
     }
 
@@ -56,17 +59,18 @@ public class ScrapperClientService {
             RemoveLinkRequest request = new RemoveLinkRequest(link);
             client.deleteLinkSubscription(chatId, request);
         } catch (HttpClientErrorException e) {
-            handleException(e);
+            ApiErrorResponse r = handleException(e);
+            throw new BotInvalidLinkRequestException(r);
         }
     }
 
-    private void handleException(HttpClientErrorException e) {
+    private ApiErrorResponse handleException(HttpClientErrorException e) {
         ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
         if (error != null) {
             log.error("Error while sending link update: {}", error.exceptionMessage());
         } else {
             log.error("Received a null error response.");
         }
-        throw new BotInvalidLinkRequestException(error);
+        return error;
     }
 }
