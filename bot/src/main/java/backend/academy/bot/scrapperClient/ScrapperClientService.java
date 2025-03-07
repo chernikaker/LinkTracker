@@ -26,7 +26,7 @@ public class ScrapperClientService {
     public void registerNewClient(long chatId) {
         try {
             client.registerChat(chatId);
-            log.info("Successfully registered new client with chat id {}", chatId);
+            log.atInfo().addKeyValue("chat id", chatId).log("Client added successfully");
         } catch (HttpClientErrorException e) {
             ApiErrorResponse r = handleException(e);
             throw new BotRequestException(r);
@@ -35,7 +35,9 @@ public class ScrapperClientService {
 
     public ListLinksResponse getUserLinks(long chatId) {
         try {
-            return client.getUserLinks(chatId);
+            ListLinksResponse response = client.getUserLinks(chatId);
+            log.atInfo().addKeyValue("chat id", chatId).log("Links retrieved successfully");
+            return response;
         } catch (HttpClientErrorException e) {
             ApiErrorResponse r = handleException(e);
             throw new BotRequestException(r);
@@ -47,6 +49,7 @@ public class ScrapperClientService {
             AddLinkRequest request = new AddLinkRequest(
                     linkData.link(), Arrays.asList(linkData.tags()), Arrays.asList(linkData.filters()));
             client.addLinkSubscription(chatId, request);
+            log.atInfo().addKeyValue("chat id", chatId).log("Subscription added successfully");
         } catch (HttpClientErrorException e) {
             ApiErrorResponse r = handleException(e);
             throw new BotRequestException(r);
@@ -57,6 +60,7 @@ public class ScrapperClientService {
         try {
             RemoveLinkRequest request = new RemoveLinkRequest(link);
             client.deleteLinkSubscription(chatId, request);
+            log.atInfo().addKeyValue("chat id", chatId).log("Subscription removed successfully");
         } catch (HttpClientErrorException e) {
             ApiErrorResponse r = handleException(e);
             throw new BotRequestException(r);
@@ -66,9 +70,11 @@ public class ScrapperClientService {
     private ApiErrorResponse handleException(HttpClientErrorException e) {
         ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
         if (error != null) {
-            log.error("Error while sending link update: {}", error.exceptionMessage());
+            log.atWarn()
+                    .addKeyValue("error response", e.getResponseBodyAsString())
+                    .log("Error while sending link update");
         } else {
-            log.error("Received a null error response.");
+            log.atWarn().log("Error while sending link update: null error response");
         }
         return error;
     }

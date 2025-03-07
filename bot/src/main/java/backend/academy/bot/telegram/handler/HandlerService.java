@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
  *
  * @see HandlersConfig
  */
+@Slf4j
 @Service
 public class HandlerService {
 
@@ -42,6 +44,7 @@ public class HandlerService {
                 return handler;
             }
         }
+        log.atWarn().addKeyValue("message", message).log("Can't find handler for message, used last");
         return handlers.getLast();
     }
 }

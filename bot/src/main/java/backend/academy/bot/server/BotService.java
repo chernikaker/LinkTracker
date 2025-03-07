@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class BotService {
 
     public static final String UPDATE_MESSAGE = "Новые уведомления для ссылки: %s %nОписание: %s";
-    private final TelegramBotService botService;
+    private final TelegramBotService telegramBotService;
 
     public void sendUpdates(LinkUpdate update) {
         LinkUpdateValidator.validate(update);
@@ -32,6 +32,6 @@ public class BotService {
     public void sendUpdateInfo(long chatId, String url, String description) {
         String messageText = UPDATE_MESSAGE.formatted(url, description);
         SendMessage sendMessage = new SendMessage(chatId, messageText);
-        botService.sendResponse(sendMessage);
+        telegramBotService.sendResponse(sendMessage);
     }
 }

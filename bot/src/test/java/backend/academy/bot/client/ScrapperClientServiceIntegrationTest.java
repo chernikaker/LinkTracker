@@ -155,8 +155,7 @@ public class ScrapperClientServiceIntegrationTest {
 
         LinkTrackingObject request = new LinkTrackingObject(
                 "https://example.com", new String[] {"tag1", "tag2"}, new String[] {"filter1"}, UserState.DEFAULT);
-        assertThatThrownBy(() -> service.addLinkSubscription(123, request))
-                .isInstanceOf(BotRequestException.class);
+        assertThatThrownBy(() -> service.addLinkSubscription(123, request)).isInstanceOf(BotRequestException.class);
     }
 
     @Test

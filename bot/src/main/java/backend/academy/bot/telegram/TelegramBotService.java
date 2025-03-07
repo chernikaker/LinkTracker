@@ -52,9 +52,9 @@ public class TelegramBotService extends TelegramBot {
         SetMyCommands setMyCommands = new SetMyCommands(commands);
         BaseResponse response = execute(setMyCommands);
         if (response.isOk()) {
-            log.info("Set My Commands executed successfully");
+            log.atInfo().log("Set My Commands executed successfully");
         } else {
-            log.error("Set My Commands failed");
+            log.atError().log("Set My Commands failed");
         }
     }
 
@@ -79,7 +79,7 @@ public class TelegramBotService extends TelegramBot {
     public void sendResponse(SendMessage message) {
         SendResponse response = execute(message);
         if (!response.isOk()) {
-            log.error("Error sending response: {}", response.message());
+            log.atError().addKeyValue("message", message).log("Error sending response message");
         }
     }
 
