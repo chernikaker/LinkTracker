@@ -1,7 +1,6 @@
 package backend.academy.scrapper.client.github;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.exception.client.GithubResponseJsonIsInvalid;
 import backend.academy.scrapper.exception.client.GithubUnsupportedOptionException;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.model.UpdateInfo;
@@ -48,6 +47,7 @@ public class GithubClientService {
             infoList.addAll(parseInfo(commitData, UpdateInfoType.COMMIT));
             return infoList;
         } catch (HttpClientErrorException e) {
+            log.atWarn().addKeyValue("link", link.url()).setCause(e).log("Error receiving data from github");
             throw new ScrapperInternalResponseException("Error receiving data from github", e);
         }
     }
@@ -64,6 +64,7 @@ public class GithubClientService {
             githubClient.getResponse(uri);
             return true;
         } catch (HttpClientErrorException e) {
+            log.atWarn().addKeyValue("link", link.url()).setCause(e).log("Error receiving data from github");
             return false;
         }
     }
@@ -149,7 +150,8 @@ public class GithubClientService {
             }
             return infos;
         } catch (JsonProcessingException | IllegalArgumentException e) {
-            throw new GithubResponseJsonIsInvalid("Can't parse JSON response ", e);
+            log.atWarn().addKeyValue("JSON", e).setCause(e).log("Can't parse JSON response");
+            throw new ScrapperInternalResponseException("Can't parse JSON response ", e);
         }
     }
 

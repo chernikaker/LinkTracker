@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
-import backend.academy.scrapper.exception.client.GithubResponseJsonIsInvalid;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.model.UpdateInfo;
 import backend.academy.scrapper.model.UpdateInfoType;
@@ -79,7 +78,8 @@ public class GithubClientServiceTest {
         String invalidJson = "invalid json";
         when(githubClient.getResponse("repos/author/repo/commits")).thenReturn(invalidJson);
 
-        assertThatThrownBy(() -> githubClientService.getAllInfo(link)).isInstanceOf(GithubResponseJsonIsInvalid.class);
+        assertThatThrownBy(() -> githubClientService.getAllInfo(link))
+                .isInstanceOf(ScrapperInternalResponseException.class);
     }
 
     @Test

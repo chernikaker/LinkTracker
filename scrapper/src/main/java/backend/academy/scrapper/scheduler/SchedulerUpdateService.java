@@ -5,9 +5,7 @@ import backend.academy.scrapper.client.github.GithubClientService;
 import backend.academy.scrapper.client.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
-import backend.academy.scrapper.exception.client.GithubResponseJsonIsInvalid;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
-import backend.academy.scrapper.exception.client.StackoverflowResponseJsonIsInvalid;
 import backend.academy.scrapper.model.UpdateInfo;
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import java.time.LocalDateTime;
@@ -38,7 +36,7 @@ public class SchedulerUpdateService {
 
     @Scheduled(initialDelay = INITIAL_DELAY, fixedDelay = DELAY)
     public void checkNewUpdates() {
-        log.debug("Scheduling checking link updates");
+        log.atDebug().log("Scheduling checking link updates");
         Set<Link> links = linkRepository.getLinks();
         for (Link link : links) {
             try {
@@ -54,10 +52,8 @@ public class SchedulerUpdateService {
                 if (!actualInfos.isEmpty()) {
                     botClientService.sendUpdates(link, actualInfos);
                 }
-            } catch (ScrapperInternalResponseException
-                    | GithubResponseJsonIsInvalid
-                    | StackoverflowResponseJsonIsInvalid e) {
-                log.error("Error while getting update {}", e.getMessage());
+            } catch (ScrapperInternalResponseException e) {
+                log.atWarn().setCause(e).log("Error while getting update in scheduler");
             }
             // обновление времени проверки ссылки
             link.lastValidation(LocalDateTime.now(ZoneId.systemDefault()));

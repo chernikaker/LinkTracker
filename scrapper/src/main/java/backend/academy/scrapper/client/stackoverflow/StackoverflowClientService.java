@@ -2,7 +2,6 @@ package backend.academy.scrapper.client.stackoverflow;
 
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
-import backend.academy.scrapper.exception.client.StackoverflowResponseJsonIsInvalid;
 import backend.academy.scrapper.model.UpdateInfo;
 import backend.academy.scrapper.model.UpdateInfoType;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,6 +43,7 @@ public class StackoverflowClientService {
             infoList.addAll(parseInfo(answerData, UpdateInfoType.ANSWER));
             return infoList;
         } catch (HttpClientErrorException e) {
+            log.atWarn().addKeyValue("link", link.url()).setCause(e).log("Error receiving data from stackoverflow");
             throw new ScrapperInternalResponseException("Error receiving data from stackoverflow", e);
         }
     }
@@ -61,6 +61,7 @@ public class StackoverflowClientService {
             return true;
         } catch (HttpClientErrorException e) {
             // если возникла ошибка, ссылку нельзя считать доступной
+            log.atWarn().addKeyValue("link", link.url()).setCause(e).log("Error receiving data from stackoverflow");
             return false;
         }
     }
@@ -107,7 +108,8 @@ public class StackoverflowClientService {
             }
             return infos;
         } catch (JsonProcessingException | IllegalArgumentException e) {
-            throw new StackoverflowResponseJsonIsInvalid("Can't parse JSON response ", e);
+            log.atWarn().addKeyValue("JSON", e).setCause(e).log("Can't parse JSON response");
+            throw new ScrapperInternalResponseException("Can't parse JSON response ", e);
         }
     }
 

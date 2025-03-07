@@ -9,7 +9,6 @@ import backend.academy.scrapper.client.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
-import backend.academy.scrapper.exception.client.StackoverflowResponseJsonIsInvalid;
 import backend.academy.scrapper.model.UpdateInfo;
 import backend.academy.scrapper.model.UpdateInfoType;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -71,7 +70,7 @@ public class StackoverflowClientServiceTest {
         when(client.getResponse("/questions/12345/comments")).thenReturn(invalidJson);
 
         assertThatThrownBy(() -> stackoverflowClientService.getAllInfo(link))
-                .isInstanceOf(StackoverflowResponseJsonIsInvalid.class);
+                .isInstanceOf(ScrapperInternalResponseException.class);
     }
 
     @Test

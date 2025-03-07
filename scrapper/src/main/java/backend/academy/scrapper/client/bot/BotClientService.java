@@ -37,12 +37,14 @@ public class BotClientService {
             try {
                 ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
                 if (error != null) {
-                    log.error("Error while sending link update: {}", error.exceptionMessage());
+                    log.atWarn().addKeyValue("error data", error).log("Error while sending link update");
                 } else {
-                    log.error("Received a null error response.");
+                    log.atWarn().log("Received a null error response. While sending link update");
                 }
             } catch (RuntimeException ex) {
-                log.error("Error while processing error response: {}", ex.getMessage());
+                log.atWarn()
+                        .addKeyValue("processing error", ex)
+                        .log("Error while processing error in sending link update");
             }
         }
     }
