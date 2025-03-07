@@ -8,7 +8,7 @@ import static backend.academy.bot.telegram.handler.Constant.REQUEST_CANCELLED;
 import static backend.academy.bot.telegram.handler.Constant.TAG_HEADER;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
-import backend.academy.bot.exception.scrapperClient.BotInvalidChatIdException;
+import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.bot.telegram.handler.Command;
 import backend.academy.dto.ApiErrorResponse;
@@ -32,7 +32,7 @@ public class ListCommandHandler extends CommandHandler {
             // успешное получение ссылок
             ListLinksResponse list = service.getUserLinks(message.chat().id());
             return makeLinksMessage(list);
-        } catch (BotInvalidChatIdException ex) {
+        } catch (BotRequestException ex) {
             ApiErrorResponse response = ex.response();
             if (response.exceptionMessage().contains("not exists")) {
                 // пользователя не существует

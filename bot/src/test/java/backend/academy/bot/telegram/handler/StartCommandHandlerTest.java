@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
-import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException;
+import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.bot.telegram.handler.commands.StartCommandHandler;
 import backend.academy.dto.ApiErrorResponse;
@@ -61,7 +61,7 @@ public class StartCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(repository.containsTrack(chatId)).thenReturn(false);
-        doThrow(new BotChatRegistrationException(new ApiErrorResponse(
+        doThrow(new BotRequestException(new ApiErrorResponse(
                         "Client already exists", "400", "BadRequestException", "Client already exists", List.of())))
                 .when(service)
                 .registerNewClient(chatId);
@@ -80,7 +80,7 @@ public class StartCommandHandlerTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(repository.containsTrack(chatId)).thenReturn(false);
-        doThrow(new BotChatRegistrationException(new ApiErrorResponse(
+        doThrow(new BotRequestException(new ApiErrorResponse(
                         "Registration rejected", "400", "BadRequestException", "Invalid request", List.of())))
                 .when(service)
                 .registerNewClient(chatId);

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
-import backend.academy.bot.exception.scrapperClient.BotInvalidChatIdException;
+import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.bot.telegram.handler.commands.ListCommandHandler;
 import backend.academy.dto.ApiErrorResponse;
@@ -104,7 +104,7 @@ public class ListCommandHandlerTest {
 
         when(repository.containsTrack(chatId)).thenReturn(false);
         when(service.getUserLinks(chatId))
-                .thenThrow(new BotInvalidChatIdException(new ApiErrorResponse(
+                .thenThrow(new BotRequestException(new ApiErrorResponse(
                         "User not exists", "404", "NotFoundException", "User not exists", List.of())));
 
         String result = listCommandHandler.processRequest(message);
@@ -122,7 +122,7 @@ public class ListCommandHandlerTest {
         when(chat.id()).thenReturn(chatId);
         when(repository.containsTrack(chatId)).thenReturn(false);
         when(service.getUserLinks(chatId))
-                .thenThrow(new BotInvalidChatIdException(new ApiErrorResponse(
+                .thenThrow(new BotRequestException(new ApiErrorResponse(
                         "Request rejected", "400", "BadRequestException", "Invalid request", List.of())));
 
         String result = listCommandHandler.processRequest(message);

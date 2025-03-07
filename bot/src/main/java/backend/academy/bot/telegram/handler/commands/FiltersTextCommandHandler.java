@@ -9,7 +9,7 @@ import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.REQUEST_CANCELLED;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
-import backend.academy.bot.exception.scrapperClient.BotInvalidLinkRequestException;
+import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
@@ -40,7 +40,7 @@ public class FiltersTextCommandHandler extends CommandHandler {
             // добавление ссылки в Scrapper
             service.addLinkSubscription(message.chat().id(), tracking);
             return writingResponse + LINK_REGISTERED;
-        } catch (BotInvalidLinkRequestException ex) {
+        } catch (BotRequestException ex) {
             ApiErrorResponse response = ex.response();
             if (response.exceptionMessage().contains(message.chat().id() + " not exists")) {
                 // пользователь не зарегистрирован

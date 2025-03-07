@@ -12,8 +12,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException;
-import backend.academy.bot.exception.scrapperClient.BotInvalidLinkRequestException;
+import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
@@ -66,7 +65,7 @@ public class ScrapperClientServiceIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(errorResponseBody)));
 
-        assertThatThrownBy(() -> service.registerNewClient(123)).isInstanceOf(BotChatRegistrationException.class);
+        assertThatThrownBy(() -> service.registerNewClient(123)).isInstanceOf(BotRequestException.class);
     }
 
     @Test
@@ -78,7 +77,7 @@ public class ScrapperClientServiceIntegrationTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(errorResponseBody)));
 
-        assertThatThrownBy(() -> service.getUserLinks(123)).isInstanceOf(BotInvalidLinkRequestException.class);
+        assertThatThrownBy(() -> service.getUserLinks(123)).isInstanceOf(BotRequestException.class);
     }
 
     @Test
@@ -157,7 +156,7 @@ public class ScrapperClientServiceIntegrationTest {
         LinkTrackingObject request = new LinkTrackingObject(
                 "https://example.com", new String[] {"tag1", "tag2"}, new String[] {"filter1"}, UserState.DEFAULT);
         assertThatThrownBy(() -> service.addLinkSubscription(123, request))
-                .isInstanceOf(BotInvalidLinkRequestException.class);
+                .isInstanceOf(BotRequestException.class);
     }
 
     @Test
@@ -191,6 +190,6 @@ public class ScrapperClientServiceIntegrationTest {
                         .withBody(errorResponseBody)));
 
         assertThatThrownBy(() -> service.removeLinkSubscription(123L, "https://example.com"))
-                .isInstanceOf(BotInvalidLinkRequestException.class);
+                .isInstanceOf(BotRequestException.class);
     }
 }

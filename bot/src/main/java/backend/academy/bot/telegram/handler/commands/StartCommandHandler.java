@@ -5,7 +5,7 @@ import static backend.academy.bot.telegram.handler.Constant.CHAT_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.REGISTRATION_CANCELLED;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
-import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException;
+import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.bot.telegram.handler.Command;
 import backend.academy.dto.ApiErrorResponse;
@@ -31,7 +31,7 @@ public class StartCommandHandler extends CommandHandler {
             // успешная регистрация
             service.registerNewClient(message.chat().id());
             return CHAT_REGISTERED;
-        } catch (BotChatRegistrationException ex) {
+        } catch (BotRequestException ex) {
             ApiErrorResponse response = ex.response();
             // Scrapper вернул ответ, что пользователь уже существует
             if (response.exceptionMessage().contains("already exists")) {

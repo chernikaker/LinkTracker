@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
-import backend.academy.bot.exception.scrapperClient.BotInvalidLinkRequestException;
+import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
@@ -89,7 +89,7 @@ public class FiltersTextCommandHandlerTest {
         LinkTrackingObject tracking = new LinkTrackingObject(
                 "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
-        doThrow(new BotInvalidLinkRequestException(new ApiErrorResponse(
+        doThrow(new BotRequestException(new ApiErrorResponse(
                         "User not exists", "404", "NotFoundException", "123 not exists", List.of())))
                 .when(service)
                 .addLinkSubscription(chatId, tracking);
@@ -112,7 +112,7 @@ public class FiltersTextCommandHandlerTest {
         LinkTrackingObject tracking = new LinkTrackingObject(
                 "https://unavailable.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
-        doThrow(new BotInvalidLinkRequestException(new ApiErrorResponse(
+        doThrow(new BotRequestException(new ApiErrorResponse(
                         "Unavailable link", "400", "BadRequestException", "unavailable", List.of())))
                 .when(service)
                 .addLinkSubscription(chatId, tracking);

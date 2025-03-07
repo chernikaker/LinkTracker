@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
-import backend.academy.bot.exception.scrapperClient.BotInvalidLinkRequestException;
+import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
@@ -92,7 +92,7 @@ public class UntrackingLinkTextCommandHandlerTest {
         LinkTrackingObject tracking =
                 new LinkTrackingObject(gitRepo, new String[0], new String[0], UserState.UNTRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
-        doThrow(new BotInvalidLinkRequestException(new ApiErrorResponse(
+        doThrow(new BotRequestException(new ApiErrorResponse(
                         "User not exists", "404", "NotFoundException", "123 not exists", List.of())))
                 .when(service)
                 .removeLinkSubscription(chatId, gitRepo);
@@ -115,7 +115,7 @@ public class UntrackingLinkTextCommandHandlerTest {
         LinkTrackingObject tracking =
                 new LinkTrackingObject(gitRepo, new String[0], new String[0], UserState.UNTRACKING_LINK);
         when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
-        doThrow(new BotInvalidLinkRequestException(new ApiErrorResponse(
+        doThrow(new BotRequestException(new ApiErrorResponse(
                         "Link not found", "404", "NotFoundException", "Link not found", List.of())))
                 .when(service)
                 .removeLinkSubscription(chatId, gitRepo);

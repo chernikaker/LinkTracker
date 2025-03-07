@@ -1,7 +1,6 @@
 package backend.academy.bot.scrapperClient;
 
-import backend.academy.bot.exception.scrapperClient.BotChatRegistrationException;
-import backend.academy.bot.exception.scrapperClient.BotInvalidLinkRequestException;
+import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.ApiErrorResponse;
@@ -30,7 +29,7 @@ public class ScrapperClientService {
             log.info("Successfully registered new client with chat id {}", chatId);
         } catch (HttpClientErrorException e) {
             ApiErrorResponse r = handleException(e);
-            throw new BotChatRegistrationException(r);
+            throw new BotRequestException(r);
         }
     }
 
@@ -39,7 +38,7 @@ public class ScrapperClientService {
             return client.getUserLinks(chatId);
         } catch (HttpClientErrorException e) {
             ApiErrorResponse r = handleException(e);
-            throw new BotInvalidLinkRequestException(r);
+            throw new BotRequestException(r);
         }
     }
 
@@ -50,7 +49,7 @@ public class ScrapperClientService {
             client.addLinkSubscription(chatId, request);
         } catch (HttpClientErrorException e) {
             ApiErrorResponse r = handleException(e);
-            throw new BotInvalidLinkRequestException(r);
+            throw new BotRequestException(r);
         }
     }
 
@@ -60,7 +59,7 @@ public class ScrapperClientService {
             client.deleteLinkSubscription(chatId, request);
         } catch (HttpClientErrorException e) {
             ApiErrorResponse r = handleException(e);
-            throw new BotInvalidLinkRequestException(r);
+            throw new BotRequestException(r);
         }
     }
 

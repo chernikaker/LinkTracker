@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class BotInvalidLinkRequestException extends BotException {
+public class BotRequestException extends BotException {
 
     private ApiErrorResponse response;
 }
