@@ -1,7 +1,7 @@
-package backend.academy.bot.server;
+package backend.academy.scrapper.service;
 
-import backend.academy.bot.exception.BotException;
 import backend.academy.dto.ApiErrorResponse;
+import backend.academy.scrapper.exception.ScrapperException;
 import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.TypeMismatchException;
@@ -103,13 +103,14 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
     }
 
     /**
-     * Обработка кастомного исключения приложения
+     * Обработка кастомного исключения приложения Все исключения Scrapper имеют статус ответа 400
+     * ScrapperControllerEntityNotFoundException - 404
      *
-     * @param ex исключение Bot
+     * @param ex исключение Scrapper
      * @return обертка над объектом ApiErrorResponse для HTTP ответа
      */
-    @ExceptionHandler(BotException.class)
-    public ResponseEntity<ApiErrorResponse> handleScrapperException(BotException ex) {
+    @ExceptionHandler(ScrapperException.class)
+    public ResponseEntity<ApiErrorResponse> handleScrapperException(ScrapperException ex) {
         return new ResponseEntity<>(
                 new ApiErrorResponse(
                         ex.description(),

@@ -1,4 +1,4 @@
-package backend.academy.scrapper.server;
+package backend.academy.scrapper.service;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -9,7 +9,7 @@ import backend.academy.scrapper.client.github.GithubClientService;
 import backend.academy.scrapper.client.stackoverflow.StackoverflowClient;
 import backend.academy.scrapper.client.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.scheduler.SchedulerUpdateService;
+import backend.academy.scrapper.scheduler.UpdateScheduler;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -49,8 +49,8 @@ public class TestClientConfig {
 
     @Bean("testScheduler")
     @Primary
-    public SchedulerUpdateService schedulerUpdateService() {
-        return Mockito.mock(SchedulerUpdateService.class);
+    public UpdateScheduler schedulerUpdateService() {
+        return Mockito.mock(UpdateScheduler.class);
     }
 
     @Bean("testBotClient")

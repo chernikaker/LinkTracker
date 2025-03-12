@@ -1,16 +1,15 @@
 package backend.academy.bot.exception;
 
-import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
-@Getter
 @NoArgsConstructor
 public class BotException extends RuntimeException {
 
-    private final String description = "Internal Bot App Exception";
+    public static final String DESCRIPTION = "Internal Bot App Exception";
 
     public int getStatus() {
-        return 400;
+        return HttpStatus.BAD_REQUEST.value();
     }
 
     public BotException(String message) {

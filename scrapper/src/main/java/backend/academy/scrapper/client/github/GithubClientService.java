@@ -1,5 +1,16 @@
 package backend.academy.scrapper.client.github;
 
+import static backend.academy.scrapper.client.JsonPathConstant.AUTHOR;
+import static backend.academy.scrapper.client.JsonPathConstant.BODY;
+import static backend.academy.scrapper.client.JsonPathConstant.COMMIT;
+import static backend.academy.scrapper.client.JsonPathConstant.CREATED_AT;
+import static backend.academy.scrapper.client.JsonPathConstant.CREATION_DATE;
+import static backend.academy.scrapper.client.JsonPathConstant.DATE;
+import static backend.academy.scrapper.client.JsonPathConstant.LOGIN;
+import static backend.academy.scrapper.client.JsonPathConstant.MESSAGE;
+import static backend.academy.scrapper.client.JsonPathConstant.TITLE;
+import static backend.academy.scrapper.client.JsonPathConstant.USER;
+
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.client.GithubUnsupportedOptionException;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
@@ -76,9 +87,9 @@ public class GithubClientService {
      * @return модель с данными об обновлении
      */
     private UpdateInfo parseCommit(JsonNode node) {
-        String message = node.path("commit").path("message").asText();
-        String committerName = node.path("author").path("login").asText();
-        String date = node.path("commit").path("author").path("date").asText();
+        String message = node.path(COMMIT).path(MESSAGE).asText();
+        String committerName = node.path(AUTHOR).path(LOGIN).asText();
+        String date = node.path(COMMIT).path(AUTHOR).path(DATE).asText();
         return new UpdateInfo(message, committerName, parseDate(date), UpdateInfoType.COMMIT);
     }
 
@@ -89,9 +100,9 @@ public class GithubClientService {
      * @return модель с данными об обновлении
      */
     private UpdateInfo parseIssue(JsonNode node) {
-        String message = node.path("title").asText();
-        String authorName = node.path("user").path("login").asText();
-        String date = node.path("created_at").asText();
+        String message = node.path(TITLE).asText();
+        String authorName = node.path(USER).path(LOGIN).asText();
+        String date = node.path(CREATED_AT).asText();
         return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.ISSUE);
     }
 
@@ -102,9 +113,9 @@ public class GithubClientService {
      * @return модель с данными об обновлении
      */
     private UpdateInfo parseComment(JsonNode node) {
-        String message = node.path("body").asText();
-        String authorName = node.path("user").path("login").asText();
-        String date = node.path("created_at").asText();
+        String message = node.path(BODY).asText();
+        String authorName = node.path(USER).path(LOGIN).asText();
+        String date = node.path(CREATED_AT).asText();
         return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.COMMENT);
     }
 

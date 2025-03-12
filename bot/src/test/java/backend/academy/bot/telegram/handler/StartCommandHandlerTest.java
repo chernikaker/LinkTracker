@@ -23,6 +23,8 @@ import org.mockito.MockitoAnnotations;
 
 public class StartCommandHandlerTest {
 
+    private static final long CHAT_ID = 123L;
+
     @Mock
     private InMemoryTrackingCache repository;
 
@@ -32,68 +34,58 @@ public class StartCommandHandlerTest {
     @InjectMocks
     private StartCommandHandler startCommandHandler;
 
+    @Mock
+    private Message message;
+
+    @Mock
+    private Chat chat;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(CHAT_ID);
+        when(repository.containsTrack(CHAT_ID)).thenReturn(false);
     }
 
     @Test
     public void processRequest_newClient() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
-        when(repository.containsTrack(chatId)).thenReturn(false);
-        doNothing().when(service).registerNewClient(chatId);
+        doNothing().when(service).registerNewClient(CHAT_ID);
 
         String result = startCommandHandler.processRequest(message);
 
         assertEquals(Constant.CHAT_REGISTERED, result);
-        verify(service).registerNewClient(chatId);
+        verify(service).registerNewClient(CHAT_ID);
     }
 
     @Test
     public void processRequest_clientAlreadyExists() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
-        when(repository.containsTrack(chatId)).thenReturn(false);
         doThrow(new BotRequestException(new ApiErrorResponse(
                         "Client already exists", "400", "BadRequestException", "Client already exists", List.of())))
                 .when(service)
-                .registerNewClient(chatId);
+                .registerNewClient(CHAT_ID);
 
         String result = startCommandHandler.processRequest(message);
 
         assertEquals(Constant.ALREADY_REGISTERED, result);
-        verify(service).registerNewClient(chatId);
+        verify(service).registerNewClient(CHAT_ID);
     }
 
     @Test
     public void processRequest_registrationFails() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
-        when(repository.containsTrack(chatId)).thenReturn(false);
         doThrow(new BotRequestException(new ApiErrorResponse(
                         "Registration rejected", "400", "BadRequestException", "Invalid request", List.of())))
                 .when(service)
-                .registerNewClient(chatId);
+                .registerNewClient(CHAT_ID);
 
         String result = startCommandHandler.processRequest(message);
 
         assertEquals(Constant.REGISTRATION_CANCELLED, result);
-        verify(service).registerNewClient(chatId);
+        verify(service).registerNewClient(CHAT_ID);
     }
 
     @Test
     public void canHandle_shouldReturnTrueForStartCommand() {
-        Message message = mock(Message.class);
         when(message.text()).thenReturn("/start");
 
         boolean result = startCommandHandler.canHandle(message);
@@ -104,7 +96,6 @@ public class StartCommandHandlerTest {
     @ParameterizedTest
     @CsvSource({"/help", "/track", "text"})
     public void canHandle_shouldReturnFalseForOtherCommands(String command) {
-        Message message = mock(Message.class);
         when(message.text()).thenReturn(command);
 
         boolean result = startCommandHandler.canHandle(message);

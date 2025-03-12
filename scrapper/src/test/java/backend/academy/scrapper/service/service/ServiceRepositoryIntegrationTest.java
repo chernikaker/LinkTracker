@@ -1,4 +1,4 @@
-package backend.academy.scrapper.server.service;
+package backend.academy.scrapper.service.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -27,7 +27,7 @@ import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkExcepti
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import backend.academy.scrapper.repository.InMemoryUserRepository;
-import backend.academy.scrapper.server.ScrapperService;
+import backend.academy.scrapper.service.ScrapperService;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;

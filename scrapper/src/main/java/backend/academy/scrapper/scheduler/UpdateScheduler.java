@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class SchedulerUpdateService {
+public class UpdateScheduler {
 
     public static final int INITIAL_DELAY = 10000;
     public static final int DELAY = 10000;

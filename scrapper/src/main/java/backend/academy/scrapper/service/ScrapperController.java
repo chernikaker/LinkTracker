@@ -1,4 +1,4 @@
-package backend.academy.scrapper.server;
+package backend.academy.scrapper.service;
 
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.LinkResponse;

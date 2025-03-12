@@ -19,53 +19,51 @@ import org.mockito.MockitoAnnotations;
 
 public class HelpCommandHandlerTest {
 
+    private static final long CHAT_ID = 123L;
+
     @Mock
     private InMemoryTrackingCache repository;
 
     @InjectMocks
     private HelpCommandHandler helpCommandHandler;
 
+    @Mock
+    private Message message;
+
+    @Mock
+    private Chat chat;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(CHAT_ID);
     }
 
     @Test
     public void processRequest_ReturnHelpMessage() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("/help");
-        when(repository.containsTrack(chatId)).thenReturn(false);
+        when(repository.containsTrack(CHAT_ID)).thenReturn(false);
 
         String result = helpCommandHandler.processRequest(message);
 
         assertEquals(Constant.HELP_MESSAGE, result);
-        verify(repository, never()).removeTrack(chatId);
+        verify(repository, never()).removeTrack(CHAT_ID);
     }
 
     @Test
     public void processRequest_shouldRemoveTrackAndReturnHelpMessage() {
-        // Arrange
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("/help");
-        when(repository.containsTrack(chatId)).thenReturn(true);
+        when(repository.containsTrack(CHAT_ID)).thenReturn(true);
 
         String result = helpCommandHandler.processRequest(message);
 
         assertEquals(Constant.HELP_MESSAGE, result);
-        verify(repository).removeTrack(chatId);
+        verify(repository).removeTrack(CHAT_ID);
     }
 
     @Test
     public void canHandle_shouldReturnTrueForHelpCommand() {
-        Message message = mock(Message.class);
         when(message.text()).thenReturn("/help");
 
         boolean result = helpCommandHandler.canHandle(message);
@@ -76,7 +74,6 @@ public class HelpCommandHandlerTest {
     @ParameterizedTest
     @CsvSource({"/start", "/track", "text"})
     public void canHandle_shouldReturnFalseForOtherCommands(String command) {
-        Message message = mock(Message.class);
         when(message.text()).thenReturn("command");
 
         boolean result = helpCommandHandler.canHandle(message);

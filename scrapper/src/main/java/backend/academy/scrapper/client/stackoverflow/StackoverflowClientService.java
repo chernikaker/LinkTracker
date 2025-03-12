@@ -1,5 +1,9 @@
 package backend.academy.scrapper.client.stackoverflow;
 
+import static backend.academy.scrapper.client.JsonPathConstant.CREATION_DATE;
+import static backend.academy.scrapper.client.JsonPathConstant.DISPLAY_NAME;
+import static backend.academy.scrapper.client.JsonPathConstant.OWNER;
+
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.model.UpdateInfo;
@@ -75,8 +79,8 @@ public class StackoverflowClientService {
      */
     private UpdateInfo parseItem(JsonNode node, UpdateInfoType type) {
         String message = "";
-        String authorName = node.path("owner").path("display_name").asText();
-        long date = node.path("creation_date").asLong();
+        String authorName = node.path(OWNER).path(DISPLAY_NAME).asText();
+        long date = node.path(CREATION_DATE).asLong();
         return new UpdateInfo(message, authorName, parseDate(date), type);
     }
 

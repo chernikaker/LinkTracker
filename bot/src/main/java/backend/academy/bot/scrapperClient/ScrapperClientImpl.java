@@ -11,6 +11,7 @@ import org.springframework.web.client.RestClient;
 public class ScrapperClientImpl implements ScrapperClient {
 
     private static final String DEFAULT_URL = "http://localhost:8081/";
+    private static final String TG_ID_HEADER = "Tg-Chat-Id";
     private final RestClient restClient;
 
     public ScrapperClientImpl(String baseUrl) {
@@ -33,7 +34,7 @@ public class ScrapperClientImpl implements ScrapperClient {
         return restClient
                 .get()
                 .uri("/links")
-                .header("Tg-Chat-Id", String.valueOf(userId))
+                .header(TG_ID_HEADER, String.valueOf(userId))
                 .retrieve()
                 .toEntity(ListLinksResponse.class)
                 .getBody();
@@ -44,7 +45,7 @@ public class ScrapperClientImpl implements ScrapperClient {
         return restClient
                 .post()
                 .uri("/links")
-                .header("Tg-Chat-Id", String.valueOf(userId))
+                .header(TG_ID_HEADER, String.valueOf(userId))
                 .body(request)
                 .retrieve()
                 .toEntity(LinkResponse.class)
@@ -56,7 +57,7 @@ public class ScrapperClientImpl implements ScrapperClient {
         restClient
                 .method(HttpMethod.DELETE)
                 .uri("/links")
-                .header("Tg-Chat-Id", String.valueOf(userId))
+                .header(TG_ID_HEADER, String.valueOf(userId))
                 .body(request)
                 .retrieve()
                 .toBodilessEntity();

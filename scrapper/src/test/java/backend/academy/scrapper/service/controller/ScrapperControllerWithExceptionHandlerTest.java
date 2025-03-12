@@ -1,4 +1,4 @@
-package backend.academy.scrapper.server.controller;
+package backend.academy.scrapper.service.controller;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -15,9 +15,9 @@ import backend.academy.dto.RemoveLinkRequest;
 import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
-import backend.academy.scrapper.server.ApplicationExceptionHandler;
-import backend.academy.scrapper.server.ScrapperController;
-import backend.academy.scrapper.server.ScrapperService;
+import backend.academy.scrapper.service.ApplicationExceptionHandler;
+import backend.academy.scrapper.service.ScrapperController;
+import backend.academy.scrapper.service.ScrapperService;
 import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;

@@ -24,28 +24,33 @@ import org.mockito.MockitoAnnotations;
 
 public class TagsTextCommandHandlerTest {
 
+    private static final long CHAT_ID = 123L;
+
     @Mock
     private InMemoryTrackingCache repository;
 
     @InjectMocks
     private TagsTextCommandHandler tagsTextCommandHandler;
 
+    @Mock
+    private Message message;
+
+    @Mock
+    private Chat chat;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(CHAT_ID);
     }
 
     @Test
     public void processRequest_handleTagsAndUpdateState() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("tag1 tag2");
         LinkTrackingObject tracking =
                 new LinkTrackingObject("https://example.com", new String[0], new String[0], UserState.TRACKING_TAG);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         String result = tagsTextCommandHandler.processRequest(message);
 
@@ -56,15 +61,10 @@ public class TagsTextCommandHandlerTest {
 
     @Test
     public void processRequest_shouldHandleNoTagsAndUpdateState() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("-");
         LinkTrackingObject tracking =
                 new LinkTrackingObject("https://example.com", new String[0], new String[0], UserState.TRACKING_TAG);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         String result = tagsTextCommandHandler.processRequest(message);
 
@@ -75,13 +75,8 @@ public class TagsTextCommandHandlerTest {
 
     @Test
     public void processRequest_noTrackInCache() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("tag1 tag2");
-        when(repository.getTrack(chatId)).thenReturn(Optional.empty());
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tagsTextCommandHandler.processRequest(message))
                 .isInstanceOf(NoSuchElementException.class);
@@ -89,15 +84,10 @@ public class TagsTextCommandHandlerTest {
 
     @Test
     public void canHandle_shouldReturnTrue_stateIsTrackingTagTextIsNotCommand() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("tag1 tag2");
         LinkTrackingObject tracking =
                 new LinkTrackingObject("https://example.com", new String[0], new String[0], UserState.TRACKING_TAG);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         boolean result = tagsTextCommandHandler.canHandle(message);
 
@@ -106,15 +96,10 @@ public class TagsTextCommandHandlerTest {
 
     @Test
     public void canHandle_shouldReturnFalse_stateIsNotTrackingTag() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("tag1 tag2");
         LinkTrackingObject tracking =
                 new LinkTrackingObject("https://example.com", new String[0], new String[0], UserState.DEFAULT);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         boolean result = tagsTextCommandHandler.canHandle(message);
 
@@ -124,16 +109,11 @@ public class TagsTextCommandHandlerTest {
     @ParameterizedTest
     @CsvSource({"/help", "/track", "/start", "/any"})
     public void canHandle_shouldReturnFalse_whenTextIsCommand(String command) {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn(command);
 
         LinkTrackingObject tracking =
                 new LinkTrackingObject("https://example.com", new String[0], new String[0], UserState.TRACKING_TAG);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         boolean result = tagsTextCommandHandler.canHandle(message);
 

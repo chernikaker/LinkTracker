@@ -19,7 +19,7 @@ import org.springframework.web.client.HttpClientErrorException;
 @AllArgsConstructor
 @Slf4j
 @Service
-public class ScrapperClientService {
+public final class ScrapperClientService {
 
     private ScrapperClient client;
 

@@ -44,7 +44,7 @@ public class SchedulerTest {
     private BotClientService botClientService;
 
     @InjectMocks
-    private SchedulerUpdateService schedulerUpdateService;
+    private UpdateScheduler updateScheduler;
 
     @Captor
     private ArgumentCaptor<Link> linkCaptor;
@@ -70,7 +70,7 @@ public class SchedulerTest {
         UpdateInfo updateInfo = new UpdateInfo("New commit", "Author", now, UpdateInfoType.COMMIT);
         when(githubClientService.getAllInfo(githubLink)).thenReturn(List.of(updateInfo));
 
-        schedulerUpdateService.checkNewUpdates();
+        updateScheduler.checkNewUpdates();
 
         verify(botClientService).sendUpdates(linkCaptor.capture(), updatesCaptor.capture());
         List<UpdateInfo> capturedUpdates = updatesCaptor.getValue();
@@ -92,7 +92,7 @@ public class SchedulerTest {
         when(githubClientService.getAllInfo(githubLink)).thenReturn(List.of(updateInfo1));
         when(soClientService.getAllInfo(stackoverflowLink)).thenReturn(List.of(updateInfo2));
 
-        schedulerUpdateService.checkNewUpdates();
+        updateScheduler.checkNewUpdates();
 
         verify(botClientService).sendUpdates(githubLink, List.of(updateInfo1));
         verify(botClientService).sendUpdates(stackoverflowLink, List.of(updateInfo2));
@@ -112,7 +112,7 @@ public class SchedulerTest {
         when(githubClientService.getAllInfo(githubLink)).thenReturn(List.of(updateInfo1));
         when(soClientService.getAllInfo(stackoverflowLink)).thenReturn(List.of(updateInfo2));
 
-        schedulerUpdateService.checkNewUpdates();
+        updateScheduler.checkNewUpdates();
 
         verify(botClientService).sendUpdates(githubLink, List.of(updateInfo1));
         verify(botClientService, times(1)).sendUpdates(any(), any());

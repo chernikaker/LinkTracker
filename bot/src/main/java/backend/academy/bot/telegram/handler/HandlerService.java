@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import java.util.List;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +18,8 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
+@AllArgsConstructor
 public class HandlerService {
-
-    public HandlerService(List<CommandHandler> commandHandlers) {
-        this.handlers = commandHandlers;
-    }
 
     private final List<CommandHandler> handlers;
 

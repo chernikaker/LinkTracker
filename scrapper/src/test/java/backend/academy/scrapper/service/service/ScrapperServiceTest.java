@@ -1,4 +1,4 @@
-package backend.academy.scrapper.server.service;
+package backend.academy.scrapper.service.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -24,7 +24,7 @@ import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkExcepti
 import backend.academy.scrapper.repository.InMemoryLinkRepository;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import backend.academy.scrapper.repository.InMemoryUserRepository;
-import backend.academy.scrapper.server.ScrapperService;
+import backend.academy.scrapper.service.ScrapperService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,8 +93,8 @@ public class ScrapperServiceTest {
         when(githubService.isLinkAvailable(any())).thenReturn(true);
         when(subscriptionRepository.addSubscription(any())).thenReturn(2L);
         AddLinkRequest request = new AddLinkRequest("link", List.of(), List.of());
-        try (MockedStatic<Link> mockedStatic = Mockito.mockStatic(Link.class)) {
-            mockedStatic.when(() -> Link.getLinkType(request.link())).thenReturn(LinkType.GITHUB);
+        try (MockedStatic<LinkType> mockedStatic = Mockito.mockStatic(LinkType.class)) {
+            mockedStatic.when(() -> LinkType.fromValue(request.link())).thenReturn(LinkType.GITHUB);
 
             LinkResponse response = assertDoesNotThrow(() -> scrapperService.addSubscription(userId, request));
 
@@ -110,8 +110,8 @@ public class ScrapperServiceTest {
         long userId = 1L;
         when(githubService.isLinkAvailable(any())).thenReturn(false);
         AddLinkRequest request = new AddLinkRequest("link", List.of(), List.of());
-        try (MockedStatic<Link> mockedStatic = Mockito.mockStatic(Link.class)) {
-            mockedStatic.when(() -> Link.getLinkType(request.link())).thenReturn(LinkType.GITHUB);
+        try (MockedStatic<LinkType> mockedStatic = Mockito.mockStatic(LinkType.class)) {
+            mockedStatic.when(() -> LinkType.fromValue(request.link())).thenReturn(LinkType.GITHUB);
 
             assertThatThrownBy(() -> scrapperService.addSubscription(userId, request))
                     .isInstanceOf(ScrapperUnavailableLinkException.class)

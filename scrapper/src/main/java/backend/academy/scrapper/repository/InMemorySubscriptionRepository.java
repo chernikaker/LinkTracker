@@ -82,7 +82,7 @@ public class InMemorySubscriptionRepository {
     public List<Subscription> getLinkSubscriptions(Link link) {
         return subscriptions.values().stream()
                 .filter(subscription -> subscription.link().equals(link))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

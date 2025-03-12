@@ -8,6 +8,7 @@ import backend.academy.scrapper.model.UpdateInfo;
 import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -15,15 +16,11 @@ import org.springframework.web.client.HttpClientErrorException;
 /** Сервис для работы с клиентом Bot */
 @Service
 @Slf4j
+@AllArgsConstructor
 public class BotClientService {
 
     private final BotClient botClient;
     private final InMemorySubscriptionRepository repository;
-
-    public BotClientService(BotClient botClient, InMemorySubscriptionRepository repository) {
-        this.botClient = botClient;
-        this.repository = repository;
-    }
 
     /** Метод отправления обновлений по ссылке клиентам */
     public void sendUpdates(Link link, List<UpdateInfo> info) {

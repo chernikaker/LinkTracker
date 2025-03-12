@@ -22,28 +22,33 @@ import org.mockito.MockitoAnnotations;
 
 public class LinkTextCommandHandlerTest {
 
+    private static final long CHAT_ID = 123L;
+
     @Mock
     private InMemoryTrackingCache repository;
 
     @InjectMocks
     private LinkTextCommandHandler linkTextCommandHandler;
 
+    @Mock
+    private Message message;
+
+    @Mock
+    private Chat chat;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(CHAT_ID);
     }
 
     @Test
     public void processRequest_ValidLinkAndUpdateState() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("https://github.com/owner/repo");
         LinkTrackingObject tracking =
                 new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         String result = linkTextCommandHandler.processRequest(message);
 
@@ -54,15 +59,10 @@ public class LinkTextCommandHandlerTest {
 
     @Test
     public void processRequest_LinkIsInvalid() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("invalid-link");
         LinkTrackingObject tracking =
                 new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         String result = linkTextCommandHandler.processRequest(message);
 
@@ -72,15 +72,10 @@ public class LinkTextCommandHandlerTest {
 
     @Test
     public void canHandle_shouldReturnTrue() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("https://github.com/owner/repo");
         LinkTrackingObject tracking =
                 new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         boolean result = linkTextCommandHandler.canHandle(message);
 
@@ -89,14 +84,9 @@ public class LinkTextCommandHandlerTest {
 
     @Test
     public void canHandle_shouldReturnFalse_StateIsNotTrackingLink() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("https://github.com/owner/repo");
         LinkTrackingObject tracking = new LinkTrackingObject(null, new String[0], new String[0], UserState.DEFAULT);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         boolean result = linkTextCommandHandler.canHandle(message);
 
@@ -106,16 +96,11 @@ public class LinkTextCommandHandlerTest {
     @ParameterizedTest
     @CsvSource({"/help", "/track", "/start", "/any"})
     public void canHandle_shouldReturnFalse_TextIsCommand(String command) {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn(command);
 
         LinkTrackingObject tracking =
                 new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         boolean result = linkTextCommandHandler.canHandle(message);
 

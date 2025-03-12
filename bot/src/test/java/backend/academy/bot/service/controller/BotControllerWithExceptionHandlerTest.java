@@ -1,4 +1,4 @@
-package backend.academy.bot.server.controller;
+package backend.academy.bot.service.controller;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -7,9 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import backend.academy.bot.exception.BotException;
-import backend.academy.bot.server.ApplicationExceptionHandler;
-import backend.academy.bot.server.BotController;
-import backend.academy.bot.server.BotService;
+import backend.academy.bot.service.ApplicationExceptionHandler;
+import backend.academy.bot.service.BotController;
+import backend.academy.bot.service.BotService;
 import backend.academy.dto.LinkUpdate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;

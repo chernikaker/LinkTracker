@@ -1,5 +1,7 @@
 package backend.academy.scrapper.client.github;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import org.springframework.web.client.RestClient;
 
 /** Реализация клиента Github с помощью RestClient */
@@ -26,7 +28,7 @@ public class GithubClientImpl implements GithubClient {
         return githubClient
                 .get()
                 .uri(uri)
-                .header("Authorization", "Bearer " + token)
+                .header(AUTHORIZATION, "Bearer " + token)
                 .retrieve()
                 .toEntity(String.class)
                 .getBody();

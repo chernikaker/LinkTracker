@@ -1,4 +1,4 @@
-package backend.academy.bot.server;
+package backend.academy.bot.service;
 
 import backend.academy.dto.LinkUpdate;
 import jakarta.validation.Valid;
@@ -22,7 +22,7 @@ public class BotController {
      * @see ApplicationExceptionHandler
      */
     @PostMapping("/updates")
-    public ResponseEntity<?> processUpdates(@RequestBody(required = false) @Valid LinkUpdate linkUpdate) {
+    public ResponseEntity<?> processUpdates(@RequestBody @Valid LinkUpdate linkUpdate) {
         botService.sendUpdates(linkUpdate);
         return ResponseEntity.ok().build();
     }

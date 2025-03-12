@@ -20,42 +20,42 @@ import org.mockito.MockitoAnnotations;
 
 public class UntrackCommandHandlerTest {
 
+    private static final long CHAT_ID = 123L;
+
     @Mock
     private InMemoryTrackingCache repository;
 
     @InjectMocks
     private UntrackCommandHandler untrackCommandHandler;
 
+    @Mock
+    private Message message;
+
+    @Mock
+    private Chat chat;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(CHAT_ID);
     }
 
     @Test
     public void processRequest_createNewTrackingAndReturnMessage() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("/untrack");
-        when(repository.containsTrack(chatId)).thenReturn(false);
+        when(repository.containsTrack(CHAT_ID)).thenReturn(false);
 
         String result = untrackCommandHandler.processRequest(message);
 
         assertEquals(Constant.LINK_UNTRACK_TEXT, result);
-        verify(repository).setTrack(eq(chatId), any(LinkTrackingObject.class));
+        verify(repository).setTrack(eq(CHAT_ID), any(LinkTrackingObject.class));
     }
 
     @Test
     public void canHandle_shouldReturnTrue_commandIsUntrackAndNoExistingTrack() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("/untrack");
-        when(repository.containsTrack(chatId)).thenReturn(false);
+        when(repository.containsTrack(CHAT_ID)).thenReturn(false);
 
         boolean result = untrackCommandHandler.canHandle(message);
 
@@ -65,13 +65,8 @@ public class UntrackCommandHandlerTest {
     @ParameterizedTest
     @CsvSource({"/help", "/track", "text"})
     public void canHandle_shouldReturnFalse_commandIsNotUntrack() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("/start");
-        when(repository.containsTrack(chatId)).thenReturn(false);
+        when(repository.containsTrack(CHAT_ID)).thenReturn(false);
 
         boolean result = untrackCommandHandler.canHandle(message);
 
@@ -80,13 +75,8 @@ public class UntrackCommandHandlerTest {
 
     @Test
     public void canHandle_shouldReturnFalse_trackAlreadyExists() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("/untrack");
-        when(repository.containsTrack(chatId)).thenReturn(true);
+        when(repository.containsTrack(CHAT_ID)).thenReturn(true);
 
         boolean result = untrackCommandHandler.canHandle(message);
 

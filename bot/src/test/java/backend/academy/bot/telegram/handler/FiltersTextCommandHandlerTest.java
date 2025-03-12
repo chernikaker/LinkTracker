@@ -26,6 +26,8 @@ import org.mockito.MockitoAnnotations;
 
 public class FiltersTextCommandHandlerTest {
 
+    private static final long CHAT_ID = 123L;
+
     @Mock
     private InMemoryTrackingCache repository;
 
@@ -35,106 +37,89 @@ public class FiltersTextCommandHandlerTest {
     @InjectMocks
     private FiltersTextCommandHandler filtersTextCommandHandler;
 
+    @Mock
+    private Message message;
+
+    @Mock
+    private Chat chat;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(CHAT_ID);
     }
 
     @Test
     public void processRequest_AddFiltersAndRegisterSuccessfully() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("filter1 filter2");
         LinkTrackingObject tracking = new LinkTrackingObject(
                 "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         String result = filtersTextCommandHandler.processRequest(message);
 
         assertEquals(Constant.FILTERS_REGISTERED + Constant.LINK_REGISTERED, result);
-        verify(repository).removeTrack(chatId);
-        verify(service).addLinkSubscription(chatId, tracking);
+        verify(repository).removeTrack(CHAT_ID);
+        verify(service).addLinkSubscription(CHAT_ID, tracking);
     }
 
     @Test
     public void processRequest_NoFiltersAndRegisterSuccessfully() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("-");
         LinkTrackingObject tracking = new LinkTrackingObject(
                 "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         String result = filtersTextCommandHandler.processRequest(message);
 
         assertEquals(Constant.FILTERS_NOT_REGISTERD + Constant.LINK_REGISTERED, result);
-        verify(repository).removeTrack(chatId);
-        verify(service).addLinkSubscription(chatId, tracking);
+        verify(repository).removeTrack(CHAT_ID);
+        verify(service).addLinkSubscription(CHAT_ID, tracking);
     }
 
     @Test
     public void processRequest_shouldReturnNotRegisteredMessage_whenUserNotRegistered() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("filter1 filter2");
         LinkTrackingObject tracking = new LinkTrackingObject(
                 "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
         doThrow(new BotRequestException(new ApiErrorResponse(
                         "User not exists", "404", "NotFoundException", "123 not exists", List.of())))
                 .when(service)
-                .addLinkSubscription(chatId, tracking);
+                .addLinkSubscription(CHAT_ID, tracking);
 
         String result = filtersTextCommandHandler.processRequest(message);
 
         assertEquals(Constant.NOT_REGISTERED, result);
-        verify(repository).removeTrack(chatId);
-        verify(service).addLinkSubscription(chatId, tracking);
+        verify(repository).removeTrack(CHAT_ID);
+        verify(service).addLinkSubscription(CHAT_ID, tracking);
     }
 
     @Test
     public void processRequest_linkIsUnavailable() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("filter1 filter2");
         LinkTrackingObject tracking = new LinkTrackingObject(
                 "https://unavailable.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
         doThrow(new BotRequestException(new ApiErrorResponse(
                         "Unavailable link", "400", "BadRequestException", "unavailable", List.of())))
                 .when(service)
-                .addLinkSubscription(chatId, tracking);
+                .addLinkSubscription(CHAT_ID, tracking);
 
         String result = filtersTextCommandHandler.processRequest(message);
 
         assertEquals(Constant.LINK_UNABAILABLE, result);
-        verify(repository).removeTrack(chatId);
-        verify(service).addLinkSubscription(chatId, tracking);
+        verify(repository).removeTrack(CHAT_ID);
+        verify(service).addLinkSubscription(CHAT_ID, tracking);
     }
 
     @Test
     public void canHandle_stateIsTrackingFilterAndTextIsNotCommand() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("filter1 filter2");
         LinkTrackingObject tracking = new LinkTrackingObject(
                 "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         boolean result = filtersTextCommandHandler.canHandle(message);
 
@@ -143,16 +128,11 @@ public class FiltersTextCommandHandlerTest {
 
     @Test
     public void canHandle_StateIsNotTrackingFilter() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("filter1 filter2");
 
         LinkTrackingObject tracking =
                 new LinkTrackingObject("https://example.com", new String[] {"tag1"}, new String[0], UserState.DEFAULT);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         boolean result = filtersTextCommandHandler.canHandle(message);
         assertFalse(result);
@@ -161,15 +141,10 @@ public class FiltersTextCommandHandlerTest {
     @ParameterizedTest
     @CsvSource({"/help", "/track", "/start", "/any"})
     public void canHandle_shouldReturnFalse_whenTextIsCommand(String command) {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn(command);
         LinkTrackingObject tracking = new LinkTrackingObject(
                 "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(chatId)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
         boolean result = filtersTextCommandHandler.canHandle(message);
 

@@ -1,4 +1,4 @@
-package backend.academy.scrapper.server;
+package backend.academy.scrapper.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

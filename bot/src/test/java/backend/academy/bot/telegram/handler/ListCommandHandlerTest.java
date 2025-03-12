@@ -19,10 +19,31 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 public class ListCommandHandlerTest {
+
+    private static final long CHAT_ID = 123L;
+
+    private static final String EXPECTED =
+            """
+Отслеживаемые ссылки:
+
+https://example.com
+Теги:
+tag1
+Фильтры:
+filter1
+
+https://example.org
+Теги:
+tag2
+Фильтры:
+filter2
+
+""";
 
     @Mock
     private InMemoryTrackingCache repository;
@@ -30,46 +51,32 @@ public class ListCommandHandlerTest {
     @Mock
     private ScrapperClientService service;
 
+    @InjectMocks
     private ListCommandHandler listCommandHandler;
 
-    private static final String EXPECTED =
-            """
-    Отслеживаемые ссылки:
+    @Mock
+    private Message message;
 
-    https://example.com
-    Теги:
-    tag1
-    Фильтры:
-    filter1
-
-    https://example.org
-    Теги:
-    tag2
-    Фильтры:
-    filter2
-
-    """;
+    @Mock
+    private Chat chat;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        listCommandHandler = new ListCommandHandler(repository, service);
     }
 
     @Test
     public void processRequest_userAndLinksExist() {
-        long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
+
         when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
-        when(repository.containsTrack(chatId)).thenReturn(false);
+        when(chat.id()).thenReturn(CHAT_ID);
+        when(repository.containsTrack(CHAT_ID)).thenReturn(false);
         ListLinksResponse listLinksResponse = new ListLinksResponse(
                 List.of(
                         new LinkResponse(1L, "https://example.com", List.of("tag1"), List.of("filter1")),
                         new LinkResponse(2L, "https://example.org", List.of("tag2"), List.of("filter2"))),
                 2);
-        when(service.getUserLinks(chatId)).thenReturn(listLinksResponse);
+        when(service.getUserLinks(CHAT_ID)).thenReturn(listLinksResponse);
 
         String result = listCommandHandler.processRequest(message);
 
@@ -79,8 +86,6 @@ public class ListCommandHandlerTest {
     @Test
     public void processRequest_NoLinksExist() {
         long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
 
@@ -97,8 +102,6 @@ public class ListCommandHandlerTest {
     @Test
     public void processRequest_UserNotRegistered() {
         long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
 
@@ -116,8 +119,6 @@ public class ListCommandHandlerTest {
     @Test
     public void processRequest_RequestFails() {
         long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(repository.containsTrack(chatId)).thenReturn(false);
@@ -134,8 +135,6 @@ public class ListCommandHandlerTest {
     @Test
     public void canHandle_shouldReturnTrueForListCommand() {
         long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("/list");
@@ -150,8 +149,6 @@ public class ListCommandHandlerTest {
     @CsvSource({"/help", "/track", "/start", "text"})
     public void canHandle_shouldReturnFalseForOtherCommands(String request) {
         long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("request");
@@ -165,8 +162,6 @@ public class ListCommandHandlerTest {
     @Test
     public void canHandle_shouldReturnFalse_whenUserIsTracked() {
         long chatId = 123L;
-        Message message = mock(Message.class);
-        Chat chat = mock(Chat.class);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("/list");

@@ -1,4 +1,4 @@
-package backend.academy.scrapper.server;
+package backend.academy.scrapper.service;
 
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.LinkResponse;
@@ -101,7 +101,7 @@ public class ScrapperService {
         // маппинг запроса в сущность ссылки
         // последняя проверка обновлений - текущее время
         Link link =
-                new Link(request.link(), Link.getLinkType(request.link()), LocalDateTime.now(ZoneId.systemDefault()));
+                new Link(request.link(), LinkType.fromValue(request.link()), LocalDateTime.now(ZoneId.systemDefault()));
         // проверка доступности ссылки
         if (!isAvailable(link)) {
             throw new ScrapperUnavailableLinkException("Link is unavailable " + link);

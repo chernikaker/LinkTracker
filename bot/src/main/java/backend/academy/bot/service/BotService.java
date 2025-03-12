@@ -1,4 +1,4 @@
-package backend.academy.bot.server;
+package backend.academy.bot.service;
 
 import backend.academy.bot.telegram.TelegramBotService;
 import backend.academy.bot.validator.LinkUpdateValidator;
