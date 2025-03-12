@@ -1,23 +1,26 @@
 package backend.academy.bot.config;
 
+import backend.academy.bot.scrapperClient.ScrapperClient;
+import backend.academy.bot.scrapperClient.ScrapperClientImpl;
 import backend.academy.bot.telegram.TelegramBotService;
 import backend.academy.bot.telegram.handler.HandlerService;
-import jakarta.validation.constraints.NotEmpty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.context.annotation.Configuration;
 
-/**
- * Класс Spring конфгигурации для телеграм-бота, предоставляет токен для его работы, определенный в application.yaml
- *
- * @param telegramToken токен телеграм-бота
- */
-@Validated
-@ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
-public record BotConfig(@NotEmpty String telegramToken) {
+@Configuration
+@RequiredArgsConstructor
+public class BotConfig {
+
+    private final BotPropertiesConfig properties;
 
     @Bean
     public TelegramBotService telegramBot(HandlerService service) {
-        return new TelegramBotService(telegramToken, service);
+        return new TelegramBotService(properties.telegramToken(), service);
+    }
+
+    @Bean
+    public ScrapperClient scrapperRestClient() {
+        return new ScrapperClientImpl(properties.scrapperBaseUrl());
     }
 }

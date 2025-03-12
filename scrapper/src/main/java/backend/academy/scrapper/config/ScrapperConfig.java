@@ -5,52 +5,34 @@ import backend.academy.scrapper.client.bot.BotClientImpl;
 import backend.academy.scrapper.client.external.ExternalClient;
 import backend.academy.scrapper.client.external.github.GithubClientImpl;
 import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientImpl;
-import jakarta.validation.constraints.NotEmpty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.context.annotation.Configuration;
 
-/**
- * Класс Spring конфигурации для внешних клиентов
- *
- * @param github параметры конфигурации клиента GitHub
- * @param stackOverflow параметры конфигурации клиента StackOverflow
- * @param botUrl URL для отправки запросов боту
- */
-@Validated
-@ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
-public record ScrapperConfig(
-        GithubCredentials github, StackOverflowCredentials stackOverflow, @NotEmpty String botUrl) {
-    /**
-     * параметры конфигурации клиента GitHub
-     *
-     * @param token токен для увеличения частоты запросов
-     * @param baseUrl URL для отправки запросов GitHub
-     */
-    public record GithubCredentials(@NotEmpty String token, @NotEmpty String baseUrl) {}
+/** Класс Spring конфигурации для внешних клиентов */
+@Configuration
+@RequiredArgsConstructor
+public class ScrapperConfig {
 
-    /**
-     * параметры конфигурации клиента StackOverflow
-     *
-     * @param key токен для увеличения частоты запросов
-     * @param accessToken токен для доступа к методам API
-     * @param baseUrl URL для отправки запросов StackOverflow
-     */
-    public record StackOverflowCredentials(
-            @NotEmpty String key, @NotEmpty String accessToken, @NotEmpty String baseUrl) {}
+    /** Record, инкапсулирующий данные из внешних конфигурационных файлов */
+    private final ScrapperPropertiesConfig properties;
 
     @Bean
     public ExternalClient githubClient() {
-        return new GithubClientImpl(github.token(), github.baseUrl);
+        return new GithubClientImpl(
+                properties.github().token(), properties.github().baseUrl());
     }
 
     @Bean
     public BotClient botClient() {
-        return new BotClientImpl(botUrl);
+        return new BotClientImpl(properties.botUrl());
     }
 
     @Bean
     public ExternalClient stackoverflowClient() {
-        return new StackoverflowClientImpl(stackOverflow.accessToken, stackOverflow.key, stackOverflow.baseUrl);
+        return new StackoverflowClientImpl(
+                properties.stackOverflow().accessToken(),
+                properties.stackOverflow().key(),
+                properties.stackOverflow().baseUrl());
     }
 }

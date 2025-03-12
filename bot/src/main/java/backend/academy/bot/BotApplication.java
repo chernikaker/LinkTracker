@@ -1,13 +1,12 @@
 package backend.academy.bot;
 
-import backend.academy.bot.config.BotConfig;
-import backend.academy.bot.config.ScrapperClientConfig;
+import backend.academy.bot.config.BotPropertiesConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties({BotConfig.class, ScrapperClientConfig.class})
+@EnableConfigurationProperties({BotPropertiesConfig.class})
 public class BotApplication {
     public static void main(String[] args) {
         SpringApplication.run(BotApplication.class, args);
