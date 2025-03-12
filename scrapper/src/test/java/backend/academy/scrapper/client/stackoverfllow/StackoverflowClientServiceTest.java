@@ -4,8 +4,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import backend.academy.scrapper.client.stackoverflow.StackoverflowClient;
-import backend.academy.scrapper.client.stackoverflow.StackoverflowClientService;
+import backend.academy.scrapper.client.external.ExternalClient;
+import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
@@ -29,7 +29,7 @@ import org.springframework.web.client.HttpClientErrorException;
 public class StackoverflowClientServiceTest {
 
     @Mock
-    private StackoverflowClient client;
+    private ExternalClient client;
 
     @InjectMocks
     private StackoverflowClientService stackoverflowClientService;

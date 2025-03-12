@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.client.bot.BotClientService;
-import backend.academy.scrapper.client.github.GithubClientService;
-import backend.academy.scrapper.client.stackoverflow.StackoverflowClientService;
+import backend.academy.scrapper.client.external.github.GithubClientService;
+import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.model.UpdateInfo;

@@ -4,10 +4,9 @@ import static org.mockito.ArgumentMatchers.any;
 
 import backend.academy.scrapper.client.bot.BotClient;
 import backend.academy.scrapper.client.bot.BotClientService;
-import backend.academy.scrapper.client.github.GithubClient;
-import backend.academy.scrapper.client.github.GithubClientService;
-import backend.academy.scrapper.client.stackoverflow.StackoverflowClient;
-import backend.academy.scrapper.client.stackoverflow.StackoverflowClientService;
+import backend.academy.scrapper.client.external.ExternalClient;
+import backend.academy.scrapper.client.external.github.GithubClientService;
+import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.scheduler.UpdateScheduler;
 import org.mockito.Mockito;
@@ -59,15 +58,9 @@ public class TestClientConfig {
         return Mockito.mock(BotClient.class);
     }
 
-    @Bean("testSOClient")
+    @Bean("testExternalClient")
     @Primary
-    public StackoverflowClient soClient() {
-        return Mockito.mock(StackoverflowClient.class);
-    }
-
-    @Bean("testGithubClient")
-    @Primary
-    public GithubClient gitClient() {
-        return Mockito.mock(GithubClient.class);
+    public ExternalClient soClient() {
+        return Mockito.mock(ExternalClient.class);
     }
 }

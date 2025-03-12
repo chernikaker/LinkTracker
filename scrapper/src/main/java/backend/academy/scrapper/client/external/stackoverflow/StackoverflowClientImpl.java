@@ -1,9 +1,10 @@
-package backend.academy.scrapper.client.stackoverflow;
+package backend.academy.scrapper.client.external.stackoverflow;
 
+import backend.academy.scrapper.client.external.ExternalClient;
 import org.springframework.web.client.RestClient;
 
 /** Реализация клиента StackOverflow с помощью RestClient */
-public class StackoverflowClientImpl implements StackoverflowClient {
+public class StackoverflowClientImpl implements ExternalClient {
 
     private final String token;
     private final String apiKey;

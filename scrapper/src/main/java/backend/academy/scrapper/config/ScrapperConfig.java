@@ -2,10 +2,9 @@ package backend.academy.scrapper.config;
 
 import backend.academy.scrapper.client.bot.BotClient;
 import backend.academy.scrapper.client.bot.BotClientImpl;
-import backend.academy.scrapper.client.github.GithubClient;
-import backend.academy.scrapper.client.github.GithubClientImpl;
-import backend.academy.scrapper.client.stackoverflow.StackoverflowClient;
-import backend.academy.scrapper.client.stackoverflow.StackoverflowClientImpl;
+import backend.academy.scrapper.client.external.ExternalClient;
+import backend.academy.scrapper.client.external.github.GithubClientImpl;
+import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientImpl;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -41,7 +40,7 @@ public record ScrapperConfig(
             @NotEmpty String key, @NotEmpty String accessToken, @NotEmpty String baseUrl) {}
 
     @Bean
-    public GithubClient githubClient() {
+    public ExternalClient githubClient() {
         return new GithubClientImpl(github.token(), github.baseUrl);
     }
 
@@ -51,7 +50,7 @@ public record ScrapperConfig(
     }
 
     @Bean
-    public StackoverflowClient stackoverflowClient() {
+    public ExternalClient stackoverflowClient() {
         return new StackoverflowClientImpl(stackOverflow.accessToken, stackOverflow.key, stackOverflow.baseUrl);
     }
 }

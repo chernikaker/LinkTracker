@@ -1,9 +1,10 @@
-package backend.academy.scrapper.client.stackoverflow;
+package backend.academy.scrapper.client.external.stackoverflow;
 
 import static backend.academy.scrapper.client.JsonPathConstant.CREATION_DATE;
 import static backend.academy.scrapper.client.JsonPathConstant.DISPLAY_NAME;
 import static backend.academy.scrapper.client.JsonPathConstant.OWNER;
 
+import backend.academy.scrapper.client.external.ExternalClient;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.model.UpdateInfo;
@@ -16,18 +17,21 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 /** Сервис для работы с клиентом Stackoverflow */
 @Service
-@AllArgsConstructor
 @Slf4j
 public class StackoverflowClientService {
 
-    private final StackoverflowClient client;
+    private final ExternalClient client;
+
+    public StackoverflowClientService(@Qualifier("stackoverflowClient") ExternalClient client) {
+        this.client = client;
+    }
 
     /**
      * Главный метод, получает данные всех доступных типов для ссылки вопроса Stackoverflow

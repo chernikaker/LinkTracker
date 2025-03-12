@@ -1,11 +1,12 @@
-package backend.academy.scrapper.client.github;
+package backend.academy.scrapper.client.external.github;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import backend.academy.scrapper.client.external.ExternalClient;
 import org.springframework.web.client.RestClient;
 
 /** Реализация клиента Github с помощью RestClient */
-public class GithubClientImpl implements GithubClient {
+public class GithubClientImpl implements ExternalClient {
 
     private final String token;
     // дефолтный путь для API Github

@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import backend.academy.scrapper.client.external.ExternalClient;
+import backend.academy.scrapper.client.external.github.GithubClientService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
@@ -29,7 +31,7 @@ import org.springframework.web.client.HttpClientErrorException;
 public class GithubClientServiceTest {
 
     @Mock
-    private GithubClient githubClient;
+    private ExternalClient githubClient;
 
     @InjectMocks
     private GithubClientService githubClientService;

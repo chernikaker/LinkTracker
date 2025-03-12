@@ -2,10 +2,9 @@ package backend.academy.scrapper.client;
 
 import backend.academy.scrapper.client.bot.BotClient;
 import backend.academy.scrapper.client.bot.BotClientImpl;
-import backend.academy.scrapper.client.github.GithubClient;
-import backend.academy.scrapper.client.github.GithubClientImpl;
-import backend.academy.scrapper.client.stackoverflow.StackoverflowClient;
-import backend.academy.scrapper.client.stackoverflow.StackoverflowClientImpl;
+import backend.academy.scrapper.client.external.ExternalClient;
+import backend.academy.scrapper.client.external.github.GithubClientImpl;
+import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientImpl;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -26,13 +25,13 @@ public class WireMockClientTestConfig {
 
     @Bean
     @Primary
-    public GithubClient githubClient(WireMockServer wireMockServer) {
+    public ExternalClient githubClient(WireMockServer wireMockServer) {
         return new GithubClientImpl("test-token", "http://localhost:" + wireMockServer.port());
     }
 
     @Bean
     @Primary
-    public StackoverflowClient stackoverflowClient(WireMockServer wireMockServer) {
+    public ExternalClient stackoverflowClient(WireMockServer wireMockServer) {
         return new StackoverflowClientImpl("access-token", "key", "http://localhost:" + wireMockServer.port());
     }
 

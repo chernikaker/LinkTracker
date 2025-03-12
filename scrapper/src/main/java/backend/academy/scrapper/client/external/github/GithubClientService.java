@@ -1,16 +1,16 @@
-package backend.academy.scrapper.client.github;
+package backend.academy.scrapper.client.external.github;
 
 import static backend.academy.scrapper.client.JsonPathConstant.AUTHOR;
 import static backend.academy.scrapper.client.JsonPathConstant.BODY;
 import static backend.academy.scrapper.client.JsonPathConstant.COMMIT;
 import static backend.academy.scrapper.client.JsonPathConstant.CREATED_AT;
-import static backend.academy.scrapper.client.JsonPathConstant.CREATION_DATE;
 import static backend.academy.scrapper.client.JsonPathConstant.DATE;
 import static backend.academy.scrapper.client.JsonPathConstant.LOGIN;
 import static backend.academy.scrapper.client.JsonPathConstant.MESSAGE;
 import static backend.academy.scrapper.client.JsonPathConstant.TITLE;
 import static backend.academy.scrapper.client.JsonPathConstant.USER;
 
+import backend.academy.scrapper.client.external.ExternalClient;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exception.client.GithubUnsupportedOptionException;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
@@ -24,18 +24,21 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 /** Сервис для работы с клиентом Github */
 @Service
-@AllArgsConstructor
 @Slf4j
 public class GithubClientService {
 
-    private final GithubClient githubClient;
+    private final ExternalClient client;
+
+    public GithubClientService(@Qualifier("githubClient") ExternalClient client) {
+        this.client = client;
+    }
 
     /**
      * Главный метод, получает данные всех доступных типов для ссылки вопроса Github
@@ -48,11 +51,11 @@ public class GithubClientService {
         List<UpdateInfo> infoList = new ArrayList<>();
         try {
             // информация о коммитах
-            String commitData = githubClient.getResponse(uri.concat("/commits"));
+            String commitData = client.getResponse(uri.concat("/commits"));
             // информация о проблемах
-            String issueData = githubClient.getResponse(uri.concat("/issues"));
+            String issueData = client.getResponse(uri.concat("/issues"));
             // информация о комментариях
-            String commentData = githubClient.getResponse(uri.concat("/comments"));
+            String commentData = client.getResponse(uri.concat("/comments"));
             infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENT));
             infoList.addAll(parseInfo(issueData, UpdateInfoType.ISSUE));
             infoList.addAll(parseInfo(commitData, UpdateInfoType.COMMIT));
@@ -72,7 +75,7 @@ public class GithubClientService {
     public boolean isLinkAvailable(Link link) {
         try {
             String uri = processUrl(link.url());
-            githubClient.getResponse(uri);
+            client.getResponse(uri);
             return true;
         } catch (HttpClientErrorException e) {
             log.atWarn().addKeyValue("link", link.url()).setCause(e).log("Error receiving data from github");
