@@ -69,8 +69,6 @@
         <!-- Lombok-->
         <lombok.version>1.18.36</lombok.version>
 
-        <!-- Migrations-->
-        <liquibase.version>4.31.1</liquibase.version>
     </properties>
 
     <dependencyManagement>
@@ -95,12 +93,6 @@
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
                 <version>${jetbrains-annotations.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.liquibase</groupId>
-                <artifactId>liquibase-core</artifactId>
-                <version>${liquibase.version}</version>
             </dependency>
 
             <dependency>
