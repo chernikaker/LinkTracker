@@ -7,16 +7,16 @@ services:
     image: liquibase/liquibase:4.29
     depends_on:
       - postgresql
+    volumes:
+      - ./migrations:/changesets
     command:
-      - --searchPath=/migration
-      - --changelog-file=master.xml
+      - --searchPath=/changesets
+      - --changeLogFile=master.xml
       - --driver=org.postgresql.Driver
       - --url=jdbc:postgresql://postgresql:5432/link_update
       - --username=admin
       - --password=111111
       - update
-    volumes:
-      - ./migrations:/changesets
 
 
   postgresql:
