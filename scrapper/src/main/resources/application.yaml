@@ -11,7 +11,12 @@ spring:
   application:
     name: Scrapper
   liquibase:
-    enabled: true
+    enabled: false
+  datasource:
+    url: jdbc:postgresql://localhost:5432/link_update
+    username: admin
+    password: 111111
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: validate
