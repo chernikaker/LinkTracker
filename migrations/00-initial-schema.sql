@@ -27,7 +27,11 @@ CREATE TABLE tag (
 CREATE TABLE filter (
     id BIGSERIAL PRIMARY KEY,
     key VARCHAR(50) NOT NULL,
-    value VARCHAR(50) NOT NULL
+    value VARCHAR(50) NOT NULL,
+    subscription_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    FOREIGN KEY (subscription_id) REFERENCES subscription(id),
+    FOREIGN KEY (user_id) REFERENCES tg_user(id)
 );
 
 CREATE TABLE subscription_tag (
@@ -36,12 +40,4 @@ CREATE TABLE subscription_tag (
     PRIMARY KEY (subscription_id, tag_id),
     FOREIGN KEY (subscription_id) REFERENCES subscription(id),
     FOREIGN KEY (tag_id) REFERENCES tag(id)
-);
-
-CREATE TABLE subscription_filter (
-    subscription_id BIGINT NOT NULL,
-    filter_id BIGINT NOT NULL,
-    PRIMARY KEY (subscription_id, filter_id),
-    FOREIGN KEY (subscription_id) REFERENCES subscription(id),
-    FOREIGN KEY (filter_id) REFERENCES filter(id)
 );
