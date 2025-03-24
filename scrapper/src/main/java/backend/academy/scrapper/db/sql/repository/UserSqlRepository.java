@@ -21,10 +21,6 @@ public class UserSqlRepository {
 
 
     public Long addUser(SqlUser user) {
-//        Optional<User> existingUser = findUserByChatId(user.chatId());
-//        if (!existingUser.isEmpty()) {
-//            throw new ScrapperUserAlreadyExistsException("User " + user.chatId() + " already exists");
-//        }
         SqlParameterSource params = new BeanPropertySqlParameterSource(user);
         String query = "INSERT INTO tg_user (chat_id) VALUES (:chatId) RETURNING id";
         return jdbcTemplate.queryForObject(query, params, Long.class);
@@ -37,7 +33,7 @@ public class UserSqlRepository {
         jdbcTemplate.update(query, params);
     }
 
-    private Optional<SqlUser> findUserByChatId(long chatId) {
+    public Optional<SqlUser> findUserByChatId(long chatId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("chatId", chatId);
         String query = "SELECT * FROM tg_user WHERE chat_id = :chatId";

@@ -37,10 +37,6 @@ public class LinkSqlRepository {
     }
 
     public Long addLink(Link link) {
-//        Optional<Link> existingLinkId = findLinkByUrl(link.url());
-//        if (existingLinkId.isPresent()) {
-//            return existingLinkId.get().id();
-//        }
         MapSqlParameterSource namedParameters = new MapSqlParameterSource().addValue("url", link.url());
         namedParameters.addValue("lastValidation", link.lastValidation());
         String addRequest = "INSERT INTO link (url, last_validation) VALUES (:url, :lastValidation) RETURNING id";
@@ -55,7 +51,7 @@ public class LinkSqlRepository {
         jdbcTemplate.update("UPDATE link SET last_validation = :lastValidation WHERE id = :id", namedParameters);
     }
 
-    private Optional<Link> findLinkByUrl(String url) {
+    public Optional<Link> findLinkByUrl(String url) {
         MapSqlParameterSource namedParameters = new MapSqlParameterSource().addValue("url", url);
         return jdbcTemplate.query(
                 "SELECT id, url, last_validation FROM link WHERE url = :url",
