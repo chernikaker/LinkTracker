@@ -1,6 +1,5 @@
-package backend.academy.scrapper.db.sql;
+package backend.academy.scrapper.db.sql.repository;
 
-import backend.academy.scrapper.db.LinkRepository;
 import backend.academy.scrapper.db.sql.mapper.LinkRowMapper;
 import backend.academy.scrapper.entity.Link;
 import java.time.LocalDateTime;
@@ -10,10 +9,9 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class LinkSqlRepository implements LinkRepository {
+public class LinkSqlRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -21,44 +19,38 @@ public class LinkSqlRepository implements LinkRepository {
         jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    @Override
-    @Transactional
-    public List<Link> getLinksWithBatching(int batchSize, long offset){
+    public List<Link> getUncheckedLinksWithBatching(int batchSize, long offset, long duration){
         MapSqlParameterSource namedParameters = new MapSqlParameterSource();
         namedParameters.addValue("batch", batchSize);
         namedParameters.addValue("offset", offset);
+        namedParameters.addValue("duration", duration);
         return jdbcTemplate.query(
-            "SELECT * FROM link LIMIT :batch OFFSET :offset",
+            "SELECT * FROM link WHERE CURRENT_TIMESTAMP-CAST(:duration || ' seconds' AS INTERVAL) > last_validation LIMIT :batch OFFSET :offset  ",
             namedParameters,
             new LinkRowMapper()
         );
     }
 
-    @Override
-    @Transactional
-    public void removeLinkById(long id) {
+    public void deleteLinkById(long id) {
         MapSqlParameterSource namedParameters = new MapSqlParameterSource().addValue("id", id);
         jdbcTemplate.update("DELETE FROM link WHERE id = :id", namedParameters);
     }
 
-    @Override
-    @Transactional
     public Long addLink(Link link) {
-        Optional<Link> existingLinkId = findLinkByUrl(link.url());
-        if (existingLinkId.isPresent()) {
-            return existingLinkId.get().id();
-        }
+//        Optional<Link> existingLinkId = findLinkByUrl(link.url());
+//        if (existingLinkId.isPresent()) {
+//            return existingLinkId.get().id();
+//        }
         MapSqlParameterSource namedParameters = new MapSqlParameterSource().addValue("url", link.url());
-        String addRequest = "INSERT INTO link (url, last_validation) VALUES (:url, :lastValidation) RETURNING id";
         namedParameters.addValue("lastValidation", link.lastValidation());
+        String addRequest = "INSERT INTO link (url, last_validation) VALUES (:url, :lastValidation) RETURNING id";
         return jdbcTemplate.queryForObject(addRequest, namedParameters, Long.class);
     }
 
-    @Override
-    @Transactional
-    public void updateLinkValidation(Link link, LocalDateTime lastValidation) {
+
+    public void updateLinkValidationById(long id, LocalDateTime lastValidation) {
         MapSqlParameterSource namedParameters = new MapSqlParameterSource();
-        namedParameters.addValue("id", link.id());
+        namedParameters.addValue("id", id);
         namedParameters.addValue("lastValidation", lastValidation);
         jdbcTemplate.update("UPDATE link SET last_validation = :lastValidation WHERE id = :id", namedParameters);
     }
