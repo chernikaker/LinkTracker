@@ -1,13 +1,16 @@
 package backend.academy.scrapper.db.sql;
 
 import backend.academy.scrapper.db.DatabaseService;
+import backend.academy.scrapper.db.sql.entity.SqlFilter;
 import backend.academy.scrapper.db.sql.entity.SqlSubscription;
 import backend.academy.scrapper.db.sql.entity.SqlTag;
 import backend.academy.scrapper.db.sql.entity.SqlUser;
+import backend.academy.scrapper.db.sql.repository.FilterSqlRepository;
 import backend.academy.scrapper.db.sql.repository.LinkSqlRepository;
 import backend.academy.scrapper.db.sql.repository.SubscriptionSqlRepository;
 import backend.academy.scrapper.db.sql.repository.TagSqlRepository;
 import backend.academy.scrapper.db.sql.repository.UserSqlRepository;
+import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
@@ -28,13 +31,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @AllArgsConstructor
-@Service
 public class SqlDatabaseService implements DatabaseService {
 
     private final UserSqlRepository userRepo;
     private final LinkSqlRepository linkRepo;
     private final SubscriptionSqlRepository subscrRepo;
     private final TagSqlRepository tagRepo;
+    private final FilterSqlRepository filterRepo;
 
     @Override
     @Transactional
@@ -148,13 +151,22 @@ public class SqlDatabaseService implements DatabaseService {
 
     @Override
     @Transactional
-    public List<Link> getUserLinks(User user){
+    public List<Subscription> getUserLinks(User user){
         try {
             SqlUser u = userRepo.findUserByChatId(user.chatId())
                 .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
-            List<Link> ans = new ArrayList<>();
+            List<Subscription> ans = new ArrayList<>();
             for (SqlSubscription s :subscrRepo.getSubscriptionsByUserId(u.id())){
-                ans.add(linkRepo.getLinkById(s.linkId()));
+                Link l = linkRepo.getLinkById(s.linkId());
+                List<Tag> tags = new ArrayList<>();
+                for (SqlTag t: tagRepo.getSubscriptionTags(s.id())) {
+                    tags.add(new Tag(t.tagText()));
+                }
+                List<Filter> filters = new ArrayList<>();
+                for (SqlFilter f: filterRepo.getFiltersBySubscriptionId(s.id())) {
+                    filters.add(new Filter(f.key(), f.value()));
+                }
+                ans.add(new Subscription(user, l, tags, filters));
             }
             return ans;
         } catch (DataAccessException e) {
