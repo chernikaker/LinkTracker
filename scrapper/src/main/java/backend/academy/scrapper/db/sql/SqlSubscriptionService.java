@@ -66,26 +66,6 @@ public class SqlSubscriptionService implements SubscriptionService {
         }
     }
 
-    @Override
-    @Transactional
-    public long removeSubscriptionOnLink(User user, Link link) {
-        try {
-            SqlUser u = userRepo.findUserByChatId(user.chatId())
-                .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
-            SqlLink l = linkRepo.findLinkByUrl(link.url())
-                .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + link.url() + " does not exist"));
-            SqlSubscription existingSub = subscrRepo.getSubscriptionByLinkAndUserId(l.id(), u.id())
-                .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("Subscription " + link.url() + " does not exist"));
-            subscrRepo.deleteSubscriptionById(existingSub.id());
-            List<SqlSubscription> subs = subscrRepo.getSubscriptionsByLink(l.id());
-            if(subs.isEmpty()){
-                linkRepo.deleteLinkById(l.id());
-            }
-            return existingSub.id();
-        } catch (DataAccessException e) {
-            throw new ScrapperSqlException("Exception while adding link with SQL", e);
-        }
-    }
 
 
     @Override
@@ -110,7 +90,34 @@ public class SqlSubscriptionService implements SubscriptionService {
             }
             return ans;
         } catch (DataAccessException e) {
-            throw new ScrapperSqlException("Error while getting user links", e);
+            e.printStackTrace();
+            throw new ScrapperSqlException("Error while getting user links ", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Map.Entry<Long, Subscription> deleteSubscriptionByUserAndLink(User user, Link link) {
+        try {
+            SqlUser u = userRepo.findUserByChatId(user.chatId())
+                .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
+            SqlLink l = linkRepo.findLinkByUrl(link.url())
+                .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + link.url() + " does not exist"));
+            SqlSubscription s = subscrRepo.getSubscriptionByLinkAndUserId(l.id(), u.id())
+                .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("Subscription " + link.url() + " does not exist"));
+            List<Tag> tags = new ArrayList<>();
+            for (SqlTag t: tagRepo.getSubscriptionTags(s.id())) {
+                tags.add(new Tag(t.tagText()));
+            }
+            List<Filter> filters = new ArrayList<>();
+            for (SqlFilter f: filterRepo.getFiltersBySubscriptionId(s.id())) {
+                filters.add(new Filter(f.key(), f.value()));
+            }
+            subscrRepo.deleteSubscriptionById(s.id());
+            return Map.entry(s.id(), new Subscription(user, link, tags, filters));
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            throw new ScrapperSqlException("Exception while removing subscription with SQL "+e.getMessage(), e);
         }
     }
 }

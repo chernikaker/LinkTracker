@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Сервис с бизнес-логикой добавления и удаления клиентов, ссылок, подписок в репозитории. Связывает DTO и сущности
@@ -54,14 +55,10 @@ public class ScrapperService {
      *
      * @param chatId id чата пользователя
      */
+    @Transactional
     public void deleteUser(long chatId) {
-        User user = userRepository.getUserById(chatId);
-        // удаляем подписки пользователя
-        Set<Subscription> deleted = subscrRepository.deleteUserSubscriptions(user);
-        // проверяем ссылки, на которые никто не подписан
-        checkUnsubscribedLinks(deleted);
-        // удаляем пользователя
-        userRepository.deleteUserById(chatId);
+        User user = new User(chatId);
+        userService.deleteUser(user);
     }
 
     /**
@@ -126,13 +123,13 @@ public class ScrapperService {
 
         User user = new User(chatId);
         Link link = new Link(request.link(), LinkType.fromValue(request.link()));
-        long subscriptionId = subscriptionService.removeSubscriptionOnLink(user, link);
-        List<Tag> tags = infoService.getSubscriptionTagsById(subscriptionId);
-        List<Filter> filters = infoService.getSubscriptionFiltersById(subscriptionId);
-        List<String> responseTags = tags.stream().map(Tag::value).toList();
-        List<String> responseFilters = filters.stream().map(f -> f.key()+":"+f.value()).toList();
-        infoService.removeSubscriptionAdditionalInfoById(subscriptionId);
-        return new LinkResponse(subscriptionId, request.link(), responseTags, responseFilters);
+        Map.Entry<Long, Subscription> deletedSub = subscriptionService.deleteSubscriptionByUserAndLink(user, link);
+        return new LinkResponse(
+            deletedSub.getKey(),
+            request.link(),
+            deletedSub.getValue().tags().stream().map(Tag::value).toList(),
+            deletedSub.getValue().filters().stream().map(f -> f.key()+":"+f.value()).toList()
+        );
     }
 
 

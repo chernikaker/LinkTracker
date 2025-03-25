@@ -54,7 +54,7 @@ public class UpdateScheduler {
                         .toList();
                     // если есть новые обновления, отправляем их пользователю
                     if (!actualInfos.isEmpty()) {
-                        botClientService.sendUpdates(link, actualInfos);
+                        botClientService.sendUpdates(linkData.getKey(), link, actualInfos);
                     }
                 } catch (ScrapperInternalResponseException e) {
                     log.atWarn().setCause(e).log("Error while getting update in scheduler");

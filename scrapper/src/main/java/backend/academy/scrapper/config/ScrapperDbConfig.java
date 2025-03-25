@@ -34,8 +34,10 @@ public class ScrapperDbConfig {
     }
 
     @Bean
-    public UserService sqlUserDbService(UserSqlRepository userRepo){
-        return new SqlUserService(userRepo);
+    public UserService sqlUserDbService(UserSqlRepository userRepo,
+                                        LinkSqlRepository linkRepo,
+                                        SubscriptionSqlRepository subscrRepo){
+        return new SqlUserService(userRepo, subscrRepo, linkRepo);
     }
 
     @Bean

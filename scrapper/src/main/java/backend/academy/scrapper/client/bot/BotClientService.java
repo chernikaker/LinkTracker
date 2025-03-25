@@ -23,9 +23,9 @@ public class BotClientService {
     private final InMemorySubscriptionRepository repository;
 
     /** Метод отправления обновлений по ссылке клиентам */
-    public void sendUpdates(Link link, List<UpdateInfo> info) {
+    public void sendUpdates(long linkId, Link link, List<UpdateInfo> info) {
         // сборка DTO
-        LinkUpdate update = makeLinkUpdate(link, info);
+        LinkUpdate update = makeLinkUpdate(linkId, link, info);
         try {
             // отправление сообщения
             botClient.sendUpdates(update);
@@ -53,16 +53,15 @@ public class BotClientService {
      * @param info список обновлений
      * @return DTO
      */
-    private LinkUpdate makeLinkUpdate(Link link, List<UpdateInfo> info) {
+    private LinkUpdate makeLinkUpdate(long linkId, Link link, List<UpdateInfo> info) {
         // получение всех подписок на ссылку
         List<Subscription> subscriptionsOnLink = repository.getLinkSubscriptions(link);
         // формирование сообщения об обновлениях
         String message = makeUpdateMessage(info);
-        long linkId = subscriptionsOnLink.getFirst().linkId();
         // формирование списка клиентов, кому отправляется сообщение
         List<Long> chatIds = new ArrayList<>();
         for (Subscription subscription : subscriptionsOnLink) {
-            chatIds.add(subscription.userId());
+            chatIds.add(subscription.user().chatId());
         }
         return new LinkUpdate(linkId, link.url(), message, chatIds);
     }

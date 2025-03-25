@@ -9,7 +9,7 @@ public class SqlTagRowMapper implements RowMapper<SqlTag> {
     @Override
     public SqlTag mapRow(ResultSet rs, int rowNum) throws SQLException {
         long tagId = rs.getLong("id");
-        String description = rs.getString("description");
+        String description = rs.getString("tag_text");
         long userId = rs.getLong("user_id");
         return new SqlTag(tagId, description, userId);
     }

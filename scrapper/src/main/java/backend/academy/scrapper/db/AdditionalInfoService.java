@@ -16,5 +16,4 @@ public interface AdditionalInfoService {
 
     List<Filter> getSubscriptionFiltersById(long id);
 
-    void removeSubscriptionAdditionalInfoById(long subscriptionId);
 }

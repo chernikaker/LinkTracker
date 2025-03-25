@@ -13,8 +13,7 @@ public interface SubscriptionService {
 
     long addSubscriptionOnLink(User user, Link link, List<Tag> tags, List<Filter> filters);
 
-    long removeSubscriptionOnLink(User user, Link link);
-
     Map<Long, Subscription> getUserSubscriptions(User user);
 
+    Map.Entry<Long,Subscription> deleteSubscriptionByUserAndLink(User user, Link link);
 }

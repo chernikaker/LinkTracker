@@ -24,7 +24,7 @@ public class LinkSqlRepository {
         MapSqlParameterSource namedParameters = new MapSqlParameterSource();
         namedParameters.addValue("batch", batchSize);
         namedParameters.addValue("offset", offset);
-        namedParameters.addValue("durationSeconds", durationSeconds);
+        namedParameters.addValue("duration", durationSeconds);
         return jdbcTemplate.query(
             "SELECT * FROM link WHERE CURRENT_TIMESTAMP-CAST(:duration || ' seconds' AS INTERVAL) > last_validation LIMIT :batch OFFSET :offset  ",
             namedParameters,

@@ -36,13 +36,13 @@ public class FilterSqlRepository {
 
     public List<SqlFilter> getFiltersBySubscriptionId(long id) {
         SqlParameterSource params = new MapSqlParameterSource("subscriptionId", id);
-        String sql = "SELECT * FROM filter WHERE subscription_id = :id";
+        String sql = "SELECT * FROM filter WHERE subscription_id = :subscriptionId";
         return jdbcTemplate.query(sql, params, new SqlFilterRowMapper());
     }
 
     public void removeFiltersBySubscriptionId(long id) {
         SqlParameterSource params = new MapSqlParameterSource("subscriptionId", id);
-        String sql = "DELETE FROM filter WHERE subscription_id = :id";
+        String sql = "DELETE FROM filter WHERE subscription_id = :subscriptionId";
         jdbcTemplate.update(sql, params);
     }
 }

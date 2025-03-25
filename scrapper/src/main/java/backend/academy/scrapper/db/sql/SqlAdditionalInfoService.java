@@ -100,14 +100,4 @@ public class SqlAdditionalInfoService implements AdditionalInfoService {
         }
     }
 
-    @Transactional
-    @Override
-    public void removeSubscriptionAdditionalInfoById(long subscriptionId) {
-        try {
-            tagRepo.removeAllTagsFromSubscriptionById(subscriptionId);
-            filterRepo.removeFiltersBySubscriptionId(subscriptionId);
-        } catch (DataAccessException e) {
-            throw new ScrapperSqlException("Error while removing subscription additional info", e);
-        }
-    }
 }
