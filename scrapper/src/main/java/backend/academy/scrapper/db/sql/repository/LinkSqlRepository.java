@@ -31,6 +31,13 @@ public class LinkSqlRepository {
         );
     }
 
+    public Link getLinkById(long id) {
+        MapSqlParameterSource namedParameters = new MapSqlParameterSource();
+        namedParameters.addValue("id", id);
+        String sql = "SELECT * FROM link WHERE id = :id";
+        return jdbcTemplate.queryForObject(sql, namedParameters, new LinkRowMapper());
+    }
+
     public void deleteLinkById(long id) {
         MapSqlParameterSource namedParameters = new MapSqlParameterSource().addValue("id", id);
         jdbcTemplate.update("DELETE FROM link WHERE id = :id", namedParameters);
