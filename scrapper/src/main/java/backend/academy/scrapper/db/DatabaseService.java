@@ -1,30 +1,33 @@
 package backend.academy.scrapper.db;
 
+import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import java.util.List;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.Map;
 
 
 public interface DatabaseService {
 
     void addUser(User user);
 
-    void addSubscriptionOnLink(User user, Link link);
+    long addSubscriptionOnLink(User user, Link link, List<Tag> tags, List<Filter> filters);
 
 
-    void removeSubscriptionOnLink(User user, Link link);
+    long removeSubscriptionOnLink(User user, Link link);
 
     void deleteTagForUser(User user, Tag tag);
 
     void deleteTagForSubscription(Subscription subscription, String text);
 
-    List<Link> getLinksToCheck(int batchSize, long offset, long duration);
 
-    void updateLinkValidationNow(Link link);
+    List<Tag> getSubscriptionTagsById(long id);
 
+    List<Filter> getSubscriptionFiltersById(long id);
 
-    List<Subscription> getUserLinks(User user);
+    Map<Long, Subscription> getUserSubscriptions(User user);
+
+    void removeSubscriptionAdditionalInfoById(long subscriptionId);
 }

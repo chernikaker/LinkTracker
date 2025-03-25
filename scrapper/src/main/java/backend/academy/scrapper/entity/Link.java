@@ -20,4 +20,8 @@ public class Link {
     public Link(String url, LinkType linkType, LocalDateTime date) {
         this(0, url, linkType, date);
     }
+
+    public Link(String url, LinkType type) {
+        this(url, type, null);
+    }
 }

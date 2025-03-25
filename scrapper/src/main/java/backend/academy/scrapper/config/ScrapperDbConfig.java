@@ -1,7 +1,9 @@
 package backend.academy.scrapper.config;
 
 import backend.academy.scrapper.db.DatabaseService;
+import backend.academy.scrapper.db.LinkDatabaseService;
 import backend.academy.scrapper.db.sql.SqlDatabaseService;
+import backend.academy.scrapper.db.sql.SqlLinkDatabaseService;
 import backend.academy.scrapper.db.sql.repository.FilterSqlRepository;
 import backend.academy.scrapper.db.sql.repository.LinkSqlRepository;
 import backend.academy.scrapper.db.sql.repository.SubscriptionSqlRepository;
@@ -20,5 +22,10 @@ public class ScrapperDbConfig {
                                         TagSqlRepository tagRepo,
                                         FilterSqlRepository filterRepo){
         return new SqlDatabaseService(userRepo, linkRepo, subscrRepo, tagRepo, filterRepo);
+    }
+
+    @Bean
+    public LinkDatabaseService sqlLinkDbService(LinkSqlRepository linkRepo){
+        return new SqlLinkDatabaseService(linkRepo);
     }
 }
