@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface LinkDatabaseService {
 
-    void updateLinkValidationNow(Link link);
+    void updateLinkValidationOnCurrentTime(Link link);
     List<Link> getLinksToCheck(int batchSize, long offset, long duration);
 
 }

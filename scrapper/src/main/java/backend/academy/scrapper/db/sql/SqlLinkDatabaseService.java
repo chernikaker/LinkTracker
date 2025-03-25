@@ -7,6 +7,7 @@ import backend.academy.scrapper.exception.db.ScrapperSqlException;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @AllArgsConstructor
@@ -15,9 +16,9 @@ public class SqlLinkDatabaseService implements LinkDatabaseService {
     private final LinkSqlRepository linkRepo;
 
     @Override
-    public List<Link> getLinksToCheck(int batchSize, long offset, long duration){
+    public List<Link> getLinksToCheck(int batchSize, long offset, long durationSeconds){
         try {
-            return linkRepo.getUncheckedLinksWithBatching(batchSize, offset, duration);
+            return linkRepo.getUncheckedLinksWithBatching(batchSize, offset, durationSeconds);
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Error while getting links to check", e);
         }
@@ -32,7 +33,7 @@ public class SqlLinkDatabaseService implements LinkDatabaseService {
     }
 
     @Override
-    public void updateLinkValidationNow(Link link){
-        updateLinkValidationWithTime(link, LocalDateTime.now());
+    public void updateLinkValidationOnCurrentTime(Link link){
+        updateLinkValidationWithTime(link, LocalDateTime.now(ZoneId.systemDefault()));
     }
 }

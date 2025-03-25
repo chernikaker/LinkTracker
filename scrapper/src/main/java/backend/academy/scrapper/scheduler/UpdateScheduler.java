@@ -3,15 +3,12 @@ package backend.academy.scrapper.scheduler;
 import backend.academy.scrapper.client.bot.BotClientService;
 import backend.academy.scrapper.client.external.github.GithubClientService;
 import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
+import backend.academy.scrapper.db.LinkDatabaseService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.model.UpdateInfo;
-import backend.academy.scrapper.repository.InMemoryLinkRepository;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,8 +25,10 @@ public class UpdateScheduler {
 
     public static final int INITIAL_DELAY = 10000;
     public static final int DELAY = 10000;
+    public static final int batchSize = 100;
+    public static final long notCheckedIntervalSeconds = 10;
 
-    private final InMemoryLinkRepository linkRepository;
+    private final LinkDatabaseService linkDbService;
     private final GithubClientService githubClientService;
     private final StackoverflowClientService soClientService;
     private final BotClientService botClientService;
@@ -37,26 +36,31 @@ public class UpdateScheduler {
     @Scheduled(initialDelay = INITIAL_DELAY, fixedDelay = DELAY)
     public void checkNewUpdates() {
         log.atDebug().log("Scheduling checking link updates");
-        Set<Link> links = linkRepository.getLinks();
-        for (Link link : links) {
-            try {
-                // получение всех обновлений
-                List<UpdateInfo> updates = link.type() == LinkType.GITHUB
+        long offset = 0;
+        List<Link> links;
+        do {
+            links = linkDbService.getLinksToCheck(batchSize, offset, notCheckedIntervalSeconds);
+            for (Link link : links) {
+                try {
+                    // получение всех обновлений
+                    List<UpdateInfo> updates = link.type() == LinkType.GITHUB
                         ? githubClientService.getAllInfo(link)
                         : soClientService.getAllInfo(link);
-                // фильтрация новых обновлений по дате последней проверки
-                List<UpdateInfo> actualInfos = updates.stream()
+                    // фильтрация новых обновлений по дате последней проверки
+                    List<UpdateInfo> actualInfos = updates.stream()
                         .filter(info -> link.lastValidation().isBefore(info.time()))
                         .toList();
-                // если есть новые обновления, отправляем их пользователю
-                if (!actualInfos.isEmpty()) {
-                    botClientService.sendUpdates(link, actualInfos);
+                    // если есть новые обновления, отправляем их пользователю
+                    if (!actualInfos.isEmpty()) {
+                        botClientService.sendUpdates(link, actualInfos);
+                    }
+                } catch (ScrapperInternalResponseException e) {
+                    log.atWarn().setCause(e).log("Error while getting update in scheduler");
                 }
-            } catch (ScrapperInternalResponseException e) {
-                log.atWarn().setCause(e).log("Error while getting update in scheduler");
+                // обновление времени проверки ссылки
+                linkDbService.updateLinkValidationOnCurrentTime(link);
+                offset += batchSize;
             }
-            // обновление времени проверки ссылки
-            link.lastValidation(LocalDateTime.now(ZoneId.systemDefault()));
-        }
+        } while (!links.isEmpty());
     }
 }

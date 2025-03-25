@@ -19,11 +19,11 @@ public class LinkSqlRepository {
         jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    public List<Link> getUncheckedLinksWithBatching(int batchSize, long offset, long duration){
+    public List<Link> getUncheckedLinksWithBatching(int batchSize, long offset, long durationSeconds){
         MapSqlParameterSource namedParameters = new MapSqlParameterSource();
         namedParameters.addValue("batch", batchSize);
         namedParameters.addValue("offset", offset);
-        namedParameters.addValue("duration", duration);
+        namedParameters.addValue("durationSeconds", durationSeconds);
         return jdbcTemplate.query(
             "SELECT * FROM link WHERE CURRENT_TIMESTAMP-CAST(:duration || ' seconds' AS INTERVAL) > last_validation LIMIT :batch OFFSET :offset  ",
             namedParameters,
