@@ -1,6 +1,6 @@
 package backend.academy.scrapper.db.sql;
 
-import backend.academy.scrapper.db.LinkDatabaseService;
+import backend.academy.scrapper.db.LinkService;
 import backend.academy.scrapper.db.sql.entity.SqlLink;
 import backend.academy.scrapper.db.sql.repository.LinkSqlRepository;
 import backend.academy.scrapper.entity.Link;
@@ -10,13 +10,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
-public class SqlLinkDatabaseService implements LinkDatabaseService {
+public class SqlLinkService implements LinkService {
 
     private final LinkSqlRepository linkRepo;
 

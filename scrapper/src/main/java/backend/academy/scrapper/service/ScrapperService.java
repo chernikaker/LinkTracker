@@ -6,19 +6,16 @@ import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
 import backend.academy.scrapper.client.external.github.GithubClientService;
 import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
-import backend.academy.scrapper.db.DatabaseService;
+import backend.academy.scrapper.db.AdditionalInfoService;
+import backend.academy.scrapper.db.SubscriptionService;
+import backend.academy.scrapper.db.UserService;
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
-import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
-import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
-import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +31,9 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class ScrapperService {
 
-    private final DatabaseService dbService;
+    private final SubscriptionService subscriptionService;
+    private final UserService userService;
+    private final AdditionalInfoService infoService;
 
     // сервисы внешних клиентов для проверки досутпности ссылок
     private final GithubClientService githubService;
@@ -47,7 +46,7 @@ public class ScrapperService {
      */
     public void registerUser(long chatId) {
         User user = new User(chatId);
-        dbService.addUser(user);
+        userService.addUser(user);
     }
 
     /**
@@ -73,7 +72,7 @@ public class ScrapperService {
      */
     public ListLinksResponse getUserLinks(long chatId) {
         User u = new User(chatId);
-        Map<Long, Subscription> subscriptions = dbService.getUserSubscriptions(u);
+        Map<Long, Subscription> subscriptions = subscriptionService.getUserSubscriptions(u);
         List<LinkResponse> links = new ArrayList<>();
         // маппинг сущености подписки в DTO
         for (Map.Entry<Long, Subscription> subscription : subscriptions.entrySet()) {
@@ -109,7 +108,7 @@ public class ScrapperService {
         if(!isAvailable(link)){
             throw new ScrapperUnavailableLinkException("Link "+link.url()+" is not available");
         }
-        long subscriptionId = dbService.addSubscriptionOnLink(user, link, tags, filters);
+        long subscriptionId = subscriptionService.addSubscriptionOnLink(user, link, tags, filters);
 
         // TODO: request params?
         return new LinkResponse(
@@ -127,12 +126,12 @@ public class ScrapperService {
 
         User user = new User(chatId);
         Link link = new Link(request.link(), LinkType.fromValue(request.link()));
-        long subscriptionId = dbService.removeSubscriptionOnLink(user, link);
-        List<Tag> tags = dbService.getSubscriptionTagsById(subscriptionId);
-        List<Filter> filters = dbService.getSubscriptionFiltersById(subscriptionId);
+        long subscriptionId = subscriptionService.removeSubscriptionOnLink(user, link);
+        List<Tag> tags = infoService.getSubscriptionTagsById(subscriptionId);
+        List<Filter> filters = infoService.getSubscriptionFiltersById(subscriptionId);
         List<String> responseTags = tags.stream().map(Tag::value).toList();
         List<String> responseFilters = filters.stream().map(f -> f.key()+":"+f.value()).toList();
-        dbService.removeSubscriptionAdditionalInfoById(subscriptionId);
+        infoService.removeSubscriptionAdditionalInfoById(subscriptionId);
         return new LinkResponse(subscriptionId, request.link(), responseTags, responseFilters);
     }
 

@@ -1,9 +1,13 @@
 package backend.academy.scrapper.config;
 
-import backend.academy.scrapper.db.DatabaseService;
-import backend.academy.scrapper.db.LinkDatabaseService;
-import backend.academy.scrapper.db.sql.SqlDatabaseService;
-import backend.academy.scrapper.db.sql.SqlLinkDatabaseService;
+import backend.academy.scrapper.db.AdditionalInfoService;
+import backend.academy.scrapper.db.SubscriptionService;
+import backend.academy.scrapper.db.LinkService;
+import backend.academy.scrapper.db.UserService;
+import backend.academy.scrapper.db.sql.SqlAdditionalInfoService;
+import backend.academy.scrapper.db.sql.SqlSubscriptionService;
+import backend.academy.scrapper.db.sql.SqlLinkService;
+import backend.academy.scrapper.db.sql.SqlUserService;
 import backend.academy.scrapper.db.sql.repository.FilterSqlRepository;
 import backend.academy.scrapper.db.sql.repository.LinkSqlRepository;
 import backend.academy.scrapper.db.sql.repository.SubscriptionSqlRepository;
@@ -16,16 +20,31 @@ import org.springframework.context.annotation.Configuration;
 public class ScrapperDbConfig {
 
     @Bean
-    public DatabaseService sqlDbService(UserSqlRepository userRepo,
-                                        LinkSqlRepository linkRepo,
-                                        SubscriptionSqlRepository subscrRepo,
-                                        TagSqlRepository tagRepo,
-                                        FilterSqlRepository filterRepo){
-        return new SqlDatabaseService(userRepo, linkRepo, subscrRepo, tagRepo, filterRepo);
+    public SubscriptionService sqlDbService(UserSqlRepository userRepo,
+                                            LinkSqlRepository linkRepo,
+                                            SubscriptionSqlRepository subscrRepo,
+                                            TagSqlRepository tagRepo,
+                                            FilterSqlRepository filterRepo){
+        return new SqlSubscriptionService(userRepo, linkRepo, subscrRepo, tagRepo, filterRepo);
     }
 
     @Bean
-    public LinkDatabaseService sqlLinkDbService(LinkSqlRepository linkRepo){
-        return new SqlLinkDatabaseService(linkRepo);
+    public LinkService sqlLinkDbService(LinkSqlRepository linkRepo){
+        return new SqlLinkService(linkRepo);
+    }
+
+    @Bean
+    public UserService sqlUserDbService(UserSqlRepository userRepo){
+        return new SqlUserService(userRepo);
+    }
+
+    @Bean
+    public AdditionalInfoService sqlAdditionalInfoDbService(UserSqlRepository userRepo,
+                                                            LinkSqlRepository linkRepo,
+                                                            SubscriptionSqlRepository subscrRepo,
+                                                            TagSqlRepository tagRepo,
+                                                            FilterSqlRepository filterRepo){
+        return new SqlAdditionalInfoService(userRepo, linkRepo, subscrRepo, tagRepo, filterRepo) {
+        };
     }
 }

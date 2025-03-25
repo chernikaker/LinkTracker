@@ -1,10 +1,9 @@
 package backend.academy.scrapper.db;
 
 import backend.academy.scrapper.entity.Link;
-import java.util.List;
 import java.util.Map;
 
-public interface LinkDatabaseService {
+public interface LinkService {
 
     void updateLinkValidationOnCurrentTime(long linkId);
     Map<Long, Link> getLinksToCheck(int batchSize, long offset, long duration);
