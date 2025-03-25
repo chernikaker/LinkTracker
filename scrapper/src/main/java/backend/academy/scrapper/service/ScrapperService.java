@@ -6,17 +6,17 @@ import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
 import backend.academy.scrapper.client.external.github.GithubClientService;
 import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
+import backend.academy.scrapper.db.DatabaseService;
+import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
+import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkException;
-import backend.academy.scrapper.repository.InMemoryLinkRepository;
-import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
-import backend.academy.scrapper.repository.InMemoryUserRepository;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -34,9 +34,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class ScrapperService {
 
-    private final InMemoryLinkRepository linkRepository;
-    private final InMemorySubscriptionRepository subscrRepository;
-    private final InMemoryUserRepository userRepository;
+    private final DatabaseService dbService;
 
     // сервисы внешних клиентов для проверки досутпности ссылок
     private final GithubClientService githubService;
@@ -49,7 +47,7 @@ public class ScrapperService {
      */
     public void registerUser(long chatId) {
         User user = new User(chatId);
-        userRepository.registerUser(user);
+        dbService.addUser(user);
     }
 
     /**
@@ -74,16 +72,16 @@ public class ScrapperService {
      * @return DTO со списком ссылок
      */
     public ListLinksResponse getUserLinks(long chatId) {
-        User user = userRepository.getUserById(chatId);
-        Map<Long, Subscription> subscriptions = subscrRepository.getUserSubscriptions(user);
+        User u = new User(chatId);
+        Map<Long, Subscription> subscriptions = dbService.getUserSubscriptions(u);
         List<LinkResponse> links = new ArrayList<>();
         // маппинг сущености подписки в DTO
         for (Map.Entry<Long, Subscription> subscription : subscriptions.entrySet()) {
             LinkResponse link = new LinkResponse(
                     subscription.getKey(),
                     subscription.getValue().link().url(),
-                    subscription.getValue().tags(),
-                    subscription.getValue().filters());
+                    subscription.getValue().tags().stream().map(Tag::value).toList(),
+                    subscription.getValue().filters().stream().map(f -> f.key()+":"+f.value()).toList());
             links.add(link);
         }
         return new ListLinksResponse(links, links.size());
@@ -97,23 +95,25 @@ public class ScrapperService {
      * @return DTO ответа с зарегистрированной подпиской
      */
     public LinkResponse addSubscription(long chatId, AddLinkRequest request) {
-        User user = userRepository.getUserById(chatId);
-        // маппинг запроса в сущность ссылки
-        // последняя проверка обновлений - текущее время
-        Link link =
-                new Link(request.link(), LinkType.fromValue(request.link()), LocalDateTime.now(ZoneId.systemDefault()));
-        // проверка доступности ссылки
-        if (!isAvailable(link)) {
-            throw new ScrapperUnavailableLinkException("Link is unavailable " + link);
+        User user = new User(chatId);
+        Link link = new Link(request.link(), LinkType.fromValue(request.link()), null);
+        List<Tag> tags = new ArrayList<>();
+        for(String t: request.tags()) {
+            tags.add(new Tag(t));
         }
-        // добавление в репозиторий
-        long linkId = linkRepository.addLink(link);
-        // создание новой сущности подписки и ее добавление
-        Subscription newSubscription = new Subscription(chatId, user, linkId, link, request.tags(), request.filters());
-        long subscriptionId = subscrRepository.addSubscription(newSubscription);
-        // маппинг сущностей в DTO ответа
+        List<Filter> filters = new ArrayList<>();
+        for(String f: request.filters()) {
+            String[] parts = f.split(":");
+            filters.add(new Filter(parts[0], parts[1]));
+        }
+        if(!isAvailable(link)){
+            throw new ScrapperUnavailableLinkException("Link "+link.url()+" is not available");
+        }
+        long subscriptionId = dbService.addSubscriptionOnLink(user, link, tags, filters);
+
+        // TODO: request params?
         return new LinkResponse(
-                subscriptionId, newSubscription.link().url(), newSubscription.tags(), newSubscription.filters());
+                subscriptionId, request.link(), request.tags(), request.filters());
     }
 
     /**
@@ -124,45 +124,19 @@ public class ScrapperService {
      * @return DTO ответа с информацией об удаленной ссылке
      */
     public LinkResponse deleteSubscription(long chatId, RemoveLinkRequest request) {
-        // проверка регистрации пользователя
-        if (!userRepository.containsUser(chatId)) {
-            throw new ScrapperUserNotExistsException("User not exists id:" + chatId);
-        }
-        long linkId = linkRepository.getLinkIdByURL(request.link());
-        // проверка наличия ссылки в репозитории
-        if (linkId == -1) {
-            throw new ScrapperLinkNotExistsException("Link with URL " + request.link() + " not found");
-        }
-        long subscriptionId = subscrRepository.getSubscriptionId(chatId, linkId);
-        // проверка подписки пользователя на ссылку
-        if (subscriptionId == -1) {
-            throw new ScrapperSubscriptionNotExistsException(
-                    "Subscription by user " + chatId + "on link wiht id " + linkId + " not found");
-        }
-        Subscription deleted = subscrRepository.removeSubscriptionById(subscriptionId);
-        // проверка ссылок без подписок
-        checkUnsubscribedLink(deleted);
-        // маппинг сущностей в DTO
-        return new LinkResponse(subscriptionId, deleted.link().url(), deleted.tags(), deleted.filters());
+
+        User user = new User(chatId);
+        Link link = new Link(request.link(), LinkType.fromValue(request.link()));
+        long subscriptionId = dbService.removeSubscriptionOnLink(user, link);
+        List<Tag> tags = dbService.getSubscriptionTagsById(subscriptionId);
+        List<Filter> filters = dbService.getSubscriptionFiltersById(subscriptionId);
+        List<String> responseTags = tags.stream().map(Tag::value).toList();
+        List<String> responseFilters = filters.stream().map(f -> f.key()+":"+f.value()).toList();
+        dbService.removeSubscriptionAdditionalInfoById(subscriptionId);
+        return new LinkResponse(subscriptionId, request.link(), responseTags, responseFilters);
     }
 
-    private void checkUnsubscribedLinks(Set<Subscription> unsubscribed) {
-        for (Subscription s : unsubscribed) {
-            checkUnsubscribedLink(s);
-        }
-    }
 
-    /**
-     * Метод проверяет, есть ли подписки в репозитории на ссылку удаленной подписки. В случае их отсутствия ссылка
-     * удаляется
-     *
-     * @param s удаленная подписка
-     */
-    private void checkUnsubscribedLink(Subscription s) {
-        if (subscrRepository.getLinkSubscriptions(s.link()).isEmpty()) {
-            linkRepository.removeLinkById(s.linkId());
-        }
-    }
 
     /**
      * Проверка доступа к ссылке с помощью сервисов внешних клиентов

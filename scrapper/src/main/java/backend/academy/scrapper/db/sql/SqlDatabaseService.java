@@ -23,7 +23,9 @@ import backend.academy.scrapper.exception.repository.ScrapperUserAlreadyExistsEx
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
@@ -56,14 +58,25 @@ public class SqlDatabaseService implements DatabaseService {
 
     @Override
     @Transactional
-    public void addSubscriptionOnLink(User user, Link link) {
+    public long addSubscriptionOnLink(User user, Link link, List<Tag> tags, List<Filter> filters) {
         try {
             SqlUser u = userRepo.findUserByChatId(user.chatId())
                 .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
             Optional<Link> existingLink = linkRepo.findLinkByUrl(link.url());
             long linkId = existingLink.map(Link::id).orElseGet(() -> linkRepo.addLink(link));
 
-            subscrRepo.addSubscription(new SqlSubscription(u.id(), linkId));
+            long subscrId = subscrRepo.addSubscription(new SqlSubscription(u.id(), linkId));
+            for(Tag tag : tags) {
+                // TODO: repeating tags
+                SqlTag t = new SqlTag(tag.value(), u.id());
+                long tagId = tagRepo.addTag(t);
+                tagRepo.addTagToSubscription(tagId, subscrId);
+            }
+            for(Filter filter : filters) {
+                SqlFilter f = new SqlFilter(filter.key(), filter.value(), subscrId, u.id());
+                filterRepo.addFilterToSubscription(f);
+            }
+            return subscrId;
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Exception while adding link with SQL", e);
         }
@@ -71,7 +84,7 @@ public class SqlDatabaseService implements DatabaseService {
 
     @Override
     @Transactional
-    public void removeSubscriptionOnLink(User user, Link link) {
+    public long removeSubscriptionOnLink(User user, Link link) {
         try {
             SqlUser u = userRepo.findUserByChatId(user.chatId())
                 .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
@@ -84,6 +97,7 @@ public class SqlDatabaseService implements DatabaseService {
             if(subs.isEmpty()){
                 linkRepo.deleteLinkById(l.id());
             }
+            return existingSub.id();
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Exception while adding link with SQL", e);
         }
@@ -127,35 +141,41 @@ public class SqlDatabaseService implements DatabaseService {
     }
 
     @Override
-    public List<Link> getLinksToCheck(int batchSize, long offset, long duration){
-        try {
-            return linkRepo.getUncheckedLinksWithBatching(batchSize, offset, duration);
+    public List<Tag> getSubscriptionTagsById(long id) {
+        try{
+            List<SqlTag> tags = tagRepo.getSubscriptionTags(id);
+            List<Tag> response = new ArrayList<>();
+            for(SqlTag tag : tags){
+                response.add(new Tag(tag.tagText()));
+            }
+            return response;
         } catch (DataAccessException e) {
-            throw new ScrapperSqlException("Error while getting links to check", e);
-        }
-    }
-
-
-    public void updateLinkValidationWithTime(Link link, LocalDateTime time) {
-        try {
-            linkRepo.updateLinkValidationById(link.id(), time);
-        } catch (DataAccessException e) {
-            throw new ScrapperSqlException("Error while updating link validation", e);
+            throw new ScrapperSqlException("Error while getting subscription tags", e);
         }
     }
 
     @Override
-    public void updateLinkValidationNow(Link link){
-        updateLinkValidationWithTime(link, LocalDateTime.now());
+    public List<Filter> getSubscriptionFiltersById(long id) {
+        try {
+            List<SqlFilter> filters = filterRepo.getFiltersBySubscriptionId(id);
+            List<Filter> response = new ArrayList<>();
+            for(SqlFilter filter : filters){
+                response.add(new Filter(filter.key(), filter.value()));
+            }
+            return response;
+        } catch (DataAccessException e) {
+            throw new ScrapperSqlException("Error while getting filters", e);
+        }
     }
+
 
     @Override
     @Transactional
-    public List<Subscription> getUserLinks(User user){
+    public Map<Long, Subscription> getUserSubscriptions(User user){
         try {
             SqlUser u = userRepo.findUserByChatId(user.chatId())
                 .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
-            List<Subscription> ans = new ArrayList<>();
+            Map<Long, Subscription> ans = new HashMap<>();
             for (SqlSubscription s :subscrRepo.getSubscriptionsByUserId(u.id())){
                 Link l = linkRepo.getLinkById(s.linkId());
                 List<Tag> tags = new ArrayList<>();
@@ -166,11 +186,22 @@ public class SqlDatabaseService implements DatabaseService {
                 for (SqlFilter f: filterRepo.getFiltersBySubscriptionId(s.id())) {
                     filters.add(new Filter(f.key(), f.value()));
                 }
-                ans.add(new Subscription(user, l, tags, filters));
+                ans.put(s.id(), new Subscription(user, l, tags, filters));
             }
             return ans;
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Error while getting user links", e);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void removeSubscriptionAdditionalInfoById(long subscriptionId) {
+        try {
+            tagRepo.removeAllTagsFromSubscriptionById(subscriptionId);
+            filterRepo.removeFiltersBySubscriptionId(subscriptionId);
+        } catch (DataAccessException e) {
+            throw new ScrapperSqlException("Error while removing subscription additional info", e);
         }
     }
 }

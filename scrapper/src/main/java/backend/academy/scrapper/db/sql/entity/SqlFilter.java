@@ -1,17 +1,9 @@
 package backend.academy.scrapper.db.sql.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
-public class SqlFilter {
+public record SqlFilter(long id, String key, String value, long subscriptionId, long userId) {
 
-    private long id;
-    private String key;
-    private String value;
-    private long subscriptionId;
-    private long userId;
+    public SqlFilter(String key, String value, long subscriptionId, long userId) {
+        this(0, key, value, subscriptionId, userId);
+    }
 }

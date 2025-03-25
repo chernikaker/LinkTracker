@@ -39,4 +39,10 @@ public class FilterSqlRepository {
         String sql = "SELECT * FROM filter WHERE subscription_id = :id";
         return jdbcTemplate.query(sql, params, new SqlFilterRowMapper());
     }
+
+    public void removeFiltersBySubscriptionId(long id) {
+        SqlParameterSource params = new MapSqlParameterSource("subscriptionId", id);
+        String sql = "DELETE FROM filter WHERE subscription_id = :id";
+        jdbcTemplate.update(sql, params);
+    }
 }

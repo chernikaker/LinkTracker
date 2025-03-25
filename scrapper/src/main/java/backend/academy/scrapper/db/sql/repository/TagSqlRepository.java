@@ -69,4 +69,10 @@ public class TagSqlRepository {
         String query = "INSERT INTO subscription_tag (subscription_id, tag_id) VALUES (:subscriptionId, :tagId)";
         jdbcTemplate.update(query, params);
     }
+
+    public void removeAllTagsFromSubscriptionById(long subscriptionId) {
+        MapSqlParameterSource params = new MapSqlParameterSource("subscriptionId", subscriptionId);
+        String query = "DELETE FROM subscription_tag WHERE tag_id = :tagId";
+        jdbcTemplate.update(query, params);
+    }
 }
