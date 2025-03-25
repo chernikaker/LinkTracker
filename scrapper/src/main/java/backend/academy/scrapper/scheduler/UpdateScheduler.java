@@ -9,6 +9,7 @@ import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.model.UpdateInfo;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -37,11 +38,12 @@ public class UpdateScheduler {
     public void checkNewUpdates() {
         log.atDebug().log("Scheduling checking link updates");
         long offset = 0;
-        List<Link> links;
+        Map<Long, Link> links;
         do {
             links = linkDbService.getLinksToCheck(batchSize, offset, notCheckedIntervalSeconds);
-            for (Link link : links) {
+            for (Map.Entry<Long,Link> linkData : links.entrySet()) {
                 try {
+                    Link link = linkData.getValue();
                     // получение всех обновлений
                     List<UpdateInfo> updates = link.type() == LinkType.GITHUB
                         ? githubClientService.getAllInfo(link)
@@ -58,7 +60,7 @@ public class UpdateScheduler {
                     log.atWarn().setCause(e).log("Error while getting update in scheduler");
                 }
                 // обновление времени проверки ссылки
-                linkDbService.updateLinkValidationOnCurrentTime(link);
+                linkDbService.updateLinkValidationOnCurrentTime(linkData.getKey());
                 offset += batchSize;
             }
         } while (!links.isEmpty());

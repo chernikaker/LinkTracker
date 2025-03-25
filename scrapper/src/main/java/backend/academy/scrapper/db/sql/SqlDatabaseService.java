@@ -2,6 +2,7 @@ package backend.academy.scrapper.db.sql;
 
 import backend.academy.scrapper.db.DatabaseService;
 import backend.academy.scrapper.db.sql.entity.SqlFilter;
+import backend.academy.scrapper.db.sql.entity.SqlLink;
 import backend.academy.scrapper.db.sql.entity.SqlSubscription;
 import backend.academy.scrapper.db.sql.entity.SqlTag;
 import backend.academy.scrapper.db.sql.entity.SqlUser;
@@ -12,6 +13,7 @@ import backend.academy.scrapper.db.sql.repository.TagSqlRepository;
 import backend.academy.scrapper.db.sql.repository.UserSqlRepository;
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
+import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
@@ -21,7 +23,6 @@ import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExis
 import backend.academy.scrapper.exception.repository.ScrapperTagNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserAlreadyExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @AllArgsConstructor
@@ -62,8 +62,8 @@ public class SqlDatabaseService implements DatabaseService {
         try {
             SqlUser u = userRepo.findUserByChatId(user.chatId())
                 .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
-            Optional<Link> existingLink = linkRepo.findLinkByUrl(link.url());
-            long linkId = existingLink.map(Link::id).orElseGet(() -> linkRepo.addLink(link));
+            Optional<SqlLink> existingLink = linkRepo.findLinkByUrl(link.url());
+            long linkId = existingLink.map(SqlLink::id).orElseGet(() -> linkRepo.addLink(new SqlLink(link.url(), link.lastValidation())));
 
             long subscrId = subscrRepo.addSubscription(new SqlSubscription(u.id(), linkId));
             for(Tag tag : tags) {
@@ -88,7 +88,7 @@ public class SqlDatabaseService implements DatabaseService {
         try {
             SqlUser u = userRepo.findUserByChatId(user.chatId())
                 .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
-            Link l = linkRepo.findLinkByUrl(link.url())
+            SqlLink l = linkRepo.findLinkByUrl(link.url())
                 .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + link.url() + " does not exist"));
             SqlSubscription existingSub = subscrRepo.getSubscriptionByLinkAndUserId(l.id(), u.id())
                 .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("Subscription " + link.url() + " does not exist"));
@@ -125,7 +125,7 @@ public class SqlDatabaseService implements DatabaseService {
     @Transactional
     public void deleteTagForSubscription(Subscription subscription, String text) {
         try {
-        Link link = linkRepo.findLinkByUrl(subscription.link().url())
+        SqlLink link = linkRepo.findLinkByUrl(subscription.link().url())
             .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + subscription.link().url() + " does not exist"));
         SqlUser user = userRepo.findUserByChatId(subscription.user().chatId())
             .orElseThrow(() -> new ScrapperUserNotExistsException("User " + subscription.user().chatId() + " does not exist"));
@@ -177,7 +177,8 @@ public class SqlDatabaseService implements DatabaseService {
                 .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
             Map<Long, Subscription> ans = new HashMap<>();
             for (SqlSubscription s :subscrRepo.getSubscriptionsByUserId(u.id())){
-                Link l = linkRepo.getLinkById(s.linkId());
+                SqlLink l = linkRepo.getLinkById(s.linkId());
+                Link link = new Link(l.url(), LinkType.fromValue(l.url()), l.lastValidation());
                 List<Tag> tags = new ArrayList<>();
                 for (SqlTag t: tagRepo.getSubscriptionTags(s.id())) {
                     tags.add(new Tag(t.tagText()));
@@ -186,7 +187,7 @@ public class SqlDatabaseService implements DatabaseService {
                 for (SqlFilter f: filterRepo.getFiltersBySubscriptionId(s.id())) {
                     filters.add(new Filter(f.key(), f.value()));
                 }
-                ans.put(s.id(), new Subscription(user, l, tags, filters));
+                ans.put(s.id(), new Subscription(user, link, tags, filters));
             }
             return ans;
         } catch (DataAccessException e) {

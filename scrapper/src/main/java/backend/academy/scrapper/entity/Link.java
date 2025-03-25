@@ -11,15 +11,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Link {
 
-    private long id;
     private String url;
     private LinkType type;
     // время получения последнего обновления информации о ссылке
     private LocalDateTime lastValidation;
-
-    public Link(String url, LinkType linkType, LocalDateTime date) {
-        this(0, url, linkType, date);
-    }
 
     public Link(String url, LinkType type) {
         this(url, type, null);

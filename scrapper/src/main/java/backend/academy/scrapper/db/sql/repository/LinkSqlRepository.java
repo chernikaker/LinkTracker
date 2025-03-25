@@ -1,6 +1,7 @@
 package backend.academy.scrapper.db.sql.repository;
 
-import backend.academy.scrapper.db.sql.mapper.LinkRowMapper;
+import backend.academy.scrapper.db.sql.entity.SqlLink;
+import backend.academy.scrapper.db.sql.mapper.SqlLinkRowMapper;
 import backend.academy.scrapper.entity.Link;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +20,7 @@ public class LinkSqlRepository {
         jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    public List<Link> getUncheckedLinksWithBatching(int batchSize, long offset, long durationSeconds){
+    public List<SqlLink> getUncheckedLinksWithBatching(int batchSize, long offset, long durationSeconds){
         MapSqlParameterSource namedParameters = new MapSqlParameterSource();
         namedParameters.addValue("batch", batchSize);
         namedParameters.addValue("offset", offset);
@@ -27,15 +28,15 @@ public class LinkSqlRepository {
         return jdbcTemplate.query(
             "SELECT * FROM link WHERE CURRENT_TIMESTAMP-CAST(:duration || ' seconds' AS INTERVAL) > last_validation LIMIT :batch OFFSET :offset  ",
             namedParameters,
-            new LinkRowMapper()
+            new SqlLinkRowMapper()
         );
     }
 
-    public Link getLinkById(long id) {
+    public SqlLink getLinkById(long id) {
         MapSqlParameterSource namedParameters = new MapSqlParameterSource();
         namedParameters.addValue("id", id);
         String sql = "SELECT * FROM link WHERE id = :id";
-        return jdbcTemplate.queryForObject(sql, namedParameters, new LinkRowMapper());
+        return jdbcTemplate.queryForObject(sql, namedParameters, new SqlLinkRowMapper());
     }
 
     public void deleteLinkById(long id) {
@@ -43,7 +44,7 @@ public class LinkSqlRepository {
         jdbcTemplate.update("DELETE FROM link WHERE id = :id", namedParameters);
     }
 
-    public Long addLink(Link link) {
+    public Long addLink(SqlLink link) {
         MapSqlParameterSource namedParameters = new MapSqlParameterSource().addValue("url", link.url());
         namedParameters.addValue("lastValidation", link.lastValidation());
         String addRequest = "INSERT INTO link (url, last_validation) VALUES (:url, :lastValidation) RETURNING id";
@@ -58,12 +59,12 @@ public class LinkSqlRepository {
         jdbcTemplate.update("UPDATE link SET last_validation = :lastValidation WHERE id = :id", namedParameters);
     }
 
-    public Optional<Link> findLinkByUrl(String url) {
+    public Optional<SqlLink> findLinkByUrl(String url) {
         MapSqlParameterSource namedParameters = new MapSqlParameterSource().addValue("url", url);
         return jdbcTemplate.query(
                 "SELECT id, url, last_validation FROM link WHERE url = :url",
                 namedParameters,
-                new LinkRowMapper()
+                new SqlLinkRowMapper()
             )
             .stream()
             .findFirst();
