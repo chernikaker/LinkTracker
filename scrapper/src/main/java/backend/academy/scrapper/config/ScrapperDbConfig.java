@@ -1,12 +1,12 @@
 package backend.academy.scrapper.config;
 
 import backend.academy.scrapper.db.AdditionalInfoService;
-import backend.academy.scrapper.db.SubscriptionService;
 import backend.academy.scrapper.db.LinkService;
+import backend.academy.scrapper.db.SubscriptionService;
 import backend.academy.scrapper.db.UserService;
 import backend.academy.scrapper.db.sql.SqlAdditionalInfoService;
-import backend.academy.scrapper.db.sql.SqlSubscriptionService;
 import backend.academy.scrapper.db.sql.SqlLinkService;
+import backend.academy.scrapper.db.sql.SqlSubscriptionService;
 import backend.academy.scrapper.db.sql.SqlUserService;
 import backend.academy.scrapper.db.sql.repository.FilterSqlRepository;
 import backend.academy.scrapper.db.sql.repository.LinkSqlRepository;

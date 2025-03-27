@@ -7,18 +7,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import javax.sql.DataSource;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@AllArgsConstructor
 public class LinkSqlRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-
-    public LinkSqlRepository(DataSource dataSource) {
-        jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    }
 
     public List<SqlLink> getUncheckedLinksWithBatching(int batchSize, long offset, long durationSeconds){
         MapSqlParameterSource namedParameters = new MapSqlParameterSource();

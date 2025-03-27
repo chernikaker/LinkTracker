@@ -5,6 +5,7 @@ import backend.academy.scrapper.db.sql.mapper.SqlSubscriptionRowMapper;
 import java.util.List;
 import java.util.Optional;
 import javax.sql.DataSource;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -12,13 +13,10 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@AllArgsConstructor
 public class SubscriptionSqlRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-
-    public SubscriptionSqlRepository(DataSource dataSource) {
-        jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    }
 
     public Long addSubscription(SqlSubscription subscription) {
         SqlParameterSource src = new BeanPropertySqlParameterSource(subscription);

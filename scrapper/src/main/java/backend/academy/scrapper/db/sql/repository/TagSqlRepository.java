@@ -3,6 +3,7 @@ package backend.academy.scrapper.db.sql.repository;
 import backend.academy.scrapper.db.sql.entity.SqlTag;
 import javax.sql.DataSource;
 import backend.academy.scrapper.db.sql.mapper.SqlTagRowMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -12,14 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@AllArgsConstructor
 public class TagSqlRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-
-    public TagSqlRepository(DataSource dataSource) {
-        jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    }
-
 
     public Long addTag(SqlTag tag) {
         SqlParameterSource params = new BeanPropertySqlParameterSource(tag);
