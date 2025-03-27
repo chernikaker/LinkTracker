@@ -17,6 +17,14 @@ spring:
     username: admin
     password: 111111
     driver-class-name: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 5
+      pool-name: MyHikariPool
+      connection-timeout: 30000
+      idle-timeout: 300000
+      max-lifetime: 1800000
   jpa:
     hibernate:
       ddl-auto: validate
