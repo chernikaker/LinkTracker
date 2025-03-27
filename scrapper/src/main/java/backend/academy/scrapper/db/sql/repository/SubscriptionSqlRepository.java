@@ -4,7 +4,6 @@ import backend.academy.scrapper.db.sql.entity.SqlSubscription;
 import backend.academy.scrapper.db.sql.mapper.SqlSubscriptionRowMapper;
 import java.util.List;
 import java.util.Optional;
-import javax.sql.DataSource;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -25,24 +24,18 @@ public class SubscriptionSqlRepository {
     }
 
     public void deleteSubscriptionById(long id) {
-        MapSqlParameterSource namedParameters = new MapSqlParameterSource().addValue("id", id);
+        SqlParameterSource namedParameters = new MapSqlParameterSource("id", id);
         jdbcTemplate.update("DELETE FROM subscription WHERE id = :id", namedParameters);
     }
 
-    public List<Long> deleteUserSubscriptionsById(long userId) {
-        MapSqlParameterSource namedParameters = new MapSqlParameterSource().addValue("id", userId);
-        String query = "DELETE FROM subscription WHERE user_id = :id RETURNING link_id";
-        return jdbcTemplate.queryForList(query, namedParameters, Long.class);
-    }
-
     public List<SqlSubscription> getSubscriptionsByUserId(long userId) {
-        MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", userId);
+        SqlParameterSource params = new MapSqlParameterSource("id", userId);
         String query = "SELECT * FROM subscription WHERE user_id = :id";
         return jdbcTemplate.query(query, params, new SqlSubscriptionRowMapper());
     }
 
     public List<SqlSubscription> getSubscriptionsByLink(long linkId) {
-        MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", linkId);
+        SqlParameterSource params = new MapSqlParameterSource("id", linkId);
         String query = "SELECT * FROM subscription WHERE link_id = :id";
         return jdbcTemplate.query(query, params, new SqlSubscriptionRowMapper());
     }

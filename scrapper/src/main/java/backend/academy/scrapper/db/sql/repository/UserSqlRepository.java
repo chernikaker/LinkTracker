@@ -23,15 +23,13 @@ public class UserSqlRepository {
     }
 
     public void deleteUserById(long id) {
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("id", id);
+        SqlParameterSource params = new MapSqlParameterSource("id", id);
         String query = "DELETE FROM tg_user WHERE id = :id";
         jdbcTemplate.update(query, params);
     }
 
     public Optional<SqlUser> findUserByChatId(long chatId) {
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("chatId", chatId);
+        SqlParameterSource params = new MapSqlParameterSource("chatId", chatId);
         String query = "SELECT * FROM tg_user WHERE chat_id = :chatId";
         return jdbcTemplate.query(query, params, new SqlUserRowMapper())
             .stream()
@@ -39,8 +37,7 @@ public class UserSqlRepository {
     }
 
     public Optional<SqlUser> findUserById(long id) {
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("id", id);
+        SqlParameterSource params = new MapSqlParameterSource("id", id);
         String query = "SELECT * FROM tg_user WHERE chat_id = :id";
         return jdbcTemplate.query(query, params, new SqlUserRowMapper())
             .stream()
