@@ -96,6 +96,22 @@ public class SqlSubscriptionService implements SubscriptionService {
     }
 
     @Override
+    public List<Long> getLinkSubscribersChatsById(long linkId) {
+        try {
+            List<SqlSubscription> subs = subscrRepo.getSubscriptionsByLink(linkId);
+            List<Long> ans = new ArrayList<>();
+            for (SqlSubscription s : subs) {
+                SqlUser u = userRepo.findUserById(s.userId())
+                    .orElseThrow(()  -> new ScrapperUserNotExistsException("User "+s.userId()+" does not exist"));
+                ans.add(u.chatId());
+            }
+            return ans;
+        } catch (DataAccessException e){
+            throw new ScrapperSqlException("Error while getting user links ", e);
+        }
+    }
+
+    @Override
     @Transactional
     public Map.Entry<Long, Subscription> deleteSubscriptionByUserAndLink(User user, Link link) {
         try {

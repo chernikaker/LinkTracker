@@ -2,11 +2,9 @@ package backend.academy.scrapper.client.bot;
 
 import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkUpdate;
+import backend.academy.scrapper.db.SubscriptionService;
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.model.UpdateInfo;
-import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +18,7 @@ import org.springframework.web.client.HttpClientErrorException;
 public class BotClientService {
 
     private final BotClient botClient;
-    private final InMemorySubscriptionRepository repository;
+    private final SubscriptionService service;
 
     /** Метод отправления обновлений по ссылке клиентам */
     public void sendUpdates(long linkId, Link link, List<UpdateInfo> info) {
@@ -54,16 +52,11 @@ public class BotClientService {
      * @return DTO
      */
     private LinkUpdate makeLinkUpdate(long linkId, Link link, List<UpdateInfo> info) {
-        // получение всех подписок на ссылку
-        List<Subscription> subscriptionsOnLink = repository.getLinkSubscriptions(link);
+        // получение всех подписчиков на ссылку
+        List<Long> subscriberChats = service.getLinkSubscribersChatsById(linkId);
         // формирование сообщения об обновлениях
         String message = makeUpdateMessage(info);
-        // формирование списка клиентов, кому отправляется сообщение
-        List<Long> chatIds = new ArrayList<>();
-        for (Subscription subscription : subscriptionsOnLink) {
-            chatIds.add(subscription.user().chatId());
-        }
-        return new LinkUpdate(linkId, link.url(), message, chatIds);
+        return new LinkUpdate(linkId, link.url(), message, subscriberChats);
     }
 
     /**
