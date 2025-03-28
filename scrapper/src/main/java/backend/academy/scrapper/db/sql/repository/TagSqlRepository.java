@@ -34,7 +34,7 @@ public class TagSqlRepository {
         SqlParameterSource params = new MapSqlParameterSource("subscrId", subscrId);
         String query = "SELECT t.id, t.tag_text, t.user_id FROM subscription_tag st " +
             "JOIN tag t ON t.id = st.tag_id" +
-            " WHERE st.subscr_id = :subscriptionId";
+            " WHERE st.subscription_id = :subscrId";
         return jdbcTemplate.query(query, params, new SqlTagRowMapper());
     }
 
@@ -75,7 +75,7 @@ public class TagSqlRepository {
 
     public Optional<SqlTag> getTagByValue(String value) {
         SqlParameterSource params = new MapSqlParameterSource("value", value);
-        String query = "SELECT * FROM tag WHERE value = :value";
+        String query = "SELECT * FROM tag WHERE tag_text = :value";
         return jdbcTemplate.query(query, params, new SqlTagRowMapper())
             .stream()
             .findFirst();

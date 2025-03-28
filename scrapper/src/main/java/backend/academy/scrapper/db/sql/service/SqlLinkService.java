@@ -26,8 +26,8 @@ public class SqlLinkService implements LinkService {
         try {
             List<SqlLink> links = linkRepo.getUncheckedLinksWithBatching(batchSize, offset, durationSeconds);
             Map<Long, Link> response = new HashMap<>();
-            for (SqlLink(long id, String url, LocalDateTime lastValidation) : links) {
-                response.put(id, new Link(url, LinkType.fromValue(url), lastValidation));
+            for (SqlLink l : links) {
+                response.put(l.id(), new Link(l.url(), LinkType.fromValue(l.url()), l.lastValidation()));
             }
             return response;
         } catch (DataAccessException e) {

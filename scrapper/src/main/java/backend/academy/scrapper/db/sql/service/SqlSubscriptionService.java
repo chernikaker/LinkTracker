@@ -48,15 +48,15 @@ public class SqlSubscriptionService implements SubscriptionService {
             long linkId = existingLink.map(SqlLink::id)
                 .orElseGet(() -> linkRepo.addLink(new SqlLink(link.url(), link.lastValidation())));
             long subscrId = subscrRepo.addSubscription(new SqlSubscription(u.id(), linkId));
-            for (Tag(String value) : tags) {
-                Optional<SqlTag> existingTag = tagRepo.getTagByValue(value);
+            for (Tag t : tags) {
+                Optional<SqlTag> existingTag = tagRepo.getTagByValue(t.value());
                 long tagId = existingTag.map(SqlTag::id)
-                    .orElseGet(() -> tagRepo.addTag(new SqlTag(value, u.id())));
+                    .orElseGet(() -> tagRepo.addTag(new SqlTag(t.value(), u.id())));
                 tagRepo.addTagToSubscription(tagId, subscrId);
             }
-            for (Filter(String key, String value) : filters) {
-                SqlFilter f = new SqlFilter(key, value, subscrId, u.id());
-                filterRepo.addFilterToSubscription(f);
+            for (Filter f : filters) {
+                SqlFilter fSql = new SqlFilter(f.key(), f.value(), subscrId, u.id());
+                filterRepo.addFilterToSubscription(fSql);
             }
             return subscrId;
         } catch (DataAccessException e) {
