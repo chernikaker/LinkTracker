@@ -6,6 +6,7 @@ import backend.academy.scrapper.db.sql.repository.LinkSqlRepository;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.db.ScrapperSqlException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -24,7 +25,8 @@ public class SqlLinkService implements LinkService {
     @Transactional
     public Map<Long, Link> getLinksToCheck(int batchSize, long offset, long durationSeconds){
         try {
-            List<SqlLink> links = linkRepo.getUncheckedLinksWithBatching(batchSize, offset, durationSeconds);
+            Instant minValidation = Instant.now().minusSeconds(durationSeconds);
+            List<SqlLink> links = linkRepo.getUncheckedLinksWithBatching(batchSize, offset, minValidation);
             Map<Long, Link> response = new HashMap<>();
             for (SqlLink l : links) {
                 response.put(l.id(), new Link(l.url(), LinkType.fromValue(l.url()), l.lastValidation()));
@@ -39,7 +41,7 @@ public class SqlLinkService implements LinkService {
         try {
             linkRepo.updateLinkValidationById(linkId, time);
         } catch (DataAccessException e) {
-            throw new ScrapperSqlException("Error while updating link validation", e);
+            throw new ScrapperSqlException("Error while updating link validation with SQL", e);
         }
     }
 
