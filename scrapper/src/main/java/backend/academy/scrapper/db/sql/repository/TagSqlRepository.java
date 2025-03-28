@@ -4,6 +4,7 @@ import backend.academy.scrapper.db.sql.entity.SqlTag;
 import backend.academy.scrapper.db.sql.mapper.SqlTagRowMapper;
 import java.util.List;
 import java.util.Optional;
+import liquibase.sql.Sql;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -70,5 +71,13 @@ public class TagSqlRepository {
         SqlParameterSource params = new MapSqlParameterSource("subscrId", subscrId);
         String query = "DELETE FROM subscription_tag WHERE subscription_id = :subscrId";
         jdbcTemplate.update(query, params);
+    }
+
+    public Optional<SqlTag> getTagByValue(String value) {
+        SqlParameterSource params = new MapSqlParameterSource("value", value);
+        String query = "SELECT * FROM tag WHERE value = :value";
+        return jdbcTemplate.query(query, params, new SqlTagRowMapper())
+            .stream()
+            .findFirst();
     }
 }
