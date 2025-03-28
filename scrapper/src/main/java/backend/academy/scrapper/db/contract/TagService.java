@@ -11,6 +11,6 @@ public interface TagService {
 
     void deleteTagForSubscription(Subscription subscription, String text);
 
-    List<Tag> getSubscriptionTagsById(long id);
+    List<Tag> getTagsBySubscriptionId(long id);
 
 }

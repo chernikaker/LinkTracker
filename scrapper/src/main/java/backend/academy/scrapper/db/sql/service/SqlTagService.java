@@ -61,7 +61,7 @@ public class SqlTagService implements TagService {
     }
 
     @Override
-    public List<Tag> getSubscriptionTagsById(long id) {
+    public List<Tag> getTagsBySubscriptionId(long id) {
         try {
             List<SqlTag> tags = tagRepo.getSubscriptionTags(id);
             List<Tag> response = new ArrayList<>();

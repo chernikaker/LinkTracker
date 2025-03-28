@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface FilterService {
 
-    List<Filter> getSubscriptionFiltersById(long id);
+    List<Filter> getFiltersBySubscriptionId(long id);
 
 }

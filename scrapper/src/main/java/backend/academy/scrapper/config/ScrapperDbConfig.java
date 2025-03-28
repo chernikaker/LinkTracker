@@ -52,11 +52,8 @@ public class ScrapperDbConfig {
     }
 
     @Bean
-    public FilterService sqlFilterDbService(UserSqlRepository userRepo,
-                                         LinkSqlRepository linkRepo,
-                                         SubscriptionSqlRepository subscrRepo,
-                                         FilterSqlRepository filterRepo){
-        return new SqlFilterService(userRepo, linkRepo, subscrRepo, filterRepo) {
+    public FilterService sqlFilterDbService(FilterSqlRepository filterRepo){
+        return new SqlFilterService(filterRepo) {
         };
     }
 }

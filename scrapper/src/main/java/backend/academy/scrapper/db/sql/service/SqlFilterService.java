@@ -16,13 +16,10 @@ import java.util.List;
 @AllArgsConstructor
 public class SqlFilterService implements FilterService {
 
-    private final UserSqlRepository userRepo;
-    private final LinkSqlRepository linkRepo;
-    private final SubscriptionSqlRepository subscrRepo;
     private final FilterSqlRepository filterRepo;
 
     @Override
-    public List<Filter> getSubscriptionFiltersById(long id) {
+    public List<Filter> getFiltersBySubscriptionId(long id) {
         try {
             List<SqlFilter> filters = filterRepo.getFiltersBySubscriptionId(id);
             List<Filter> response = new ArrayList<>();

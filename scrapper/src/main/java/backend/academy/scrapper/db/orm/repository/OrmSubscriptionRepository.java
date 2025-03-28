@@ -9,6 +9,4 @@ import java.util.Optional;
 
 @Repository
 public interface OrmSubscriptionRepository extends JpaRepository<OrmSubscription, Long> {
-
-    Optional<OrmSubscription> findByUserAndLink(OrmUser user, OrmLink link);
 }

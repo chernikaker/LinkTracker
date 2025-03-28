@@ -103,6 +103,9 @@ public class OrmSubscriptionService implements SubscriptionService {
                 .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("No subscription for user " + user.chatId()));
             Map.Entry<Long, Subscription> response = Map.entry(sub.id(), mapFromOrmSubscription(sub));
             subscrRepo.delete(sub);
+            if(l.subscriptions().isEmpty()) {
+                linkRepo.delete(l);
+            }
             return response;
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while deleting subscription with ORM", e);
