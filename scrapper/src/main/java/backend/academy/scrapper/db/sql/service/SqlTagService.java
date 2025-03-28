@@ -1,6 +1,6 @@
-package backend.academy.scrapper.db.sql;
+package backend.academy.scrapper.db.sql.service;
 
-import backend.academy.scrapper.db.TagService;
+import backend.academy.scrapper.db.contract.TagService;
 import backend.academy.scrapper.db.sql.entity.SqlLink;
 import backend.academy.scrapper.db.sql.entity.SqlSubscription;
 import backend.academy.scrapper.db.sql.entity.SqlTag;

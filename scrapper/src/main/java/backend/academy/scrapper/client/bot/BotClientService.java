@@ -2,7 +2,7 @@ package backend.academy.scrapper.client.bot;
 
 import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkUpdate;
-import backend.academy.scrapper.db.SubscriptionService;
+import backend.academy.scrapper.db.contract.SubscriptionService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.model.UpdateInfo;
 import java.util.List;

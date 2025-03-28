@@ -1,15 +1,15 @@
 package backend.academy.scrapper.config;
 
-import backend.academy.scrapper.db.FilterService;
-import backend.academy.scrapper.db.TagService;
-import backend.academy.scrapper.db.LinkService;
-import backend.academy.scrapper.db.SubscriptionService;
-import backend.academy.scrapper.db.UserService;
-import backend.academy.scrapper.db.sql.SqlFilterService;
-import backend.academy.scrapper.db.sql.SqlTagService;
-import backend.academy.scrapper.db.sql.SqlLinkService;
-import backend.academy.scrapper.db.sql.SqlSubscriptionService;
-import backend.academy.scrapper.db.sql.SqlUserService;
+import backend.academy.scrapper.db.contract.FilterService;
+import backend.academy.scrapper.db.contract.TagService;
+import backend.academy.scrapper.db.contract.LinkService;
+import backend.academy.scrapper.db.contract.SubscriptionService;
+import backend.academy.scrapper.db.contract.UserService;
+import backend.academy.scrapper.db.sql.service.SqlFilterService;
+import backend.academy.scrapper.db.sql.service.SqlTagService;
+import backend.academy.scrapper.db.sql.service.SqlLinkService;
+import backend.academy.scrapper.db.sql.service.SqlSubscriptionService;
+import backend.academy.scrapper.db.sql.service.SqlUserService;
 import backend.academy.scrapper.db.sql.repository.FilterSqlRepository;
 import backend.academy.scrapper.db.sql.repository.LinkSqlRepository;
 import backend.academy.scrapper.db.sql.repository.SubscriptionSqlRepository;

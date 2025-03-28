@@ -1,4 +1,4 @@
-package backend.academy.scrapper.db;
+package backend.academy.scrapper.db.contract;
 
 import backend.academy.scrapper.entity.Link;
 import java.util.Map;

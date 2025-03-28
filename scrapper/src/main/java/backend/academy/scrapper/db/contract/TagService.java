@@ -1,6 +1,5 @@
-package backend.academy.scrapper.db;
+package backend.academy.scrapper.db.contract;
 
-import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;

@@ -1,11 +1,10 @@
-package backend.academy.scrapper.db.sql;
+package backend.academy.scrapper.db.sql.service;
 
-import backend.academy.scrapper.db.FilterService;
+import backend.academy.scrapper.db.contract.FilterService;
 import backend.academy.scrapper.db.sql.entity.SqlFilter;
 import backend.academy.scrapper.db.sql.repository.FilterSqlRepository;
 import backend.academy.scrapper.db.sql.repository.LinkSqlRepository;
 import backend.academy.scrapper.db.sql.repository.SubscriptionSqlRepository;
-import backend.academy.scrapper.db.sql.repository.TagSqlRepository;
 import backend.academy.scrapper.db.sql.repository.UserSqlRepository;
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.exception.db.ScrapperSqlException;
