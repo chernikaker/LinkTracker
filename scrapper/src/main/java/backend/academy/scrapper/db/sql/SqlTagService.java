@@ -1,6 +1,6 @@
 package backend.academy.scrapper.db.sql;
 
-import backend.academy.scrapper.db.AdditionalInfoService;
+import backend.academy.scrapper.db.TagService;
 import backend.academy.scrapper.db.sql.entity.SqlFilter;
 import backend.academy.scrapper.db.sql.entity.SqlLink;
 import backend.academy.scrapper.db.sql.entity.SqlSubscription;
@@ -20,20 +20,20 @@ import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsExcept
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperTagNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
-import java.util.List;
 
 @AllArgsConstructor
-public class SqlAdditionalInfoService implements AdditionalInfoService {
+public class SqlTagService implements TagService {
 
     private final UserSqlRepository userRepo;
     private final LinkSqlRepository linkRepo;
     private final SubscriptionSqlRepository subscrRepo;
     private final TagSqlRepository tagRepo;
-    private final FilterSqlRepository filterRepo;
+
 
     @Override
     @Transactional
@@ -85,19 +85,4 @@ public class SqlAdditionalInfoService implements AdditionalInfoService {
             throw new ScrapperSqlException("Error while getting subscription tags", e);
         }
     }
-
-    @Override
-    public List<Filter> getSubscriptionFiltersById(long id) {
-        try {
-            List<SqlFilter> filters = filterRepo.getFiltersBySubscriptionId(id);
-            List<Filter> response = new ArrayList<>();
-            for(SqlFilter filter : filters){
-                response.add(new Filter(filter.key(), filter.value()));
-            }
-            return response;
-        } catch (DataAccessException e) {
-            throw new ScrapperSqlException("Error while getting filters", e);
-        }
-    }
-
 }

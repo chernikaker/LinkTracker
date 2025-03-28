@@ -6,7 +6,8 @@ import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
 import backend.academy.scrapper.client.external.github.GithubClientService;
 import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
-import backend.academy.scrapper.db.AdditionalInfoService;
+import backend.academy.scrapper.db.FilterService;
+import backend.academy.scrapper.db.TagService;
 import backend.academy.scrapper.db.SubscriptionService;
 import backend.academy.scrapper.db.UserService;
 import backend.academy.scrapper.entity.Filter;
@@ -19,7 +20,6 @@ import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkExcepti
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +34,8 @@ public class ScrapperService {
 
     private final SubscriptionService subscriptionService;
     private final UserService userService;
-    private final AdditionalInfoService infoService;
+    private final TagService tagService;
+    private final FilterService filterService;
 
     // сервисы внешних клиентов для проверки досутпности ссылок
     private final GithubClientService githubService;

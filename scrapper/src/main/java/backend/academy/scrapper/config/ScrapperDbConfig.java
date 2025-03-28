@@ -1,10 +1,12 @@
 package backend.academy.scrapper.config;
 
-import backend.academy.scrapper.db.AdditionalInfoService;
+import backend.academy.scrapper.db.FilterService;
+import backend.academy.scrapper.db.TagService;
 import backend.academy.scrapper.db.LinkService;
 import backend.academy.scrapper.db.SubscriptionService;
 import backend.academy.scrapper.db.UserService;
-import backend.academy.scrapper.db.sql.SqlAdditionalInfoService;
+import backend.academy.scrapper.db.sql.SqlFilterService;
+import backend.academy.scrapper.db.sql.SqlTagService;
 import backend.academy.scrapper.db.sql.SqlLinkService;
 import backend.academy.scrapper.db.sql.SqlSubscriptionService;
 import backend.academy.scrapper.db.sql.SqlUserService;
@@ -41,12 +43,20 @@ public class ScrapperDbConfig {
     }
 
     @Bean
-    public AdditionalInfoService sqlAdditionalInfoDbService(UserSqlRepository userRepo,
-                                                            LinkSqlRepository linkRepo,
-                                                            SubscriptionSqlRepository subscrRepo,
-                                                            TagSqlRepository tagRepo,
-                                                            FilterSqlRepository filterRepo){
-        return new SqlAdditionalInfoService(userRepo, linkRepo, subscrRepo, tagRepo, filterRepo) {
+    public TagService sqlTagDbService(UserSqlRepository userRepo,
+                                                 LinkSqlRepository linkRepo,
+                                                 SubscriptionSqlRepository subscrRepo,
+                                                 TagSqlRepository tagRepo){
+        return new SqlTagService(userRepo, linkRepo, subscrRepo, tagRepo) {
+        };
+    }
+
+    @Bean
+    public FilterService sqlFilterDbService(UserSqlRepository userRepo,
+                                         LinkSqlRepository linkRepo,
+                                         SubscriptionSqlRepository subscrRepo,
+                                         FilterSqlRepository filterRepo){
+        return new SqlFilterService(userRepo, linkRepo, subscrRepo, filterRepo) {
         };
     }
 }
