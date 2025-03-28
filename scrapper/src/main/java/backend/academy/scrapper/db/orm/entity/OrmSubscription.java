@@ -45,4 +45,8 @@ public class OrmSubscription {
         joinColumns = @JoinColumn(name = "subscription_id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id"))
     List<OrmTag> tags;
+
+    public OrmSubscription(OrmLink link, OrmUser user, List<OrmFilter> filters, List<OrmTag> tags) {
+        this(null, link, user, filters, tags);
+    }
 }
