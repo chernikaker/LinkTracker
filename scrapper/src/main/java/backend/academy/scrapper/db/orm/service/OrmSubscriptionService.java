@@ -31,7 +31,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+
 @AllArgsConstructor
 public class OrmSubscriptionService implements SubscriptionService {
 
@@ -143,7 +143,7 @@ public class OrmSubscriptionService implements SubscriptionService {
     private OrmTag mapOrmTag(Tag tag) {
         OrmTag newTag = new OrmTag();
         newTag.tagText(tag.value());
-        return tagRepo.save(newTag);
+        return newTag;
     }
 
     private Tag mapFromOrmTag(OrmTag ormTag) {

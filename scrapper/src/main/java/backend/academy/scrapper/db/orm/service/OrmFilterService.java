@@ -12,7 +12,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
-@Service
 @AllArgsConstructor
 public class OrmFilterService implements FilterService {
 

@@ -19,20 +19,20 @@ import org.springframework.stereotype.Service;
  * Сервис для периодической проверки обновлений Взаимодействует с сервисами внешних клиентов для получения обновлений,
  * сервисом клиента бота для их отправки, репозиторием для получения и обновления информации ссылок
  */
-@Service
+
 @AllArgsConstructor
 @Slf4j
 public class UpdateScheduler {
 
     public static final int INITIAL_DELAY = 10000;
     public static final int DELAY = 10000;
-    public static final int batchSize = 100;
-    public static final long notCheckedIntervalSeconds = 10;
 
     private final LinkService linkDbService;
     private final GithubClientService githubClientService;
     private final StackoverflowClientService soClientService;
     private final BotClientService botClientService;
+    private final long notCheckedIntervalSeconds;
+    private final int batchSize;
 
     @Scheduled(initialDelay = INITIAL_DELAY, fixedDelay = DELAY)
     public void checkNewUpdates() {
