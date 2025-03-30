@@ -2,6 +2,7 @@ package backend.academy.scrapper.db.orm.service;
 
 import backend.academy.scrapper.db.contract.LinkService;
 import backend.academy.scrapper.db.orm.entity.OrmLink;
+import backend.academy.scrapper.db.orm.mapper.OrmLinkMapper;
 import backend.academy.scrapper.db.orm.repository.OrmLinkRepository;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
@@ -47,11 +48,10 @@ public class OrmLinkService implements LinkService {
             List<OrmLink> linkData = linkRepo.findUncheckedLinks(minCheck, pageReq);
             Map<Long, Link> links = new HashMap<>();
             for (OrmLink link : linkData) {
-                links.put(link.id(), new Link(link.url(), LinkType.fromValue(link.url()), link.lastValidation()));
+                links.put(link.id(), OrmLinkMapper.mapFromOrm(link));
             }
             return links;
         } catch (DataAccessException e){
-            e.printStackTrace();
             throw new ScrapperOrmException("Error while retrieving links from ORM", e);
         }
     }

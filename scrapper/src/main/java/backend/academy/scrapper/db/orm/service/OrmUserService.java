@@ -4,6 +4,7 @@ import backend.academy.scrapper.db.contract.UserService;
 import backend.academy.scrapper.db.orm.entity.OrmLink;
 import backend.academy.scrapper.db.orm.entity.OrmSubscription;
 import backend.academy.scrapper.db.orm.entity.OrmUser;
+import backend.academy.scrapper.db.orm.mapper.OrmUserMapper;
 import backend.academy.scrapper.db.orm.repository.OrmLinkRepository;
 import backend.academy.scrapper.db.orm.repository.OrmUserRepository;
 import backend.academy.scrapper.entity.User;
@@ -29,9 +30,7 @@ public class OrmUserService implements UserService {
             if(existingUser.isPresent()) {
                 throw new ScrapperUserAlreadyExistsException("User "+user.chatId()+" already exists");
             }
-            OrmUser ormUser = new OrmUser();
-            ormUser.chatId(user.chatId());
-            userRepo.save(ormUser);
+            userRepo.save(OrmUserMapper.mapToOrm(user));
         } catch (DataAccessException e){
             throw new ScrapperOrmException("Error while adding user with ORM", e);
         }

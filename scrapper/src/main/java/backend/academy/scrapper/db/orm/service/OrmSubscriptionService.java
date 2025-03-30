@@ -6,13 +6,15 @@ import backend.academy.scrapper.db.orm.entity.OrmLink;
 import backend.academy.scrapper.db.orm.entity.OrmSubscription;
 import backend.academy.scrapper.db.orm.entity.OrmTag;
 import backend.academy.scrapper.db.orm.entity.OrmUser;
+import backend.academy.scrapper.db.orm.mapper.OrmFilterMapper;
+import backend.academy.scrapper.db.orm.mapper.OrmSubscriptionMapper;
+import backend.academy.scrapper.db.orm.mapper.OrmTagMapper;
 import backend.academy.scrapper.db.orm.repository.OrmLinkRepository;
 import backend.academy.scrapper.db.orm.repository.OrmSubscriptionRepository;
 import backend.academy.scrapper.db.orm.repository.OrmTagRepository;
 import backend.academy.scrapper.db.orm.repository.OrmUserRepository;
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
@@ -55,7 +57,7 @@ public class OrmSubscriptionService implements SubscriptionService {
             }
             List<OrmFilter> ormFilters = new ArrayList<>();
             for (Filter f : filters) {
-                OrmFilter ormFilter = mapOrmFilter(f);
+                OrmFilter ormFilter = OrmFilterMapper.mapToOrm(f);
                 ormFilter.subscription(sub);
                 ormFilter.owner(u);
                 ormFilters.add(ormFilter);
@@ -65,7 +67,6 @@ public class OrmSubscriptionService implements SubscriptionService {
             subscrRepo.save(sub);
             return sub.id();
         } catch (DataAccessException e) {
-            e.printStackTrace();
             throw new ScrapperOrmException("Error while adding subscription with ORM on link " + link.url(), e);
         }
     }
@@ -77,7 +78,7 @@ public class OrmSubscriptionService implements SubscriptionService {
             OrmUser u = tryGetUserByChatId(user.chatId());
             Map<Long, Subscription> subscriptions = new HashMap<>();
             for(OrmSubscription sub : u.subscriptions()){
-                subscriptions.put(sub.id(), mapFromOrmSubscription(sub));
+                subscriptions.put(sub.id(), OrmSubscriptionMapper.mapFromOrm(sub));
             }
             return subscriptions;
         } catch (DataAccessException e) {
@@ -108,7 +109,10 @@ public class OrmSubscriptionService implements SubscriptionService {
                 .filter(s -> s.link().url().equals(link.url()))
                 .findFirst()
                 .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("No subscription for user " + user.chatId()));
-            Map.Entry<Long, Subscription> response = Map.entry(sub.id(), mapFromOrmSubscription(sub));
+            Map.Entry<Long, Subscription> response = Map.entry(
+                sub.id(),
+                OrmSubscriptionMapper.mapFromOrm(sub)
+            );
             subscrRepo.delete(sub);
             if(l.subscriptions().isEmpty()) {
                 linkRepo.delete(l);
@@ -147,48 +151,9 @@ public class OrmSubscriptionService implements SubscriptionService {
             });
     }
 
-    private OrmTag mapOrmTag(Tag tag) {
-        OrmTag newTag = new OrmTag();
-        newTag.tagText(tag.value());
-        return newTag;
-    }
-
-    private Tag mapFromOrmTag(OrmTag ormTag) {
-        return new Tag(ormTag.tagText());
-    }
-
-    private Filter mapFromOrmFilter(OrmFilter ormFilter) {
-        return new Filter(ormFilter.key(), ormFilter.value());
-    }
-
-    private Link mapFromOrmLink(OrmLink ormLink) {
-        return new Link(ormLink.url(), LinkType.fromValue(ormLink.url()), ormLink.lastValidation());
-    }
-
-    private User mapFromOrmUser(OrmUser ormUser) {
-        return new User(ormUser.chatId());
-    }
-
-    private Subscription mapFromOrmSubscription(OrmSubscription ormSubscr) {
-        List<Tag> tags = ormSubscr.tags().stream().map(this::mapFromOrmTag).toList();
-        List<Filter> filters = ormSubscr.filters().stream().map(this::mapFromOrmFilter).toList();
-        return new Subscription(
-            mapFromOrmUser(ormSubscr.user()),
-            mapFromOrmLink(ormSubscr.link()),
-            tags,
-            filters
-        );
-    }
-
-    private OrmFilter mapOrmFilter(Filter f) {
-        OrmFilter newFilter = new OrmFilter();
-        newFilter.key(f.key());
-        newFilter.value(f.value());
-        return newFilter;
-    }
 
     private OrmTag createOrGetOrmTag(OrmUser u, Tag t) {
         Optional<OrmTag> tag = tagRepo.findByTagTextAndOwner(t.value(), u);
-        return tag.orElseGet(() -> mapOrmTag(t));
+        return tag.orElseGet(() -> OrmTagMapper.mapToOrm(t));
     }
 }
