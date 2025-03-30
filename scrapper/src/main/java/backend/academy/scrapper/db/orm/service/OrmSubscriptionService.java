@@ -49,7 +49,7 @@ public class OrmSubscriptionService implements SubscriptionService {
             OrmSubscription sub = new OrmSubscription(l,u);
             List<OrmTag> ormTags = new ArrayList<>();
             for (Tag t : tags) {
-                OrmTag tag = createOrGetOrmTag(t);
+                OrmTag tag = createOrGetOrmTag(u, t);
                 tag.owner(u);
                 ormTags.add(tag);
             }
@@ -187,8 +187,8 @@ public class OrmSubscriptionService implements SubscriptionService {
         return newFilter;
     }
 
-    private OrmTag createOrGetOrmTag(Tag t) {
-        Optional<OrmTag> tag = tagRepo.findByTagText(t.value());
+    private OrmTag createOrGetOrmTag(OrmUser u, Tag t) {
+        Optional<OrmTag> tag = tagRepo.findByTagTextAndOwner(t.value(), u);
         return tag.orElseGet(() -> mapOrmTag(t));
     }
 }

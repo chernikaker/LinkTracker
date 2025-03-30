@@ -41,8 +41,7 @@ public class OrmSubscription {
     @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL)
     private List<OrmFilter> filters;
 
-    //TODO: fix removing tags
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(name="subscription_tag",
         joinColumns = @JoinColumn(name = "subscription_id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id"))
