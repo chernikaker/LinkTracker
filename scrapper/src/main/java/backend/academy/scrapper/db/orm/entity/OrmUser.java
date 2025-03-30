@@ -29,7 +29,7 @@ public class OrmUser {
     @Column(name = "chat_id", nullable = false, unique = true)
     private long chatId;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<OrmSubscription> subscriptions;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)

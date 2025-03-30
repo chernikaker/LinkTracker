@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -50,7 +49,9 @@ public class OrmSubscriptionService implements SubscriptionService {
             OrmSubscription sub = new OrmSubscription(l,u);
             List<OrmTag> ormTags = new ArrayList<>();
             for (Tag t : tags) {
-                ormTags.add(createOrGetOrmTag(t));
+                OrmTag tag = createOrGetOrmTag(t);
+                tag.owner(u);
+                ormTags.add(tag);
             }
             List<OrmFilter> ormFilters = new ArrayList<>();
             for (Filter f : filters) {
@@ -64,6 +65,7 @@ public class OrmSubscriptionService implements SubscriptionService {
             subscrRepo.save(sub);
             return sub.id();
         } catch (DataAccessException e) {
+            e.printStackTrace();
             throw new ScrapperOrmException("Error while adding subscription with ORM on link " + link.url(), e);
         }
     }

@@ -32,6 +32,7 @@ public class BotClientService {
             try {
                 ApiErrorResponse error = e.getResponseBodyAs(ApiErrorResponse.class);
                 if (error != null) {
+                    System.out.println(error.exceptionMessage());
                     log.atWarn().addKeyValue("error data", error).log("Error while sending link update");
                 } else {
                     log.atWarn().log("Received a null error response. While sending link update");
