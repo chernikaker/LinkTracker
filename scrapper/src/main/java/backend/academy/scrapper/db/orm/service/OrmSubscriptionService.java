@@ -47,15 +47,20 @@ public class OrmSubscriptionService implements SubscriptionService {
             OrmUser u = tryGetUserByChatId(user.chatId());
             checkExistingSubscription(u, link.url());
             OrmLink l = tryGetLinkByUrl(link.url());
+            OrmSubscription sub = new OrmSubscription(l,u);
             List<OrmTag> ormTags = new ArrayList<>();
             for (Tag t : tags) {
                 ormTags.add(createOrGetOrmTag(t));
             }
             List<OrmFilter> ormFilters = new ArrayList<>();
             for (Filter f : filters) {
-                ormFilters.add(mapOrmFilter(f));
+                OrmFilter ormFilter = mapOrmFilter(f);
+                ormFilter.subscription(sub);
+                ormFilter.owner(u);
+                ormFilters.add(ormFilter);
             }
-            OrmSubscription sub = new OrmSubscription(l,u,ormFilters,ormTags);
+            sub.tags(ormTags);
+            sub.filters(ormFilters);
             subscrRepo.save(sub);
             return sub.id();
         } catch (DataAccessException e) {

@@ -10,6 +10,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,7 +41,8 @@ public class OrmSubscription {
     @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL)
     private List<OrmFilter> filters;
 
-    @ManyToMany
+    //TODO: fix removing tags
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name="subscription_tag",
         joinColumns = @JoinColumn(name = "subscription_id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id"))
@@ -48,5 +50,15 @@ public class OrmSubscription {
 
     public OrmSubscription(OrmLink link, OrmUser user, List<OrmFilter> filters, List<OrmTag> tags) {
         this(null, link, user, filters, tags);
+    }
+
+    public OrmSubscription(OrmLink link, OrmUser user) {
+        this(link, user, null, null);
+    }
+
+    @PreRemove
+    private void preRemove() {
+        this.user.subscriptions().remove(this);
+        this.link.subscriptions().remove(this);
     }
 }

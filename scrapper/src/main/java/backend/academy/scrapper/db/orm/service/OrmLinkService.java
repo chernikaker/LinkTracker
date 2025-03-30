@@ -42,7 +42,7 @@ public class OrmLinkService implements LinkService {
     @Override
     public Map<Long, Link> getLinksToCheck(int batchSize, long offset, long duration) {
         try{
-            Instant minCheck = Instant.now().minusSeconds(duration);
+            LocalDateTime minCheck = Instant.now().minusSeconds(duration).atZone(ZoneId.systemDefault()).toLocalDateTime();
             Pageable pageReq = PageRequest.of((int)offset/batchSize, batchSize);
             List<OrmLink> linkData = linkRepo.findUncheckedLinks(minCheck, pageReq);
             Map<Long, Link> links = new HashMap<>();
@@ -51,6 +51,7 @@ public class OrmLinkService implements LinkService {
             }
             return links;
         } catch (DataAccessException e){
+            e.printStackTrace();
             throw new ScrapperOrmException("Error while retrieving links from ORM", e);
         }
     }

@@ -34,6 +34,6 @@ public class OrmLink {
     @Column(name = "last_validation")
     private LocalDateTime lastValidation;
 
-    @OneToMany(mappedBy = "link", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "link", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrmSubscription> subscriptions;
 }
