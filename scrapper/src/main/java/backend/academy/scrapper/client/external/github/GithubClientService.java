@@ -83,6 +83,7 @@ public class GithubClientService {
     private UpdateInfo parseItem(JsonNode node) {
         String title = node.path(TITLE).asText();
         String message = node.path(BODY).asText();
+        message = message.length() > 200 ? message.substring(0, 200) : message;
         String authorName = node.path(USER).path(LOGIN).asText();
         String date = node.path(CREATED_AT).asText();
         return new UpdateInfo(title, message, authorName, parseDate(date), UpdateInfoType.ISSUE);

@@ -1,5 +1,6 @@
 package backend.academy.scrapper.client.external.stackoverflow;
 
+import static backend.academy.scrapper.client.JsonPathConstant.BODY;
 import static backend.academy.scrapper.client.JsonPathConstant.CREATION_DATE;
 import static backend.academy.scrapper.client.JsonPathConstant.DISPLAY_NAME;
 import static backend.academy.scrapper.client.JsonPathConstant.ITEMS;
@@ -101,7 +102,9 @@ public class StackoverflowClientService {
      * @return модель с данными об обновлении
      */
     private UpdateInfo parseItem(JsonNode node, UpdateInfoType type, String title) {
-        String message = "";
+        String message = node.path(BODY).asText();
+        // TODO: parser
+        message = message.length() > 200 ? message.substring(0, 200) : message;
         String authorName = node.path(OWNER).path(DISPLAY_NAME).asText();
         long date = node.path(CREATION_DATE).asLong();
         return new UpdateInfo(title, message, authorName, parseDate(date), type);

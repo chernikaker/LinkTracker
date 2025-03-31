@@ -32,6 +32,7 @@ public class StackoverflowClientImpl implements ExternalClient {
                         .path(uri)
                         .queryParam("key", apiKey)
                         .queryParam("site", "stackoverflow")
+                        .queryParam("filter", "withbody")
                         .build())
                 .header("Authorization", "Bearer " + token)
                 .retrieve()
