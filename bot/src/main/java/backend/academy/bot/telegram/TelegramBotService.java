@@ -24,6 +24,7 @@ public class TelegramBotService extends TelegramBot {
 
     /** Сервис для выбора обработчика сообщения */
     private final HandlerService handlerService;
+
     private final ThreadPoolTaskExecutor executor;
 
     public TelegramBotService(String telegramBotToken, HandlerService handlerService, ThreadPoolTaskExecutor executor) {
