@@ -13,8 +13,6 @@ import com.pengrad.telegrambot.response.SendResponse;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -38,8 +36,12 @@ public class TelegramBotService extends TelegramBot {
     public void startBot() {
         registerCommands();
         setUpdatesListener(list -> {
-            for (Update update : list) {
-                executor.submit(() -> handleUpdate(update));
+            try {
+                for (Update update : list) {
+                    executor.execute(() -> handleUpdate(update));
+                }
+            } catch (Exception e) {
+                log.atWarn().setCause(e).log("Error while handling updates");
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
@@ -69,14 +71,10 @@ public class TelegramBotService extends TelegramBot {
      * @param update входное обновление
      */
     private void handleUpdate(Update update) {
-        try {
-            Optional<SendMessage> responseMessage = handlerService.handle(update);
-            if (responseMessage.isPresent()) {
-                SendMessage message = responseMessage.orElseThrow();
-                sendResponse(message);
-            }
-        } catch (Exception e) {
-            log.atWarn().log("Failed to handle update " + update);
+        Optional<SendMessage> responseMessage = handlerService.handle(update);
+        if (responseMessage.isPresent()) {
+            SendMessage message = responseMessage.orElseThrow();
+            sendResponse(message);
         }
     }
 
