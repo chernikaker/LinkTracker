@@ -19,9 +19,9 @@ import org.springframework.web.client.HttpClientErrorException;
 @AllArgsConstructor
 @Slf4j
 @Service
-public final class ScrapperClientService {
+public class ScrapperClientService {
 
-    private ScrapperClient client;
+    private final ScrapperClient client;
 
     public void registerNewClient(long chatId) {
         try {

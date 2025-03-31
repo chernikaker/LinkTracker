@@ -13,8 +13,11 @@ import com.pengrad.telegrambot.response.SendResponse;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /** Основной класс телеграм бота, получает и отправляет сообщения */
 @Getter
@@ -23,10 +26,12 @@ public class TelegramBotService extends TelegramBot {
 
     /** Сервис для выбора обработчика сообщения */
     private final HandlerService handlerService;
+    private final ThreadPoolTaskExecutor executor;
 
-    public TelegramBotService(String telegramBotToken, HandlerService handlerService) {
+    public TelegramBotService(String telegramBotToken, HandlerService handlerService, ThreadPoolTaskExecutor executor) {
         super(telegramBotToken);
         this.handlerService = handlerService;
+        this.executor = executor;
     }
 
     @PostConstruct
@@ -34,7 +39,7 @@ public class TelegramBotService extends TelegramBot {
         registerCommands();
         setUpdatesListener(list -> {
             for (Update update : list) {
-                handleUpdate(update);
+                executor.submit(() -> handleUpdate(update));
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
@@ -64,10 +69,14 @@ public class TelegramBotService extends TelegramBot {
      * @param update входное обновление
      */
     private void handleUpdate(Update update) {
-        Optional<SendMessage> responseMessage = handlerService.handle(update);
-        if (responseMessage.isPresent()) {
-            SendMessage message = responseMessage.orElseThrow();
-            sendResponse(message);
+        try {
+            Optional<SendMessage> responseMessage = handlerService.handle(update);
+            if (responseMessage.isPresent()) {
+                SendMessage message = responseMessage.orElseThrow();
+                sendResponse(message);
+            }
+        } catch (Exception e) {
+            log.atWarn().log("Failed to handle update " + update);
         }
     }
 
@@ -86,6 +95,7 @@ public class TelegramBotService extends TelegramBot {
     @PreDestroy
     public void cleanup() {
         removeGetUpdatesListener();
+        executor.shutdown();
         this.shutdown();
     }
 }
