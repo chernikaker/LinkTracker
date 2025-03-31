@@ -1,18 +1,13 @@
 package backend.academy.scrapper.client.external.github;
 
-import static backend.academy.scrapper.client.JsonPathConstant.AUTHOR;
 import static backend.academy.scrapper.client.JsonPathConstant.BODY;
-import static backend.academy.scrapper.client.JsonPathConstant.COMMIT;
 import static backend.academy.scrapper.client.JsonPathConstant.CREATED_AT;
-import static backend.academy.scrapper.client.JsonPathConstant.DATE;
 import static backend.academy.scrapper.client.JsonPathConstant.LOGIN;
-import static backend.academy.scrapper.client.JsonPathConstant.MESSAGE;
 import static backend.academy.scrapper.client.JsonPathConstant.TITLE;
 import static backend.academy.scrapper.client.JsonPathConstant.USER;
 
 import backend.academy.scrapper.client.external.ExternalClient;
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.exception.client.GithubUnsupportedOptionException;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.model.UpdateInfo;
 import backend.academy.scrapper.model.UpdateInfoType;
@@ -50,15 +45,12 @@ public class GithubClientService {
         String uri = processUrl(link.url());
         List<UpdateInfo> infoList = new ArrayList<>();
         try {
-            // информация о коммитах
-            String commitData = client.getResponse(uri.concat("/commits"));
             // информация о проблемах
             String issueData = client.getResponse(uri.concat("/issues"));
-            // информация о комментариях
-            String commentData = client.getResponse(uri.concat("/comments"));
-            infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENT));
+            // информация о пулл реквестах
+            String prData = client.getResponse(uri.concat("/pulls"));
+            infoList.addAll(parseInfo(prData, UpdateInfoType.PULL_REQUEST));
             infoList.addAll(parseInfo(issueData, UpdateInfoType.ISSUE));
-            infoList.addAll(parseInfo(commitData, UpdateInfoType.COMMIT));
             return infoList;
         } catch (HttpClientErrorException e) {
             log.atWarn().addKeyValue("link", link.url()).setCause(e).log("Error receiving data from github");
@@ -84,43 +76,18 @@ public class GithubClientService {
     }
 
     /**
-     * Обработка одного коммита
-     *
+     * Обработка обновления одного типа
      * @param node информация об обновлении
      * @return модель с данными об обновлении
      */
-    private UpdateInfo parseCommit(JsonNode node) {
-        String message = node.path(COMMIT).path(MESSAGE).asText();
-        String committerName = node.path(AUTHOR).path(LOGIN).asText();
-        String date = node.path(COMMIT).path(AUTHOR).path(DATE).asText();
-        return new UpdateInfo(message, committerName, parseDate(date), UpdateInfoType.COMMIT);
-    }
-
-    /**
-     * Обработка одной проблемы
-     *
-     * @param node информация об обновлении
-     * @return модель с данными об обновлении
-     */
-    private UpdateInfo parseIssue(JsonNode node) {
-        String message = node.path(TITLE).asText();
-        String authorName = node.path(USER).path(LOGIN).asText();
-        String date = node.path(CREATED_AT).asText();
-        return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.ISSUE);
-    }
-
-    /**
-     * Обработка одного комментария
-     *
-     * @param node информация об обновлении
-     * @return модель с данными об обновлении
-     */
-    private UpdateInfo parseComment(JsonNode node) {
+    private UpdateInfo parseItem(JsonNode node) {
+        String title = node.path(TITLE).asText();
         String message = node.path(BODY).asText();
         String authorName = node.path(USER).path(LOGIN).asText();
         String date = node.path(CREATED_AT).asText();
-        return new UpdateInfo(message, authorName, parseDate(date), UpdateInfoType.COMMENT);
+        return new UpdateInfo(title, message, authorName, parseDate(date), UpdateInfoType.ISSUE);
     }
+
 
     /**
      * Перевод формата даты из JSON ответа в нужный программе формат
@@ -147,20 +114,7 @@ public class GithubClientService {
             JsonNode infoNode = objectMapper.readTree(jsonInfo);
             List<UpdateInfo> infos = new ArrayList<>();
             for (JsonNode n : infoNode) {
-                // логика обработки разная, так как структура JSON отличается
-                switch (type) {
-                    case COMMIT:
-                        infos.add(parseCommit(n));
-                        break;
-                    case ISSUE:
-                        infos.add(parseIssue(n));
-                        break;
-                    case COMMENT:
-                        infos.add(parseComment(n));
-                        break;
-                    default:
-                        throw new GithubUnsupportedOptionException("Unsupported update info type: " + type);
-                }
+                infos.add(parseItem(n));
             }
             return infos;
         } catch (JsonProcessingException | IllegalArgumentException e) {

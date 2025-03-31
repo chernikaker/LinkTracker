@@ -56,7 +56,6 @@ public class ScrapperService {
      *
      * @param chatId id чата пользователя
      */
-    @Transactional
     public void deleteUser(long chatId) {
         User user = new User(chatId);
         userService.deleteUser(user);
@@ -94,6 +93,9 @@ public class ScrapperService {
     public LinkResponse addSubscription(long chatId, AddLinkRequest request) {
         User user = new User(chatId);
         Link link = new Link(request.link(), LinkType.fromValue(request.link()), null);
+        if (link.type() == LinkType.STACKOVERFLOW) {
+            processSOLink(link);
+        }
         List<Tag> tags = new ArrayList<>();
         for(String t: request.tags()) {
             tags.add(new Tag(t));
@@ -146,6 +148,13 @@ public class ScrapperService {
             return githubService.isLinkAvailable(link);
         } else {
             return soService.isLinkAvailable(link);
+        }
+    }
+
+    private void processSOLink(Link link) {
+        String url = link.url();
+        if (!Character.isDigit(url.charAt(url.length() - 1))) {
+            link.url(url.substring(0, url.lastIndexOf("/")));
         }
     }
 }

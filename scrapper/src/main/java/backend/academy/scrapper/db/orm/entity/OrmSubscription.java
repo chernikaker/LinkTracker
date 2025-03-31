@@ -45,14 +45,10 @@ public class OrmSubscription {
     @JoinTable(name="subscription_tag",
         joinColumns = @JoinColumn(name = "subscription_id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id"))
-    List<OrmTag> tags;
-
-    public OrmSubscription(OrmLink link, OrmUser user, List<OrmFilter> filters, List<OrmTag> tags) {
-        this(null, link, user, filters, tags);
-    }
+    private List<OrmTag> tags;
 
     public OrmSubscription(OrmLink link, OrmUser user) {
-        this(link, user, null, null);
+        this(null, link, user, null, null);
     }
 
     @PreRemove

@@ -7,9 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum UpdateInfoType {
-    COMMIT("commit"),
-    COMMENT("comment"),
+    PULL_REQUEST("pull request"),
     ISSUE("issue"),
+    COMMENT("comment"),
     ANSWER("answer");
 
     private final String message;

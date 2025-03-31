@@ -2,7 +2,9 @@ package backend.academy.scrapper.client.external.stackoverflow;
 
 import static backend.academy.scrapper.client.JsonPathConstant.CREATION_DATE;
 import static backend.academy.scrapper.client.JsonPathConstant.DISPLAY_NAME;
+import static backend.academy.scrapper.client.JsonPathConstant.ITEMS;
 import static backend.academy.scrapper.client.JsonPathConstant.OWNER;
+import static backend.academy.scrapper.client.JsonPathConstant.TITLE;
 
 import backend.academy.scrapper.client.external.ExternalClient;
 import backend.academy.scrapper.entity.Link;
@@ -28,9 +30,11 @@ import org.springframework.web.client.HttpClientErrorException;
 public class StackoverflowClientService {
 
     private final ExternalClient client;
+    private final ObjectMapper mapper;
 
-    public StackoverflowClientService(@Qualifier("stackoverflowClient") ExternalClient client) {
+    public StackoverflowClientService(@Qualifier("stackoverflowClient") ExternalClient client, ObjectMapper mapper) {
         this.client = client;
+        this.mapper = mapper;
     }
 
     /**
@@ -43,12 +47,16 @@ public class StackoverflowClientService {
         String uri = processUrl(link.url());
         List<UpdateInfo> infoList = new ArrayList<>();
         try {
+            // информация о вопросе
+            // TODO: cache
+            String questionData = client.getResponse(uri);
             // информация о комментариях
             String commentData = client.getResponse(uri.concat("/comments"));
             // информация об ответах
             String answerData = client.getResponse(uri.concat("/answers"));
-            infoList.addAll(parseInfo(commentData, UpdateInfoType.COMMENT));
-            infoList.addAll(parseInfo(answerData, UpdateInfoType.ANSWER));
+            String questionTitle = parseQuestionName(questionData);
+            infoList.addAll(parseInfo(questionTitle, commentData, UpdateInfoType.COMMENT));
+            infoList.addAll(parseInfo(questionTitle, answerData, UpdateInfoType.ANSWER));
             return infoList;
         } catch (HttpClientErrorException e) {
             log.atWarn().addKeyValue("link", link.url()).setCause(e).log("Error receiving data from stackoverflow");
@@ -74,6 +82,17 @@ public class StackoverflowClientService {
         }
     }
 
+
+    private String parseQuestionName(String jsonInfo) {
+        try {
+            JsonNode infoNode = mapper.readTree(jsonInfo);
+            return infoNode.path(ITEMS).get(0).path(TITLE).asText();
+        } catch (JsonProcessingException | IllegalArgumentException e) {
+            log.atWarn().addKeyValue("JSON", e).setCause(e).log("Can't parse JSON response");
+            throw new ScrapperInternalResponseException("Can't parse JSON response ", e);
+        }
+    }
+
     /**
      * Обработка одного потенциального обновления (ответ на вопрос, комментарий)
      *
@@ -81,11 +100,11 @@ public class StackoverflowClientService {
      * @param type тип обновления
      * @return модель с данными об обновлении
      */
-    private UpdateInfo parseItem(JsonNode node, UpdateInfoType type) {
+    private UpdateInfo parseItem(JsonNode node, UpdateInfoType type, String title) {
         String message = "";
         String authorName = node.path(OWNER).path(DISPLAY_NAME).asText();
         long date = node.path(CREATION_DATE).asLong();
-        return new UpdateInfo(message, authorName, parseDate(date), type);
+        return new UpdateInfo(title, message, authorName, parseDate(date), type);
     }
 
     /**
@@ -102,17 +121,17 @@ public class StackoverflowClientService {
     /**
      * Обработка всех обновлений из JSON сообщения
      *
+     * @param title название вопроса
      * @param jsonInfo JSON с информацией
      * @param type тип обновления
      * @return список обновлений
      */
-    private List<UpdateInfo> parseInfo(String jsonInfo, UpdateInfoType type) {
+    private List<UpdateInfo> parseInfo(String title, String jsonInfo, UpdateInfoType type) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode infoNode = objectMapper.readTree(jsonInfo);
+            JsonNode infoNode = mapper.readTree(jsonInfo);
             List<UpdateInfo> infos = new ArrayList<>();
             for (JsonNode n : infoNode) {
-                infos.add(parseItem(n, type));
+                infos.add(parseItem(n, type, title));
             }
             return infos;
         } catch (JsonProcessingException | IllegalArgumentException e) {
@@ -129,11 +148,6 @@ public class StackoverflowClientService {
      */
     private String processUrl(String url) {
         // удаление базового url, у API он свой
-        String uri = url.replace("https:", "http:").replace("http://stackoverflow.com", "");
-        // если в ссылке было текстовое название вопроса, удаляем его
-        if (!Character.isDigit(uri.charAt(uri.length() - 1))) {
-            uri = uri.substring(0, uri.lastIndexOf("/"));
-        }
-        return uri;
+        return url.replace("https:", "http:").replace("http://stackoverflow.com", "");
     }
 }
