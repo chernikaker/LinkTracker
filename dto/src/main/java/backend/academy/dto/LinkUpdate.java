@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @param id id ссылки
  * @param url ссылка
- * @param description описание обновления
+ * @param updateUnits обновления по ссылке
  * @param tgChatIds id чатов для рассылки обновления
  */
 public record LinkUpdate(
@@ -22,8 +22,7 @@ public record LinkUpdate(
                 @Size(max = Constant.MAX_URL_LENGTH, message = "URL must be less than 2048 characters")
                 String url,
         @NotNull(message = "Description is required")
-                @NotEmpty(message = "Description cannot be empty")
-                @Size(max = Constant.MAX_DESCRIPTION_LENGTH, message = "Description must be less than 500 characters")
-                String description,
+        @NotEmpty(message = "Update units can not be empty")
+        List<LinkUpdateUnit> updateUnits,
         @NotNull(message = "tgChatIds is required") @NotEmpty(message = "tgChatIds cannot be empty")
                 List<Long> tgChatIds) {}
