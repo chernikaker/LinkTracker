@@ -2,9 +2,11 @@ package backend.academy.scrapper.client.bot;
 
 import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkUpdate;
+import backend.academy.dto.LinkUpdateUnit;
 import backend.academy.scrapper.db.contract.SubscriptionService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.model.UpdateInfo;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,25 +58,19 @@ public class BotClientService {
         // получение всех подписчиков на ссылку
         List<Long> subscriberChats = service.getLinkSubscribersChatsById(linkId);
         // формирование сообщения об обновлениях
-        String message = makeUpdateMessage(info);
-        return new LinkUpdate(linkId, link.url(), message, subscriberChats);
+        List<LinkUpdateUnit> updateUnits = new ArrayList<>();
+        return new LinkUpdate(linkId, link.url(), updateUnits, subscriberChats);
     }
 
     /**
-     * Метод формирует сообщение о всех обновлениях ссылки для пользователя
+     * Метод формирует список DTO об обновлениях ссылки для пользователя
      *
      * @param info список обновлений
-     * @return сообщение
+     * @return список соответствующих DTO
      */
-    private String makeUpdateMessage(List<UpdateInfo> info) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < info.size(); i++) {
-            sb.append("#").append(i + 1).append('\n');
-            sb.append("Тип сообщения: ").append(info.get(i).type().message()).append('\n');
-            sb.append("Автор: ").append(info.get(i).authorName()).append('\n');
-            sb.append("Время обновления: ").append(info.get(i).time()).append('\n');
-            sb.append("Сообщение: ").append(info.get(i).message()).append('\n');
-        }
-        return sb.toString();
+    private List<LinkUpdateUnit> makeUpdateUnits(List<UpdateInfo> info) {
+        return info.stream()
+            .map(i -> new LinkUpdateUnit(i.title(), i.message(), i.time(), i.authorName(), i.type().message()))
+            .toList();
     }
 }

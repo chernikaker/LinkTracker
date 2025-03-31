@@ -20,5 +20,8 @@ public record LinkUpdateUnit(
     @NotNull(message = "Author is required")
     @NotEmpty(message = "Author cannot be empty")
     @Size(max = Constant.MAX_AUTHOR_LENGTH, message = "Author name must be less than"+Constant.MAX_AUTHOR_LENGTH+" characters")
-    String author
+    String author,
+    @NotNull(message = "Type is required")
+    @NotEmpty(message = "Type cannot be empty")
+    String type
 ) { }
