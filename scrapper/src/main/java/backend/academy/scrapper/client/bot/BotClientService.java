@@ -58,7 +58,7 @@ public class BotClientService {
         // получение всех подписчиков на ссылку
         List<Long> subscriberChats = service.getLinkSubscribersChatsById(linkId);
         // формирование сообщения об обновлениях
-        List<LinkUpdateUnit> updateUnits = new ArrayList<>();
+        List<LinkUpdateUnit> updateUnits = makeUpdateUnits(info);
         return new LinkUpdate(linkId, link.url(), updateUnits, subscriberChats);
     }
 

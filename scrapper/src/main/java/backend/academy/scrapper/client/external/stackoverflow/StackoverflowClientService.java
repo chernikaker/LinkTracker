@@ -60,6 +60,7 @@ public class StackoverflowClientService {
             infoList.addAll(parseInfo(questionTitle, answerData, UpdateInfoType.ANSWER));
             return infoList;
         } catch (HttpClientErrorException e) {
+            e.printStackTrace();
             log.atWarn().addKeyValue("link", link.url()).setCause(e).log("Error receiving data from stackoverflow");
             throw new ScrapperInternalResponseException("Error receiving data from stackoverflow", e);
         }
@@ -131,7 +132,7 @@ public class StackoverflowClientService {
      */
     private List<UpdateInfo> parseInfo(String title, String jsonInfo, UpdateInfoType type) {
         try {
-            JsonNode infoNode = mapper.readTree(jsonInfo);
+            JsonNode infoNode = mapper.readTree(jsonInfo).path(ITEMS);
             List<UpdateInfo> infos = new ArrayList<>();
             for (JsonNode n : infoNode) {
                 infos.add(parseItem(n, type, title));

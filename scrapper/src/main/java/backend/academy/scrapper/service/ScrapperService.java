@@ -126,6 +126,9 @@ public class ScrapperService {
 
         User user = new User(chatId);
         Link link = new Link(request.link(), LinkType.fromValue(request.link()));
+        if (link.type() == LinkType.STACKOVERFLOW) {
+            processSOLink(link);
+        }
         Map.Entry<Long, Subscription> deletedSub = subscriptionService.deleteSubscriptionByUserAndLink(user, link);
         return new LinkResponse(
             deletedSub.getKey(),
