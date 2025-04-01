@@ -6,7 +6,7 @@ CREATE TABLE tg_user (
 CREATE TABLE link (
     id BIGSERIAL PRIMARY KEY,
     url VARCHAR(2048) NOT NULL UNIQUE,
-    last_validation TIMESTAMP
+    last_validation TIMESTAMP NOT NULL
 );
 
 CREATE TABLE subscription (

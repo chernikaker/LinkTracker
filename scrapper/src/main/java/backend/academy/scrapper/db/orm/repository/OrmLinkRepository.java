@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OrmLinkRepository extends JpaRepository<OrmLink, Long> {
 
-    @Query("SELECT l FROM OrmLink l WHERE l.lastValidation IS NULL OR l.lastValidation < :minValidation ORDER BY l.id")
+    @Query("SELECT l FROM OrmLink l WHERE l.lastValidation < :minValidation ORDER BY l.id")
     List<OrmLink> findUncheckedLinks(LocalDateTime minValidation, Pageable pageable);
 
     Optional<OrmLink> findByUrl(String url);

@@ -31,7 +31,7 @@ public class OrmLink {
     @Column(name = "url", nullable = false, unique = true)
     private String url;
 
-    @Column(name = "last_validation")
+    @Column(name = "last_validation", nullable = false)
     private LocalDateTime lastValidation;
 
     @OneToMany(mappedBy = "link", cascade = CascadeType.ALL)

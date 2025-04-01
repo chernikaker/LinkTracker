@@ -17,6 +17,8 @@ import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +94,7 @@ public class ScrapperService {
      */
     public LinkResponse addSubscription(long chatId, AddLinkRequest request) {
         User user = new User(chatId);
-        Link link = new Link(request.link(), LinkType.fromValue(request.link()), null);
+        Link link = new Link(request.link(), LinkType.fromValue(request.link()), LocalDateTime.now(ZoneId.systemDefault()));
         if (link.type() == LinkType.STACKOVERFLOW) {
             processSOLink(link);
         }

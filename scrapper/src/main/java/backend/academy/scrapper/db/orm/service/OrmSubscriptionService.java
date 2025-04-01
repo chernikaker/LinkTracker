@@ -7,6 +7,7 @@ import backend.academy.scrapper.db.orm.entity.OrmSubscription;
 import backend.academy.scrapper.db.orm.entity.OrmTag;
 import backend.academy.scrapper.db.orm.entity.OrmUser;
 import backend.academy.scrapper.db.orm.mapper.OrmFilterMapper;
+import backend.academy.scrapper.db.orm.mapper.OrmLinkMapper;
 import backend.academy.scrapper.db.orm.mapper.OrmSubscriptionMapper;
 import backend.academy.scrapper.db.orm.mapper.OrmTagMapper;
 import backend.academy.scrapper.db.orm.repository.OrmLinkRepository;
@@ -46,8 +47,8 @@ public class OrmSubscriptionService implements SubscriptionService {
     public long addSubscriptionOnLink(User user, Link link, List<Tag> tags, List<Filter> filters) {
         try {
             OrmUser u = tryGetUserByChatId(user.chatId());
+            OrmLink l = tryGetLinkByData(link);
             checkExistingSubscription(u, link.url());
-            OrmLink l = tryGetLinkByUrl(link.url());
             OrmSubscription sub = new OrmSubscription(l,u);
             List<OrmTag> ormTags = new ArrayList<>();
             for (Tag t : tags) {
@@ -104,7 +105,6 @@ public class OrmSubscriptionService implements SubscriptionService {
     public Map.Entry<Long, Subscription> deleteSubscriptionByUserAndLink(User user, Link link) {
         try {
             OrmUser u = tryGetUserByChatId(user.chatId());
-            OrmLink l = tryGetLinkByUrl(link.url());
             OrmSubscription sub = u.subscriptions().stream()
                 .filter(s -> s.link().url().equals(link.url()))
                 .findFirst()
@@ -113,6 +113,7 @@ public class OrmSubscriptionService implements SubscriptionService {
                 sub.id(),
                 OrmSubscriptionMapper.mapFromOrm(sub)
             );
+            OrmLink l = sub.link();
             subscrRepo.delete(sub);
             if(l.subscriptions().isEmpty()) {
                 linkRepo.delete(l);
@@ -129,11 +130,10 @@ public class OrmSubscriptionService implements SubscriptionService {
             .orElseThrow(() -> new ScrapperUserNotExistsException("User " + chatId + " does not exist"));
     }
 
-    private OrmLink tryGetLinkByUrl(String url){
-        return linkRepo.findByUrl(url)
+    private OrmLink tryGetLinkByData(Link link){
+        return linkRepo.findByUrl(link.url())
             .orElseGet(() -> {
-                OrmLink newLink = new OrmLink();
-                newLink.url(url);
+                OrmLink newLink = OrmLinkMapper.mapToOrm(link);
                 return linkRepo.save(newLink);
             });
     }
@@ -144,13 +144,11 @@ public class OrmSubscriptionService implements SubscriptionService {
     }
 
     private void checkExistingSubscription(OrmUser u, String url) {
-        u.subscriptions().stream()
-            .filter(s -> s.link().url().equals(url))
-            .forEach(s -> {
-                throw new ScrapperSubscriptionAlreadyExistsException("Subscription for user " + u.chatId() + "on link " + url + " already exists");
-            });
+        if( u.subscriptions().stream()
+            .anyMatch(s -> s.link().url().equals(url))) {
+            throw new ScrapperSubscriptionAlreadyExistsException("Subscription " + url + " already exists");
+        }
     }
-
 
     private OrmTag createOrGetOrmTag(OrmUser u, Tag t) {
         Optional<OrmTag> tag = tagRepo.findByTagTextAndOwner(t.value(), u);

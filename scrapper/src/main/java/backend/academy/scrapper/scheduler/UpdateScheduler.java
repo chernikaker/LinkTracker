@@ -50,8 +50,7 @@ public class UpdateScheduler {
                         : soClientService.getAllInfo(link);
                     // фильтрация новых обновлений по дате последней проверки
                     List<UpdateInfo> actualInfos = updates.stream()
-                        .filter(info -> link.lastValidation() == null ||
-                            link.lastValidation().isBefore(info.time()))
+                        .filter(info -> link.lastValidation().isBefore(info.time()))
                         .toList();
                     // если есть новые обновления, отправляем их пользователю
                     if (!actualInfos.isEmpty()) {
