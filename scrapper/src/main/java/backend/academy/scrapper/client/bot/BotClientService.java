@@ -6,7 +6,6 @@ import backend.academy.dto.LinkUpdateUnit;
 import backend.academy.scrapper.db.contract.SubscriptionService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.model.UpdateInfo;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +55,7 @@ public class BotClientService {
      */
     private LinkUpdate makeLinkUpdate(long linkId, Link link, List<UpdateInfo> info) {
         // получение всех подписчиков на ссылку
-        List<Long> subscriberChats = service.getLinkSubscribersChatsById(linkId);
+        List<Long> subscriberChats = service.getSubscribersChatsByLinkId(linkId);
         // формирование сообщения об обновлениях
         List<LinkUpdateUnit> updateUnits = makeUpdateUnits(info);
         return new LinkUpdate(linkId, link.url(), updateUnits, subscriberChats);

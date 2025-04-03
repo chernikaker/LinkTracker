@@ -38,8 +38,6 @@ public class SqlTagService implements TagService {
         try {
             SqlUser existingUser = tryGetUserByChatId(user.chatId());
             SqlTag existingTag = tryGetTagByTextAndUserId(tag.value(), existingUser.id());
-            List<SqlSubscription> userSubs = subscrRepo.getSubscriptionsByUserId(existingUser.id());
-            userSubs.forEach(sub -> tagRepo.removeTagFromSubscription(existingTag.id(), sub.id()));
             tagRepo.removeTagById(existingTag.id());
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Exception while deleting tag for user " + user.chatId(), e);

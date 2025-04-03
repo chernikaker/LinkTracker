@@ -89,7 +89,7 @@ public class OrmSubscriptionService implements SubscriptionService {
 
     @Override
     @Transactional
-    public List<Long> getLinkSubscribersChatsById(long linkId) {
+    public List<Long> getSubscribersChatsByLinkId(long linkId) {
         try {
             OrmLink link = tryGetLinkById(linkId);
             return link.subscriptions().stream()

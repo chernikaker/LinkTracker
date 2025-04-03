@@ -25,7 +25,7 @@ public class SqlLinkService implements LinkService {
     @Transactional
     public Map<Long, Link> getLinksToCheck(int batchSize, long offset, long durationSeconds){
         try {
-            Instant minValidation = Instant.now().minusSeconds(durationSeconds);
+            LocalDateTime minValidation = LocalDateTime.now(ZoneId.systemDefault()).minusSeconds(durationSeconds);
             List<SqlLink> links = linkRepo.getUncheckedLinksWithBatching(batchSize, offset, minValidation);
             Map<Long, Link> response = new HashMap<>();
             for (SqlLink l : links) {
@@ -33,21 +33,17 @@ public class SqlLinkService implements LinkService {
             }
             return response;
         } catch (DataAccessException e) {
-            throw new ScrapperSqlException("Error while getting links to check", e);
-        }
-    }
-
-    public void updateLinkValidationWithTime(long linkId, LocalDateTime time) {
-        try {
-            linkRepo.updateLinkValidationById(linkId, time);
-        } catch (DataAccessException e) {
-            throw new ScrapperSqlException("Error while updating link validation with SQL", e);
+            throw new ScrapperSqlException("Error while getting links to check with SQL", e);
         }
     }
 
     @Override
     @Transactional
     public void updateLinkValidationOnCurrentTime(long linkId){
-        updateLinkValidationWithTime(linkId, LocalDateTime.now(ZoneId.systemDefault()));
+        try {
+            linkRepo.updateLinkValidationById(linkId, LocalDateTime.now(ZoneId.systemDefault()));
+        } catch (DataAccessException e) {
+            throw new ScrapperSqlException("Error while updating link validation with SQL", e);
+        }
     }
 }

@@ -28,7 +28,7 @@ public class SqlFilterService implements FilterService {
             }
             return response;
         } catch (DataAccessException e) {
-            throw new ScrapperSqlException("Error while getting filters", e);
+            throw new ScrapperSqlException("Error while getting filters with sql", e);
         }
     }
 }

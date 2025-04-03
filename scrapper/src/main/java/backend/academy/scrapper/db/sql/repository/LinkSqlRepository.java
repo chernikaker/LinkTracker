@@ -2,6 +2,7 @@ package backend.academy.scrapper.db.sql.repository;
 
 import backend.academy.scrapper.db.sql.entity.SqlLink;
 import backend.academy.scrapper.db.sql.mapper.SqlLinkRowMapper;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,11 +19,11 @@ public class LinkSqlRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public List<SqlLink> getUncheckedLinksWithBatching(int batchSize, long offset, Instant minValidation){
+    public List<SqlLink> getUncheckedLinksWithBatching(int batchSize, long offset, LocalDateTime minValidation){
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("batch", batchSize);
         params.addValue("offset", offset);
-        params.addValue("minValidation", minValidation);
+        params.addValue("minValidation", Timestamp.valueOf(minValidation));
         return jdbcTemplate.query(
             "SELECT * FROM link" +
                 " WHERE  :minValidation > last_validation" +

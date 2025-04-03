@@ -11,6 +11,7 @@ import backend.academy.scrapper.exception.db.ScrapperSqlException;
 import backend.academy.scrapper.exception.repository.ScrapperUserAlreadyExistsException;
 import java.util.List;
 import java.util.Optional;
+import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +44,7 @@ public class SqlUserService implements UserService {
     public void deleteUser(User user) {
         try {
             SqlUser userDb = userRepo.findUserByChatId(user.chatId())
-                .orElseThrow(() -> new ScrapperUserAlreadyExistsException("User " + user.chatId() + " already exists"));
+                .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " not exists"));
             List<SqlSubscription> userSubs =  subscriptionRepo.getSubscriptionsByUserId(userDb.id());
             userRepo.deleteUserById(userDb.id());
             userSubs

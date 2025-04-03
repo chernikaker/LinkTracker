@@ -19,6 +19,7 @@ import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.db.ScrapperSqlException;
 import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
+import backend.academy.scrapper.exception.repository.ScrapperSubscriptionAlreadyExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import java.util.ArrayList;
@@ -45,11 +46,16 @@ public class SqlSubscriptionService implements SubscriptionService {
         try {
             SqlUser u = tryGetUserByChatId(user.chatId());
             Optional<SqlLink> existingLink = linkRepo.findLinkByUrl(link.url());
-            long linkId = existingLink.map(SqlLink::id)
-                .orElseGet(() -> linkRepo.addLink(new SqlLink(link.url(), link.lastValidation())));
+            long linkId;
+            if(existingLink.isPresent()) {
+                linkId = existingLink.get().id();
+                checkExistingSubscription(u.id(), linkId);
+            } else {
+                linkId = linkRepo.addLink(new SqlLink(link.url(), link.lastValidation()));
+            }
             long subscrId = subscrRepo.addSubscription(new SqlSubscription(u.id(), linkId));
             for (Tag t : tags) {
-                Optional<SqlTag> existingTag = tagRepo.getTagByValue(t.value());
+                Optional<SqlTag> existingTag = tagRepo.getTagByTextAndUserId(u.id(), t.value());
                 long tagId = existingTag.map(SqlTag::id)
                     .orElseGet(() -> tagRepo.addTag(new SqlTag(t.value(), u.id())));
                 tagRepo.addTagToSubscription(tagId, subscrId);
@@ -81,14 +87,13 @@ public class SqlSubscriptionService implements SubscriptionService {
             }
             return ans;
         } catch (DataAccessException e) {
-            e.printStackTrace();
             throw new ScrapperSqlException("Error while getting user links ", e);
         }
     }
 
     @Override
     @Transactional
-    public List<Long> getLinkSubscribersChatsById(long linkId) {
+    public List<Long> getSubscribersChatsByLinkId(long linkId) {
         try {
             List<SqlSubscription> subs = subscrRepo.getSubscriptionsByLink(linkId);
             List<Long> ans = new ArrayList<>();
@@ -107,16 +112,13 @@ public class SqlSubscriptionService implements SubscriptionService {
     public Map.Entry<Long, Subscription> deleteSubscriptionByUserAndLink(User user, Link link) {
         try {
             SqlUser u = tryGetUserByChatId(user.chatId());
-            SqlLink l = linkRepo.findLinkByUrl(link.url())
-                .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + link.url() + " does not exist"));
-            SqlSubscription s = subscrRepo.getSubscriptionByLinkAndUserId(l.id(), u.id())
-                .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("Subscription " + link.url() + " does not exist"));
+            SqlLink l = tryGetLinkByUrl(link.url());
+            SqlSubscription s = tryGetSubscriptionByLinkAndUserId(l.id(), u.id());
             List<Tag> tags = mapSubscriptionTags(s.id());
             List<Filter> filters = mapSubscriptionFilters(s.id());
             subscrRepo.deleteSubscriptionById(s.id());
             return Map.entry(s.id(), new Subscription(user, link, tags, filters));
         } catch (DataAccessException e) {
-            e.printStackTrace();
             throw new ScrapperSqlException("Exception while removing subscription with SQL "+e.getMessage(), e);
         }
     }
@@ -124,6 +126,13 @@ public class SqlSubscriptionService implements SubscriptionService {
     private SqlUser tryGetUserByChatId(long chatId){
         return userRepo.findUserByChatId(chatId)
             .orElseThrow(() -> new ScrapperUserNotExistsException("User " + chatId + " does not exist"));
+    }
+
+    private void checkExistingSubscription(long userId, long linkId){
+        if(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId)
+            .isPresent()) {
+            throw new ScrapperSubscriptionAlreadyExistsException("Subscription " + linkId + " already exists");
+        }
     }
 
     private List<Tag> mapSubscriptionTags(long subscriptionId){
@@ -141,4 +150,15 @@ public class SqlSubscriptionService implements SubscriptionService {
         }
         return filters;
     }
+
+    private SqlLink tryGetLinkByUrl(String url) {
+        return linkRepo.findLinkByUrl(url)
+            .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + url + " does not exist"));
+    }
+
+    private SqlSubscription tryGetSubscriptionByLinkAndUserId(long linkId, long userId) {
+        return subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId)
+            .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("Subscription for link " +linkId+" by user "+userId + " does not exist"));
+    }
+
 }
