@@ -1,7 +1,7 @@
-package backend.academy.scrapper.db;
+package backend.academy.scrapper.db.sql.integration;
 
 import backend.academy.scrapper.db.config.SqlConfig;
-import backend.academy.scrapper.db.integration.UserServiceTest;
+import backend.academy.scrapper.db.integration_common.UserServiceTest;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.junit.jupiter.Testcontainers;

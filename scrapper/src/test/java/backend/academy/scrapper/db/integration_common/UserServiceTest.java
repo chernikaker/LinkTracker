@@ -1,4 +1,4 @@
-package backend.academy.scrapper.db.integration;
+package backend.academy.scrapper.db.integration_common;
 
 import backend.academy.scrapper.db.contract.UserService;
 import backend.academy.scrapper.entity.User;

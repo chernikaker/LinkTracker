@@ -1,4 +1,4 @@
-package backend.academy.scrapper.db.sql.service.unit_tests;
+package backend.academy.scrapper.db.sql.unit;
 
 import backend.academy.scrapper.db.exception.TestDataAccessException;
 import backend.academy.scrapper.db.sql.entity.SqlLink;
@@ -34,7 +34,6 @@ class SqlLinkServiceTest {
     private static final long OFFSET = 0;
     private static final long DURATION_SECONDS = 3600;
     private static final LocalDateTime TEST_TIME = LocalDateTime.now(ZoneId.systemDefault());
-
 
     @Mock
     private LinkSqlRepository linkRepo;

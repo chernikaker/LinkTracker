@@ -1,4 +1,4 @@
-package backend.academy.scrapper.db.sql.service.unit_tests;
+package backend.academy.scrapper.db.sql.unit;
 
 import backend.academy.scrapper.db.exception.TestDataAccessException;
 import backend.academy.scrapper.db.sql.entity.SqlFilter;
