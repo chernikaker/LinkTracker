@@ -35,6 +35,7 @@ public class OrmLinkService implements LinkService {
             );
             ormLink.lastValidation(LocalDateTime.now(ZoneId.systemDefault()));
             linkRepo.save(ormLink);
+            linkRepo.flush();
         } catch(DataAccessException e){
             throw new ScrapperOrmException("Error while updating link validation with ORM", e);
         }
