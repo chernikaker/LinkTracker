@@ -17,7 +17,6 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 @TestConfiguration(proxyBeanMethods = false)
 @EnableJpaRepositories(basePackages = "backend.academy.scrapper.db.orm.repository")
 @EntityScan(basePackages = "backend.academy.scrapper.db.orm.entity")
-
 @Import({
     TestcontainersConfig.class,
     OrmUserService.class,
@@ -26,10 +25,4 @@ import org.springframework.orm.jpa.JpaTransactionManager;
     OrmFilterService.class,
     OrmTagService.class
 })
-public class OrmConfig {
-
-    @Bean
-    public JpaTransactionManager transactionManager(EntityManagerFactory emf) {
-        return new JpaTransactionManager(emf);
-    }
-}
+public class OrmConfig {}
