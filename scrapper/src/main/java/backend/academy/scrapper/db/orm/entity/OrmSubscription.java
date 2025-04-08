@@ -50,10 +50,4 @@ public class OrmSubscription {
     public OrmSubscription(OrmLink link, OrmUser user) {
         this(null, link, user, null, null);
     }
-
-    @PreRemove
-    private void preRemove() {
-        this.user.subscriptions().remove(this);
-        this.link.subscriptions().remove(this);
-    }
 }

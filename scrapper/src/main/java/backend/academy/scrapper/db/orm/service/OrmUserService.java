@@ -11,9 +11,14 @@ import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.db.ScrapperOrmException;
 import backend.academy.scrapper.exception.repository.ScrapperUserAlreadyExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,14 +46,21 @@ public class OrmUserService implements UserService {
     public void deleteUser(User user) {
         try {
             OrmUser existingUser = userRepo.findByChatId(user.chatId())
-                .orElseThrow(() -> new ScrapperUserNotExistsException("User "+user.chatId()+" does not exist"));
-            List<OrmLink> linksToCheck = existingUser.subscriptions().stream()
-                .map(OrmSubscription::link)
-                .toList();
+                .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
+            List<OrmLink> linksToCheck = new ArrayList<>();
+            if (existingUser.subscriptions() != null) {
+                for (OrmSubscription s: existingUser.subscriptions()) {
+                   linksToCheck.add(s.link());
+                }
+            }
             userRepo.delete(existingUser);
-            linksToCheck.stream()
-                .filter(link -> link.subscriptions().isEmpty())
-                .forEach(linkRepo::delete);
+            userRepo.flush();
+            for(OrmLink link: linksToCheck) {
+                if(link.subscriptions().isEmpty()) {
+                    linkRepo.delete(link);
+                }
+            }
+            linkRepo.flush();
         } catch (DataAccessException e){
             throw new ScrapperOrmException("Error while deleting user with ORM", e);
         }
