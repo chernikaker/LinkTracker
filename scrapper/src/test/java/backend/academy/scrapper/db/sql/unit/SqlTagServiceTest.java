@@ -52,7 +52,6 @@ class SqlTagServiceTest {
     private static  User user;
     private static  Tag tag;
     private static  Link link;
-    private static  Subscription subscription;
 
     private static  SqlUser sqlUser;
     private static  SqlLink sqlLink;
@@ -79,7 +78,6 @@ class SqlTagServiceTest {
         user = new User(chatId);
         tag = new Tag(tagText);
         link = new Link(url, LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
-        subscription = new Subscription(user, link, List.of(), List.of());
 
         sqlUser = new SqlUser(userId, chatId);
         sqlLink = new SqlLink(linkId, url, link.lastValidation());
@@ -115,63 +113,62 @@ class SqlTagServiceTest {
     }
 
     @Test
-    public void deleteTagForSubscription_Success() {
+    public void deleteTagForSubscription_Data_Success() {
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.of(sqlLink));
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.of(sqlUser));
         when(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId))
             .thenReturn(Optional.of(sqlSub));
         when(tagRepo.getTagByTextAndUserId(userId, tagText)).thenReturn(Optional.of(sqlTag));
-
-        assertDoesNotThrow(() -> sqlTagService.deleteTagForSubscription(subscription, tagText));
+        assertDoesNotThrow(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText));
 
         verify(tagRepo).removeTagFromSubscription(tagId, subId);
     }
 
     @Test
-    public void deleteTagForSubscription_NoSuchLinkException() {
+    public void deleteTagForSubscription_Data_NoSuchLinkException() {
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> sqlTagService.deleteTagForSubscription(subscription, tagText))
+        assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
             .isInstanceOf(ScrapperLinkNotExistsException.class);
     }
 
     @Test
-    public void deleteTagForSubscription_NoSuchUserException() {
+    public void deleteTagForSubscription_Data_NoSuchUserException() {
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.of(sqlLink));
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> sqlTagService.deleteTagForSubscription(subscription, tagText))
+        assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
             .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
-    public void deleteTagForSubscription_NoSuchSubscriptionException() {
+    public void deleteTagForSubscription_NoSuchSubscriptionDataException() {
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.of(sqlLink));
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.of(sqlUser));
         when(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId))
             .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> sqlTagService.deleteTagForSubscription(subscription, tagText))
+        assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
             .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
     }
 
     @Test
-    public void deleteTagForSubscription_NoSuchTagException() {
+    public void deleteTagForSubscription_NoSuchTagExceptionData() {
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.of(sqlLink));
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.of(sqlUser));
         when(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId))
             .thenReturn(Optional.of(sqlSub));
         when(tagRepo.getTagByTextAndUserId(userId, tagText)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> sqlTagService.deleteTagForSubscription(subscription, tagText))
+        assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
             .isInstanceOf(ScrapperTagNotExistsException.class);
     }
 
     @Test
-    public void deleteTagForSubscription_DataAccessException() {
+    public void deleteTagForSubscription_Data_DataAccessException() {
         when(linkRepo.findLinkByUrl(url)).thenThrow(new TestDataAccessException("error"));
 
-        assertThatThrownBy(() -> sqlTagService.deleteTagForSubscription(subscription, tagText))
+        assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
             .isInstanceOf(ScrapperSqlException.class);
     }
 

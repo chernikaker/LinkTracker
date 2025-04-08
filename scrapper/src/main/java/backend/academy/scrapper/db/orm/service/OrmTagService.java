@@ -8,6 +8,7 @@ import backend.academy.scrapper.db.orm.repository.OrmLinkRepository;
 import backend.academy.scrapper.db.orm.repository.OrmSubscriptionRepository;
 import backend.academy.scrapper.db.orm.repository.OrmTagRepository;
 import backend.academy.scrapper.db.orm.repository.OrmUserRepository;
+import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
@@ -38,7 +39,9 @@ public class OrmTagService implements TagService {
                 .filter(t -> t.tagText().equals(tag.value()))
                 .findFirst()
                 .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + tag.value() + " not found"));
+            ormUser.tags().remove(ormTag);
             tagRepo.delete(ormTag);
+            tagRepo.flush();
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while deleting with ORM tag " + tag.value(), e);
         }
@@ -46,17 +49,21 @@ public class OrmTagService implements TagService {
 
     @Override
     @Transactional
-    public void deleteTagForSubscription(Subscription subscription, String text) {
+    public void deleteTagForSubscriptionData(User user, Link link, String text) {
         try {
-            OrmUser subscriber = tryGetUserByChatId(subscription.user().chatId());
+            OrmUser subscriber = tryGetUserByChatId(user.chatId());
             OrmSubscription sub = subscriber.subscriptions().stream()
-                .filter(s -> s.link().url().equals(subscription.link().url()))
+                .filter(s -> s.link().url().equals(link.url()))
                 .findFirst()
-                .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("Subscription " + subscription.link().url() + " not found"));
-            sub.tags().stream().filter(t -> t.tagText().equals(text)).forEach(sub.tags()::remove);
+                .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("Subscription " + link.url() + " not found"));
+            OrmTag tag = sub.tags().stream().filter(t -> t.tagText().equals(text)).findFirst()
+                    .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + text + " not found"));
+            sub.tags().remove(tag);
+            tag.subscriptions().remove(sub);
             subscrRepo.save(sub);
+            subscrRepo.flush();
         } catch (DataAccessException e) {
-            throw new ScrapperOrmException("Error while deleting with ORM subscription " + subscription.link().url(), e);
+            throw new ScrapperOrmException("Error while deleting with ORM subscription " +link.url(), e);
         }
     }
 

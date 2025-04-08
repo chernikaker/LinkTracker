@@ -9,6 +9,7 @@ import backend.academy.scrapper.db.sql.repository.LinkSqlRepository;
 import backend.academy.scrapper.db.sql.repository.SubscriptionSqlRepository;
 import backend.academy.scrapper.db.sql.repository.TagSqlRepository;
 import backend.academy.scrapper.db.sql.repository.UserSqlRepository;
+import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
@@ -46,15 +47,15 @@ public class SqlTagService implements TagService {
 
     @Override
     @Transactional
-    public void deleteTagForSubscription(Subscription subscription, String text) {
+    public void deleteTagForSubscriptionData(User u, Link l, String text) {
         try {
-            SqlLink link = tryGetLinkByUrl(subscription.link().url());
-            SqlUser user = tryGetUserByChatId(subscription.user().chatId());
+            SqlUser user = tryGetUserByChatId(u.chatId());
+            SqlLink link = tryGetLinkByUrl(l.url());
             SqlSubscription existingSub = tryGetSubscriptionByLinkAndUserId(link.id(), user.id());
             SqlTag tag = tryGetTagByTextAndUserId(text, user.id());
             tagRepo.removeTagFromSubscription(tag.id(), existingSub.id());
         } catch (DataAccessException e) {
-            throw new ScrapperSqlException("Error while deleting tag from link " + subscription.link().url(), e);
+            throw new ScrapperSqlException("Error while deleting tag from link " + l.url(), e);
         }
     }
 

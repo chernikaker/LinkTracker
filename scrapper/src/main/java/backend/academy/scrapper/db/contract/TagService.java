@@ -1,6 +1,6 @@
 package backend.academy.scrapper.db.contract;
 
-import backend.academy.scrapper.entity.Subscription;
+import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import java.util.List;
@@ -9,8 +9,7 @@ public interface TagService {
 
     void deleteTagForUser(User user, Tag tag);
 
-    void deleteTagForSubscription(Subscription subscription, String text);
+    void deleteTagForSubscriptionData(User user, Link link, String text);
 
     List<Tag> getTagsBySubscriptionId(long id);
-
 }
