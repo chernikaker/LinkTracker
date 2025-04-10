@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class SqlFilterServiceTest {
+public class SqlFilterServiceUnitTest {
 
     private final static SqlFilter FILTER = new SqlFilter(1L, "key", "value", 2L, 3L);
 

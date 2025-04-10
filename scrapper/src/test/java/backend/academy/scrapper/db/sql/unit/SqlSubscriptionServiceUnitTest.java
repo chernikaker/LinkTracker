@@ -47,7 +47,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class SqlSubscriptionServiceTest {
+public class SqlSubscriptionServiceUnitTest {
 
     @Mock
     private UserSqlRepository userRepo;

@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SqlUserServiceTest {
+class SqlUserServiceUnitTest {
 
     private final static User USER = new User(123L);
     private final static SqlUser SQL_USER = new SqlUser(1L, USER.chatId());

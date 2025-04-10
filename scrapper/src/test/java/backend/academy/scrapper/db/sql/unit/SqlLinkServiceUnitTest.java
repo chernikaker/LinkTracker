@@ -28,7 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SqlLinkServiceTest {
+class SqlLinkServiceUnitTest {
 
     private static final int BATCH_SIZE = 10;
     private static final long OFFSET = 0;

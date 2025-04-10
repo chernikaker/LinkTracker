@@ -12,7 +12,6 @@ import backend.academy.scrapper.db.sql.repository.UserSqlRepository;
 import backend.academy.scrapper.db.sql.service.SqlTagService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
-import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.db.ScrapperSqlException;
@@ -38,7 +37,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SqlTagServiceTest {
+class SqlTagServiceUnitTest {
 
     private static final long chatId = 123L;
     private static final String tagText = "java";
