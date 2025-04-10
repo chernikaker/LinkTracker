@@ -66,6 +66,7 @@ public class OrmSubscriptionService implements SubscriptionService {
             sub.tags(ormTags);
             sub.filters(ormFilters);
             subscrRepo.save(sub);
+            subscrRepo.flush();
             return sub.id();
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while adding subscription with ORM on link " + link.url(), e);
@@ -114,10 +115,13 @@ public class OrmSubscriptionService implements SubscriptionService {
                 OrmSubscriptionMapper.mapFromOrm(sub)
             );
             OrmLink l = sub.link();
+            l.subscriptions().remove(sub);
+            u.subscriptions().remove(sub);
             subscrRepo.delete(sub);
             if(l.subscriptions().isEmpty()) {
                 linkRepo.delete(l);
             }
+            subscrRepo.flush();
             return response;
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while deleting subscription with ORM", e);

@@ -16,11 +16,11 @@ public class FilterSqlRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public long addFilterToSubscription(SqlFilter filter) {
+    public void addFilterToSubscription(SqlFilter filter) {
         SqlParameterSource params = new BeanPropertySqlParameterSource(filter);
         String sql = "INSERT INTO filter (key, value, subscription_id, user_id)" +
-            " VALUES (:key, :value, :subscriptionId, :userId) RETURNING id";
-        return jdbcTemplate.update(sql, params);
+            " VALUES (:key, :value, :subscriptionId, :userId)";
+        jdbcTemplate.update(sql, params);
     }
 
     public void removeFilterById(long filterId) {

@@ -126,6 +126,7 @@ class SqlTagServiceTest {
 
     @Test
     public void deleteTagForSubscription_Data_NoSuchLinkException() {
+        when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.of(sqlUser));
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
@@ -134,7 +135,6 @@ class SqlTagServiceTest {
 
     @Test
     public void deleteTagForSubscription_Data_NoSuchUserException() {
-        when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.of(sqlLink));
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
@@ -166,7 +166,7 @@ class SqlTagServiceTest {
 
     @Test
     public void deleteTagForSubscription_Data_DataAccessException() {
-        when(linkRepo.findLinkByUrl(url)).thenThrow(new TestDataAccessException("error"));
+        when(userRepo.findUserByChatId(chatId)).thenThrow(new TestDataAccessException("error"));
 
         assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
             .isInstanceOf(ScrapperSqlException.class);

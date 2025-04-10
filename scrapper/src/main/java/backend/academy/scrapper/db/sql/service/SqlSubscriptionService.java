@@ -117,7 +117,13 @@ public class SqlSubscriptionService implements SubscriptionService {
             List<Tag> tags = mapSubscriptionTags(s.id());
             List<Filter> filters = mapSubscriptionFilters(s.id());
             subscrRepo.deleteSubscriptionById(s.id());
-            return Map.entry(s.id(), new Subscription(user, link, tags, filters));
+            if(subscrRepo.getSubscriptionsByLink(l.id()).isEmpty()) {
+                linkRepo.deleteLinkById(l.id());
+            }
+            Link resultLink = new Link(link.url(), link.type(), l.lastValidation());
+            return Map.entry(s.id(), new Subscription(user, resultLink, tags, filters));
+        } catch (ScrapperLinkNotExistsException e){
+           throw new ScrapperSubscriptionNotExistsException("Subscription not exists: "+e.getMessage());
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Exception while removing subscription with SQL "+e.getMessage(), e);
         }

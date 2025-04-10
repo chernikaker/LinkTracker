@@ -31,14 +31,14 @@ public class OrmSubscription {
     private Long id;
 
     @JoinColumn(name = "link_id", nullable = false, referencedColumnName = "id")
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private OrmLink link;
 
     @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "id")
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private OrmUser user;
 
-    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrmFilter> filters;
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
