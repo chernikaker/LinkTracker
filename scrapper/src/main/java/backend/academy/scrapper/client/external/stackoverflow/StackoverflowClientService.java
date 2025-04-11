@@ -33,9 +33,9 @@ public class StackoverflowClientService {
     private final ExternalClient client;
     private final ObjectMapper mapper;
 
-    public StackoverflowClientService(@Qualifier("stackoverflowClient") ExternalClient client, ObjectMapper mapper) {
+    public StackoverflowClientService(@Qualifier("stackoverflowClient") ExternalClient client) {
         this.client = client;
-        this.mapper = mapper;
+        this.mapper = new ObjectMapper();
     }
 
     /**
@@ -60,7 +60,6 @@ public class StackoverflowClientService {
             infoList.addAll(parseInfo(questionTitle, answerData, UpdateInfoType.ANSWER));
             return infoList;
         } catch (HttpClientErrorException e) {
-            e.printStackTrace();
             log.atWarn().addKeyValue("link", link.url()).setCause(e).log("Error receiving data from stackoverflow");
             throw new ScrapperInternalResponseException("Error receiving data from stackoverflow", e);
         }

@@ -45,40 +45,34 @@ public class GithubClientServiceTest {
 
     @Test
     public void getAllInfo_DataIsValid() {
-        String commitJson =
-                "[{\"commit\":{\"message\":\"Commit message\",\"author\":{\"date\":\"2023-10-01T12:00:00Z\"}},\"author\":{\"login\":\"author1\"}}]";
+        String prJson =
+            "[{\"title\":\"Pull request title\",\"user\":{\"login\":\"author1\"},\"created_at\":\"2023-10-01T12:00:00Z\", \"body\":\"body\"}]";
         String issueJson =
-                "[{\"title\":\"Issue title\",\"user\":{\"login\":\"author2\"},\"created_at\":\"2023-10-01T12:00:00Z\"}]";
-        String commentJson =
-                "[{\"body\":\"Comment body\",\"user\":{\"login\":\"author3\"},\"created_at\":\"2023-10-01T12:00:00Z\"}]";
-        when(githubClient.getResponse("repos/author/repo/commits")).thenReturn(commitJson);
+                "[{\"title\":\"Issue title\",\"user\":{\"login\":\"author2\"},\"created_at\":\"2023-10-01T12:00:00Z\", \"body\":\"body\"}]";
+        when(githubClient.getResponse("repos/author/repo/pulls")).thenReturn(prJson);
         when(githubClient.getResponse("repos/author/repo/issues")).thenReturn(issueJson);
-        when(githubClient.getResponse("repos/author/repo/comments")).thenReturn(commentJson);
 
         List<UpdateInfo> updates = assertDoesNotThrow(() -> githubClientService.getAllInfo(link));
 
-        assertEquals(3, updates.size());
+        assertEquals(2, updates.size());
 
-        UpdateInfo commentUpdate = updates.getFirst();
-        assertEquals("Comment body", commentUpdate.message());
-        assertEquals("author3", commentUpdate.authorName());
-        assertEquals(UpdateInfoType.COMMENT, commentUpdate.type());
+        UpdateInfo prUpdate = updates.getFirst();
+        assertEquals("Pull request title", prUpdate.title());
+        assertEquals("body", prUpdate.message());
+        assertEquals("author1", prUpdate.authorName());
+        assertEquals(UpdateInfoType.PULL_REQUEST, prUpdate.type());
 
         UpdateInfo issueUpdate = updates.get(1);
-        assertEquals("Issue title", issueUpdate.message());
+        assertEquals("Issue title", issueUpdate.title());
+        assertEquals("body", issueUpdate.message());
         assertEquals("author2", issueUpdate.authorName());
         assertEquals(UpdateInfoType.ISSUE, issueUpdate.type());
-
-        UpdateInfo commitUpdate = updates.get(2);
-        assertEquals("Commit message", commitUpdate.message());
-        assertEquals("author1", commitUpdate.authorName());
-        assertEquals(UpdateInfoType.COMMIT, commitUpdate.type());
     }
 
     @Test
     public void getAllInfo_invalidJson() {
         String invalidJson = "invalid json";
-        when(githubClient.getResponse("repos/author/repo/commits")).thenReturn(invalidJson);
+        when(githubClient.getResponse("repos/author/repo/issues")).thenReturn(invalidJson);
 
         assertThatThrownBy(() -> githubClientService.getAllInfo(link))
                 .isInstanceOf(ScrapperInternalResponseException.class);
@@ -88,7 +82,7 @@ public class GithubClientServiceTest {
     public void getAllInfo_httpClientError() {
         HttpClientErrorException httpClientErrorException =
                 HttpClientErrorException.create(HttpStatus.BAD_REQUEST, "Bad Request", HttpHeaders.EMPTY, null, null);
-        when(githubClient.getResponse("repos/author/repo/commits")).thenThrow(httpClientErrorException);
+        when(githubClient.getResponse("repos/author/repo/issues")).thenThrow(httpClientErrorException);
 
         assertThatThrownBy(() -> githubClientService.getAllInfo(link))
                 .isInstanceOf(ScrapperInternalResponseException.class);

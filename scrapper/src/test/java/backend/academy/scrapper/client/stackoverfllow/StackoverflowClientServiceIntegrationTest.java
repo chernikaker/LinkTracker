@@ -37,7 +37,7 @@ public class StackoverflowClientServiceIntegrationTest {
 
     @Test
     public void testGetAllInfo_HttpClientErrorException() {
-        wireMockServer.stubFor(get(urlEqualTo("/questions/123/comments?key=key&site=stackoverflow"))
+        wireMockServer.stubFor(get(urlEqualTo("/questions/123/comments?key=key&site=stackoverflow&filter=withbody"))
                 .willReturn(aResponse().withStatus(404)));
         Link link = new Link(
                 "https://stackoverflow.com/questions/123",
@@ -50,22 +50,20 @@ public class StackoverflowClientServiceIntegrationTest {
 
     @Test
     public void testGetAllInfo_Success() {
-        wireMockServer.stubFor(
-                get(urlEqualTo("/questions/123/comments?key=key&site=stackoverflow"))
-                        .willReturn(
-                                aResponse()
-                                        .withStatus(200)
-                                        .withHeader("Content-Type", "application/json")
-                                        .withBody(
-                                                "{\"items\":[{\"owner\":{\"display_name\":\"testUser\"},\"creation_date\":1696118400}]}")));
-        wireMockServer.stubFor(
-                get(urlEqualTo("/questions/123/answers?key=key&site=stackoverflow"))
-                        .willReturn(
-                                aResponse()
-                                        .withStatus(200)
-                                        .withHeader("Content-Type", "application/json")
-                                        .withBody(
-                                                "{\"items\":[{\"owner\":{\"display_name\":\"testUser\"},\"creation_date\":1696118400}]}")));
+        setWireMockSuccessAnswerWithJson(
+            "/questions/123?key=key&site=stackoverflow&filter=withbody",
+            "{\"items\": [{\"title\":\"title\"}]}"
+        );
+        setWireMockSuccessAnswerWithJson(
+            "/questions/123/comments?key=key&site=stackoverflow&filter=withbody",
+            "{\"items\": [{\"owner\":{\"display_name\":\"user1\"},\"creation_date\":1696156800, \"body\":\"body\"}]}"
+        );
+
+        setWireMockSuccessAnswerWithJson(
+            "/questions/123/answers?key=key&site=stackoverflow&filter=withbody",
+            "{\"items\": [{\"owner\":{\"display_name\":\"user2\"},\"creation_date\":1696156800, \"body\":\"body\"}]}"
+        );
+
         Link link = new Link(
                 "https://stackoverflow.com/questions/123",
                 LinkType.STACKOVERFLOW,
@@ -75,5 +73,15 @@ public class StackoverflowClientServiceIntegrationTest {
 
         assertNotNull(result);
         assertEquals(2, result.size());
+    }
+
+    private void setWireMockSuccessAnswerWithJson(String request, String response){
+        wireMockServer.stubFor(
+            get(urlEqualTo(request))
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(response)));
     }
 }

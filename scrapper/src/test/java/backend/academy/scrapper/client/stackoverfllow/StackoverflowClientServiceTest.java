@@ -45,10 +45,12 @@ public class StackoverflowClientServiceTest {
     }
 
     @Test
-    public void getAllInfo_DataIsValid() throws JsonProcessingException {
-        String commentJson = "[{\"owner\":{\"display_name\":\"user1\"},\"creation_date\":1696156800}]";
-        String answerJson = "[{\"owner\":{\"display_name\":\"user2\"},\"creation_date\":1696156800}]";
+    public void getAllInfo_DataIsValid() {
+        String commentJson = "{\"items\": [{\"owner\":{\"display_name\":\"user1\"},\"creation_date\":1696156800, \"body\":\"body\"}]}";
+        String answerJson = "{\"items\": [{\"owner\":{\"display_name\":\"user2\"},\"creation_date\":1696156800, \"body\":\"body\"}]}";
+        String dataJson = "{\"items\": [{\"title\":\"title\"}]}";
 
+        when(client.getResponse("/questions/12345")).thenReturn(dataJson);
         when(client.getResponse("/questions/12345/comments")).thenReturn(commentJson);
         when(client.getResponse("/questions/12345/answers")).thenReturn(answerJson);
 
@@ -56,10 +58,12 @@ public class StackoverflowClientServiceTest {
         assertEquals(2, updates.size());
 
         UpdateInfo commentUpdate = updates.getFirst();
+        assertEquals("title", commentUpdate.title());
         assertEquals("user1", commentUpdate.authorName());
         assertEquals(UpdateInfoType.COMMENT, commentUpdate.type());
 
         UpdateInfo answerUpdate = updates.get(1);
+        assertEquals("title", commentUpdate.title());
         assertEquals("user2", answerUpdate.authorName());
         assertEquals(UpdateInfoType.ANSWER, answerUpdate.type());
     }
@@ -67,7 +71,7 @@ public class StackoverflowClientServiceTest {
     @Test
     public void getAllInfo_invalidJson() {
         String invalidJson = "invalid json";
-        when(client.getResponse("/questions/12345/comments")).thenReturn(invalidJson);
+        when(client.getResponse("/questions/12345")).thenReturn(invalidJson);
 
         assertThatThrownBy(() -> stackoverflowClientService.getAllInfo(link))
                 .isInstanceOf(ScrapperInternalResponseException.class);
@@ -77,7 +81,7 @@ public class StackoverflowClientServiceTest {
     public void getAllInfo_httpClientError() {
         HttpClientErrorException httpClientErrorException =
                 HttpClientErrorException.create(HttpStatus.BAD_REQUEST, "Bad Request", HttpHeaders.EMPTY, null, null);
-        when(client.getResponse("/questions/12345/comments")).thenThrow(httpClientErrorException);
+        when(client.getResponse("/questions/12345")).thenThrow(httpClientErrorException);
 
         assertThrows(ScrapperInternalResponseException.class, () -> stackoverflowClientService.getAllInfo(link));
     }

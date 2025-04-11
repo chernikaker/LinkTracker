@@ -80,13 +80,13 @@ public class GithubClientService {
      * @param node информация об обновлении
      * @return модель с данными об обновлении
      */
-    private UpdateInfo parseItem(JsonNode node) {
+    private UpdateInfo parseItem(JsonNode node, UpdateInfoType type) {
         String title = node.path(TITLE).asText();
         String message = node.path(BODY).asText();
         message = message.length() > 200 ? message.substring(0, 200) : message;
         String authorName = node.path(USER).path(LOGIN).asText();
         String date = node.path(CREATED_AT).asText();
-        return new UpdateInfo(title, message, authorName, parseDate(date), UpdateInfoType.ISSUE);
+        return new UpdateInfo(title, message, authorName, parseDate(date), type);
     }
 
 
@@ -115,7 +115,7 @@ public class GithubClientService {
             JsonNode infoNode = objectMapper.readTree(jsonInfo);
             List<UpdateInfo> infos = new ArrayList<>();
             for (JsonNode n : infoNode) {
-                infos.add(parseItem(n));
+                infos.add(parseItem(n, type));
             }
             return infos;
         } catch (JsonProcessingException | IllegalArgumentException e) {

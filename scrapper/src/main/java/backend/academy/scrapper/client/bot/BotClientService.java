@@ -22,9 +22,9 @@ public class BotClientService {
     private final SubscriptionService service;
 
     /** Метод отправления обновлений по ссылке клиентам */
-    public void sendUpdates(long linkId, Link link, List<UpdateInfo> info) {
+    public void sendUpdates(long linkId, String url, List<UpdateInfo> info) {
         // сборка DTO
-        LinkUpdate update = makeLinkUpdate(linkId, link, info);
+        LinkUpdate update = makeLinkUpdate(linkId, url, info);
         try {
             // отправление сообщения
             botClient.sendUpdates(update);
@@ -49,16 +49,16 @@ public class BotClientService {
     /**
      * Метод формирует DTO из входных данных и данных репозитория о подписках
      *
-     * @param link обновленная ссылка
+     * @param url обновленная ссылка
      * @param info список обновлений
      * @return DTO
      */
-    private LinkUpdate makeLinkUpdate(long linkId, Link link, List<UpdateInfo> info) {
+    private LinkUpdate makeLinkUpdate(long linkId, String url, List<UpdateInfo> info) {
         // получение всех подписчиков на ссылку
         List<Long> subscriberChats = service.getSubscribersChatsByLinkId(linkId);
         // формирование сообщения об обновлениях
         List<LinkUpdateUnit> updateUnits = makeUpdateUnits(info);
-        return new LinkUpdate(linkId, link.url(), updateUnits, subscriberChats);
+        return new LinkUpdate(linkId, url, updateUnits, subscriberChats);
     }
 
     /**

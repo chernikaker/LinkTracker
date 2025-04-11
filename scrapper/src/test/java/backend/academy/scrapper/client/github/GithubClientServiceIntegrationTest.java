@@ -36,44 +36,27 @@ public class GithubClientServiceIntegrationTest {
 
     @Test
     public void testGetAllInfo_Success() {
-        wireMockServer.stubFor(
-                get(urlEqualTo("/repos/owner/repo/commits"))
-                        .willReturn(
-                                aResponse()
-                                        .withStatus(200)
-                                        .withHeader("Content-Type", "application/json")
-                                        .withBody(
-                                                "[{\"commit\":{\"message\":\"Test commit\",\"author\":{\"date\":\"2023-10-01T00:00:00Z\"}},\"author\":{\"login\":\"testUser\"}}]")));
+        setWireMockSuccessAnswerWithJson(
+            "/repos/owner/repo/pulls",
+            "[{\"title\":\"Pull request title\",\"user\":{\"login\":\"author1\"},\"created_at\":\"2023-10-01T12:00:00Z\", \"body\":\"body\"}]"
+            );
+        setWireMockSuccessAnswerWithJson(
+            "/repos/owner/repo/issues",
+            "[{\"title\":\"Issue title\",\"user\":{\"login\":\"author2\"},\"created_at\":\"2023-10-01T12:00:00Z\", \"body\":\"body\"}]"
+        );
 
-        wireMockServer.stubFor(
-                get(urlEqualTo("/repos/owner/repo/issues"))
-                        .willReturn(
-                                aResponse()
-                                        .withStatus(200)
-                                        .withHeader("Content-Type", "application/json")
-                                        .withBody(
-                                                "[{\"title\":\"Test issue\",\"created_at\":\"2023-10-01T00:00:00Z\",\"user\":{\"login\":\"testUser\"}}]")));
-
-        wireMockServer.stubFor(
-                get(urlEqualTo("/repos/owner/repo/comments"))
-                        .willReturn(
-                                aResponse()
-                                        .withStatus(200)
-                                        .withHeader("Content-Type", "application/json")
-                                        .withBody(
-                                                "[{\"body\":\"Test comment\",\"created_at\":\"2023-10-01T00:00:00Z\",\"user\":{\"login\":\"testUser\"}}]")));
         Link link =
                 new Link("https://github.com/owner/repo", LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
 
         List<UpdateInfo> result = githubClientService.getAllInfo(link);
 
         assertNotNull(result);
-        assertEquals(3, result.size());
+        assertEquals(2, result.size());
     }
 
     @Test
     public void testGetAllInfo_HttpClientErrorException() {
-        wireMockServer.stubFor(get(urlEqualTo("/repos/owner/repo/commits"))
+        wireMockServer.stubFor(get(urlEqualTo("/repos/owner/repo/issues"))
                 .willReturn(aResponse().withStatus(404)));
 
         Link link =
@@ -81,5 +64,15 @@ public class GithubClientServiceIntegrationTest {
 
         assertThatThrownBy(() -> githubClientService.getAllInfo(link))
                 .isInstanceOf(ScrapperInternalResponseException.class);
+    }
+
+    private void setWireMockSuccessAnswerWithJson(String request, String response){
+        wireMockServer.stubFor(
+            get(urlEqualTo(request))
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(response)));
     }
 }

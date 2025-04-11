@@ -1,5 +1,6 @@
 package backend.academy.scrapper.client.bot;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -9,13 +10,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import backend.academy.dto.LinkUpdate;
+import backend.academy.dto.LinkUpdateUnit;
+import backend.academy.scrapper.db.contract.SubscriptionService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.model.UpdateInfo;
 import backend.academy.scrapper.model.UpdateInfoType;
-import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public class BotClientServiceTest {
     private BotClient botClient;
 
     @Mock
-    private InMemorySubscriptionRepository repository;
+    private SubscriptionService subscriptionService;
 
     @InjectMocks
     private BotClientService botClientService;
@@ -51,38 +53,38 @@ public class BotClientServiceTest {
         MockitoAnnotations.openMocks(this);
         LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         link = new Link("http://github.com/mock", LinkType.GITHUB, now);
-        subscription = new Subscription(1L, user, 1L, link, List.of(), List.of());
         info = new ArrayList<>();
-        info.add(new UpdateInfo("type1", "author1", now, UpdateInfoType.COMMIT));
-        info.add(new UpdateInfo("type2", "author2", now, UpdateInfoType.ISSUE));
+        info.add(new UpdateInfo("title1", "message1", "author1", now, UpdateInfoType.PULL_REQUEST));
+        info.add(new UpdateInfo("title2","message2", "author2", now, UpdateInfoType.ISSUE));
     }
 
     @Test
     public void sendUpdates_success() {
-        List<Subscription> subscriptions = List.of(subscription);
-        when(repository.getLinkSubscriptions(link)).thenReturn(subscriptions);
+        when(subscriptionService.getSubscribersChatsByLinkId(1L)).thenReturn(List.of(1L, 2L));
 
-        assertDoesNotThrow(() -> botClientService.sendUpdates(link, info));
+        assertDoesNotThrow(() -> botClientService.sendUpdates(1L, link.url(), info));
 
         ArgumentCaptor<LinkUpdate> captor = ArgumentCaptor.forClass(LinkUpdate.class);
         verify(botClient).sendUpdates(captor.capture());
 
         LinkUpdate capturedUpdate = captor.getValue();
-        assertEquals(1, capturedUpdate.id());
+        assertEquals(1L, capturedUpdate.id());
         assertEquals("http://github.com/mock", capturedUpdate.url());
-        assertTrue(capturedUpdate.description().contains("Тип сообщения: commit"));
-        assertTrue(capturedUpdate.description().contains("Автор: author1"));
+        assertThat(capturedUpdate.tgChatIds()).contains(1L, 2L);
+        List<LinkUpdateUnit> units = capturedUpdate.updateUnits();
+        assertEquals(2, units.size());
+        assertEquals("message1", units.getFirst().description());
+        assertEquals("message2", units.get(1).description());
     }
 
     @Test
     public void sendUpdates_httpException() {
-        List<Subscription> subscriptions = List.of(subscription);
-        when(repository.getLinkSubscriptions(link)).thenReturn(subscriptions);
+        when(subscriptionService.getSubscribersChatsByLinkId(1L)).thenReturn(List.of(1L, 2L));
         doThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad Request"))
                 .when(botClient)
                 .sendUpdates(any(LinkUpdate.class));
 
-        assertDoesNotThrow(() -> botClientService.sendUpdates(link, info));
+        assertDoesNotThrow(() -> botClientService.sendUpdates(1L, link.url(), info));
 
         verify(botClient).sendUpdates(any(LinkUpdate.class));
     }
