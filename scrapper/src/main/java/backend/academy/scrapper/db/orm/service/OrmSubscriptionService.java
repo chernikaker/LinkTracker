@@ -65,7 +65,7 @@ public class OrmSubscriptionService implements SubscriptionService {
             }
             sub.tags(ormTags);
             sub.filters(ormFilters);
-            subscrRepo.save(sub);
+            sub = subscrRepo.save(sub);
             subscrRepo.flush();
             return sub.id();
         } catch (DataAccessException e) {

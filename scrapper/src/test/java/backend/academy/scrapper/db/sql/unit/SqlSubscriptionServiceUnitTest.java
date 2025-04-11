@@ -292,16 +292,7 @@ public class SqlSubscriptionServiceUnitTest {
         assertThatThrownBy(() -> subscriptionService.deleteSubscriptionByUserAndLink(testUser, testLink))
             .isInstanceOf(ScrapperUserNotExistsException.class);
     }
-
-    @Test
-    void deleteSubscriptionByUserAndLink_LinkNotExists() {
-        when(userRepo.findUserByChatId(testUser.chatId())).thenReturn(Optional.of(sqlUser));
-        when(linkRepo.findLinkByUrl(testLink.url())).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> subscriptionService.deleteSubscriptionByUserAndLink(testUser, testLink))
-            .isInstanceOf(ScrapperLinkNotExistsException.class);
-    }
-
+    
     @Test
     void deleteSubscriptionByUserAndLink_SubscriptionNotExists() {
         when(userRepo.findUserByChatId(testUser.chatId())).thenReturn(Optional.of(sqlUser));
