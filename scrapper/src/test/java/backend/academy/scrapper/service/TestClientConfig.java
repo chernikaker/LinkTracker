@@ -18,11 +18,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @TestConfiguration(proxyBeanMethods = false)
 public class TestClientConfig {
 
-    @MockitoBean
-    private GithubClientService githubClientService;
-
-    @MockitoBean
-    private StackoverflowClientService soClientService;
 
     @Bean("testGitHubClientService")
     @Primary
