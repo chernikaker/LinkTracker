@@ -31,9 +31,8 @@ public class UserSqlRepository {
     public Optional<SqlUser> findUserByChatId(long chatId) {
         SqlParameterSource params = new MapSqlParameterSource("chatId", chatId);
         String query = "SELECT * FROM tg_user WHERE chat_id = :chatId";
-        return jdbcTemplate.query(query, params, new SqlUserRowMapper())
-            .stream()
-            .findFirst();
+        return jdbcTemplate.query(query, params, new SqlUserRowMapper()).stream()
+                .findFirst();
     }
 
     public SqlUser findUserById(long id) {

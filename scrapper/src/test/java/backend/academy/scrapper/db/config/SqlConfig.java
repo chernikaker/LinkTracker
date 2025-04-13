@@ -30,22 +30,18 @@ public class SqlConfig {
     @Bean
     @Primary
     public UserService userService(
-        UserSqlRepository userRepo,
-        SubscriptionSqlRepository subscriptionRepo,
-        LinkSqlRepository linkRepo
-    ) {
+            UserSqlRepository userRepo, SubscriptionSqlRepository subscriptionRepo, LinkSqlRepository linkRepo) {
         return new SqlUserService(userRepo, subscriptionRepo, linkRepo);
     }
 
     @Bean
     @Primary
     public SubscriptionService subscriptionService(
-        UserSqlRepository userRepo,
-        SubscriptionSqlRepository subscriptionRepo,
-        LinkSqlRepository linkRepo,
-        TagSqlRepository tagRepo,
-        FilterSqlRepository filterRepo
-    ) {
+            UserSqlRepository userRepo,
+            SubscriptionSqlRepository subscriptionRepo,
+            LinkSqlRepository linkRepo,
+            TagSqlRepository tagRepo,
+            FilterSqlRepository filterRepo) {
         return new SqlSubscriptionService(userRepo, linkRepo, subscriptionRepo, tagRepo, filterRepo);
     }
 
@@ -58,11 +54,10 @@ public class SqlConfig {
     @Bean
     @Primary
     public TagService tagService(
-        UserSqlRepository userRepo,
-        SubscriptionSqlRepository subscriptionRepo,
-        LinkSqlRepository linkRepo,
-        TagSqlRepository tagRepo
-    ) {
+            UserSqlRepository userRepo,
+            SubscriptionSqlRepository subscriptionRepo,
+            LinkSqlRepository linkRepo,
+            TagSqlRepository tagRepo) {
         return new SqlTagService(userRepo, linkRepo, subscriptionRepo, tagRepo);
     }
 

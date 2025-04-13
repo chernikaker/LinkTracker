@@ -6,6 +6,6 @@ import java.util.Map;
 public interface LinkService {
 
     void updateLinkValidationOnCurrentTime(long linkId);
-    Map<Long, Link> getLinksToCheck(int batchSize, long offset, long duration);
 
+    Map<Long, Link> getLinksToCheck(int batchSize, long offset, long duration);
 }

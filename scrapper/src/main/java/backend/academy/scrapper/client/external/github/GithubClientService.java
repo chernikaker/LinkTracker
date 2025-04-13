@@ -77,6 +77,7 @@ public class GithubClientService {
 
     /**
      * Обработка обновления одного типа
+     *
      * @param node информация об обновлении
      * @return модель с данными об обновлении
      */
@@ -88,7 +89,6 @@ public class GithubClientService {
         String date = node.path(CREATED_AT).asText();
         return new UpdateInfo(title, message, authorName, parseDate(date), type);
     }
-
 
     /**
      * Перевод формата даты из JSON ответа в нужный программе формат

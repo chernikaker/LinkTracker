@@ -1,15 +1,12 @@
 package backend.academy.scrapper.entity;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Сущность подписки пользователя на ссылку
- */
+/** Сущность подписки пользователя на ссылку */
 @AllArgsConstructor
 @Getter
 @Setter

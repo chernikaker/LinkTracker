@@ -9,13 +9,12 @@ import backend.academy.scrapper.db.sql.repository.UserSqlRepository;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.db.ScrapperSqlException;
 import backend.academy.scrapper.exception.repository.ScrapperUserAlreadyExistsException;
+import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import java.util.List;
 import java.util.Optional;
-import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @AllArgsConstructor
 public class SqlUserService implements UserService {
@@ -44,14 +43,13 @@ public class SqlUserService implements UserService {
     public void deleteUser(User user) {
         try {
             SqlUser userDb = userRepo.findUserByChatId(user.chatId())
-                .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " not exists"));
-            List<SqlSubscription> userSubs =  subscriptionRepo.getSubscriptionsByUserId(userDb.id());
+                    .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " not exists"));
+            List<SqlSubscription> userSubs = subscriptionRepo.getSubscriptionsByUserId(userDb.id());
             userRepo.deleteUserById(userDb.id());
-            userSubs
-                .stream()
-                .map(SqlSubscription::linkId)
-                .filter((id) -> subscriptionRepo.getSubscriptionsByLink(id).isEmpty())
-                .forEach(linkRepo::deleteLinkById);
+            userSubs.stream()
+                    .map(SqlSubscription::linkId)
+                    .filter((id) -> subscriptionRepo.getSubscriptionsByLink(id).isEmpty())
+                    .forEach(linkRepo::deleteLinkById);
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Exception while deleting user with SQL", e);
         }

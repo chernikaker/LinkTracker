@@ -11,7 +11,6 @@ import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.model.UpdateInfo;
 import backend.academy.scrapper.model.UpdateInfoType;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -46,8 +45,10 @@ public class StackoverflowClientServiceTest {
 
     @Test
     public void getAllInfo_DataIsValid() {
-        String commentJson = "{\"items\": [{\"owner\":{\"display_name\":\"user1\"},\"creation_date\":1696156800, \"body\":\"body\"}]}";
-        String answerJson = "{\"items\": [{\"owner\":{\"display_name\":\"user2\"},\"creation_date\":1696156800, \"body\":\"body\"}]}";
+        String commentJson =
+                "{\"items\": [{\"owner\":{\"display_name\":\"user1\"},\"creation_date\":1696156800, \"body\":\"body\"}]}";
+        String answerJson =
+                "{\"items\": [{\"owner\":{\"display_name\":\"user2\"},\"creation_date\":1696156800, \"body\":\"body\"}]}";
         String dataJson = "{\"items\": [{\"title\":\"title\"}]}";
 
         when(client.getResponse("/questions/12345")).thenReturn(dataJson);

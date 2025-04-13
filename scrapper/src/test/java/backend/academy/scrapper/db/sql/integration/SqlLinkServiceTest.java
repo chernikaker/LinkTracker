@@ -9,5 +9,4 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Import(SqlConfig.class)
 @JdbcTest
 @Testcontainers
-public class SqlLinkServiceTest extends LinkServiceTest {
-}
+public class SqlLinkServiceTest extends LinkServiceTest {}

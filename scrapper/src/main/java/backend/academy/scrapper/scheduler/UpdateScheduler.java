@@ -13,13 +13,11 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
 /**
  * Сервис для периодической проверки обновлений Взаимодействует с сервисами внешних клиентов для получения обновлений,
  * сервисом клиента бота для их отправки, репозиторием для получения и обновления информации ссылок
  */
-
 @AllArgsConstructor
 @Slf4j
 public class UpdateScheduler {
@@ -41,17 +39,17 @@ public class UpdateScheduler {
         Map<Long, Link> links;
         do {
             links = linkDbService.getLinksToCheck(batchSize, offset, notCheckedIntervalSeconds);
-            for (Map.Entry<Long,Link> linkData : links.entrySet()) {
+            for (Map.Entry<Long, Link> linkData : links.entrySet()) {
                 try {
                     Link link = linkData.getValue();
                     // получение всех обновлений
                     List<UpdateInfo> updates = link.type() == LinkType.GITHUB
-                        ? githubClientService.getAllInfo(link)
-                        : soClientService.getAllInfo(link);
+                            ? githubClientService.getAllInfo(link)
+                            : soClientService.getAllInfo(link);
                     // фильтрация новых обновлений по дате последней проверки
                     List<UpdateInfo> actualInfos = updates.stream()
-                        .filter(info -> link.lastValidation().isBefore(info.time()))
-                        .toList();
+                            .filter(info -> link.lastValidation().isBefore(info.time()))
+                            .toList();
                     // если есть новые обновления, отправляем их пользователю
                     if (!actualInfos.isEmpty()) {
                         botClientService.sendUpdates(linkData.getKey(), link.url(), actualInfos);

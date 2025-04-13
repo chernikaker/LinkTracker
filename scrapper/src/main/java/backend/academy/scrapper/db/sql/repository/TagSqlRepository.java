@@ -4,7 +4,6 @@ import backend.academy.scrapper.db.sql.entity.SqlTag;
 import backend.academy.scrapper.db.sql.mapper.SqlTagRowMapper;
 import java.util.List;
 import java.util.Optional;
-import liquibase.sql.Sql;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -32,9 +31,8 @@ public class TagSqlRepository {
 
     public List<SqlTag> getSubscriptionTags(long subscrId) {
         SqlParameterSource params = new MapSqlParameterSource("subscrId", subscrId);
-        String query = "SELECT t.id, t.tag_text, t.user_id FROM subscription_tag st " +
-            "JOIN tag t ON t.id = st.tag_id" +
-            " WHERE st.subscription_id = :subscrId";
+        String query = "SELECT t.id, t.tag_text, t.user_id FROM subscription_tag st " + "JOIN tag t ON t.id = st.tag_id"
+                + " WHERE st.subscription_id = :subscrId";
         return jdbcTemplate.query(query, params, new SqlTagRowMapper());
     }
 
@@ -42,9 +40,7 @@ public class TagSqlRepository {
         MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
         params.addValue("tagText", tagText);
         String query = "SELECT * FROM tag WHERE tag_text = :tagText AND user_id = :userId";
-        return jdbcTemplate.query(query, params, new SqlTagRowMapper())
-            .stream()
-            .findFirst();
+        return jdbcTemplate.query(query, params, new SqlTagRowMapper()).stream().findFirst();
     }
 
     public Long removeTagById(long tagId) {
@@ -76,8 +72,6 @@ public class TagSqlRepository {
     public Optional<SqlTag> getTagByValue(String value) {
         SqlParameterSource params = new MapSqlParameterSource("value", value);
         String query = "SELECT * FROM tag WHERE tag_text = :value";
-        return jdbcTemplate.query(query, params, new SqlTagRowMapper())
-            .stream()
-            .findFirst();
+        return jdbcTemplate.query(query, params, new SqlTagRowMapper()).stream().findFirst();
     }
 }

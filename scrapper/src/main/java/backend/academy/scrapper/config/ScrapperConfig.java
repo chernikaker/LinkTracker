@@ -43,18 +43,16 @@ public class ScrapperConfig {
 
     @Bean
     public UpdateScheduler updateScheduler(
-        LinkService linkDbService,
-        GithubClientService githubClientService,
-        StackoverflowClientService soClientService,
-        BotClientService botClientService
-    ) {
+            LinkService linkDbService,
+            GithubClientService githubClientService,
+            StackoverflowClientService soClientService,
+            BotClientService botClientService) {
         return new UpdateScheduler(
-            linkDbService,
-            githubClientService,
-            soClientService,
-            botClientService,
-            properties.sql().secondsCheck(),
-            properties.sql().batchSize()
-        );
+                linkDbService,
+                githubClientService,
+                soClientService,
+                botClientService,
+                properties.sql().secondsCheck(),
+                properties.sql().batchSize());
     }
 }

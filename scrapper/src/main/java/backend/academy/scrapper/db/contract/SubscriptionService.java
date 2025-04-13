@@ -8,7 +8,6 @@ import backend.academy.scrapper.entity.User;
 import java.util.List;
 import java.util.Map;
 
-
 public interface SubscriptionService {
 
     long addSubscriptionOnLink(User user, Link link, List<Tag> tags, List<Filter> filters);
@@ -17,5 +16,5 @@ public interface SubscriptionService {
 
     List<Long> getSubscribersChatsByLinkId(long linkId);
 
-    Map.Entry<Long,Subscription> deleteSubscriptionByUserAndLink(User user, Link link);
+    Map.Entry<Long, Subscription> deleteSubscriptionByUserAndLink(User user, Link link);
 }

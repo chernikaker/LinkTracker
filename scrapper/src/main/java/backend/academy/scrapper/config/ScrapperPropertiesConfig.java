@@ -14,10 +14,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 public record ScrapperPropertiesConfig(
-        GithubCredentials github,
-        StackOverflowCredentials stackOverflow,
-        @NotEmpty String botUrl,
-        SqlParams sql) {
+        GithubCredentials github, StackOverflowCredentials stackOverflow, @NotEmpty String botUrl, SqlParams sql) {
     /**
      * параметры конфигурации клиента GitHub
      *

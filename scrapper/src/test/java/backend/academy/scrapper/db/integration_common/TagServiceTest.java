@@ -1,11 +1,14 @@
 package backend.academy.scrapper.db.integration_common;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import backend.academy.scrapper.db.contract.TagService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
-import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperTagNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
@@ -17,16 +20,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Transactional
 public abstract class TagServiceTest {
 
     public static final User USER = new User(1L);
     public static final Tag TAG = new Tag("tag");
-    public static final Link LINK = new Link("https://github.com/1", LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
+    public static final Link LINK =
+            new Link("https://github.com/1", LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
 
     @Autowired
     private TagService tagService;
@@ -35,7 +36,7 @@ public abstract class TagServiceTest {
     private JdbcTemplate jdbcTemplate;
 
     @Test
-    public void deleteTagForUser_TagWithNoSubs(){
+    public void deleteTagForUser_TagWithNoSubs() {
         fillDataOnlyTag(USER, TAG);
 
         assertDoesNotThrow(() -> tagService.deleteTagForUser(USER, TAG));
@@ -43,7 +44,7 @@ public abstract class TagServiceTest {
     }
 
     @Test
-    public void deleteTagForUser_TagWithSubs(){
+    public void deleteTagForUser_TagWithSubs() {
         Long tagId = fillDataReturnTagId(USER, TAG);
 
         assertDoesNotThrow(() -> tagService.deleteTagForUser(USER, TAG));
@@ -54,30 +55,30 @@ public abstract class TagServiceTest {
     }
 
     @Test
-    public void deleteTagForUser_UserNotExists(){
+    public void deleteTagForUser_UserNotExists() {
         assertThatThrownBy(() -> tagService.deleteTagForUser(USER, TAG))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
-    public void deleteTagForUser_TagNotExists(){
+    public void deleteTagForUser_TagNotExists() {
         fillDataUserOnly(USER);
 
         assertThatThrownBy(() -> tagService.deleteTagForUser(USER, TAG))
-            .isInstanceOf(ScrapperTagNotExistsException.class);
+                .isInstanceOf(ScrapperTagNotExistsException.class);
     }
 
     @Test
-    public void deleteTagForUser_TagNotExistsForThatUser(){
+    public void deleteTagForUser_TagNotExistsForThatUser() {
         fillDataUserOnly(USER);
         fillDataOnlyTag(new User(2L), TAG);
 
         assertThatThrownBy(() -> tagService.deleteTagForUser(USER, TAG))
-            .isInstanceOf(ScrapperTagNotExistsException.class);
+                .isInstanceOf(ScrapperTagNotExistsException.class);
     }
 
     @Test
-    public void deleteTagForSubscriptionData_Success(){
+    public void deleteTagForSubscriptionData_Success() {
         fillDataReturnTagId(USER, TAG);
 
         assertDoesNotThrow(() -> tagService.deleteTagForSubscriptionData(USER, LINK, TAG.value()));
@@ -87,31 +88,31 @@ public abstract class TagServiceTest {
     }
 
     @Test
-    public void deleteTagForSubscriptionData_UserNotExists(){
+    public void deleteTagForSubscriptionData_UserNotExists() {
         assertThatThrownBy(() -> tagService.deleteTagForSubscriptionData(USER, LINK, TAG.value()))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
-    public void deleteTagForSubscriptionData_TagNotExists(){
+    public void deleteTagForSubscriptionData_TagNotExists() {
         var ids = fillDataUserOnly(USER);
         addSubscription(ids, addLink());
 
         assertThatThrownBy(() -> tagService.deleteTagForSubscriptionData(USER, LINK, TAG.value()))
-            .isInstanceOf(ScrapperTagNotExistsException.class);
+                .isInstanceOf(ScrapperTagNotExistsException.class);
     }
 
     @Test
-    public void deleteTagForSubscriptionData_SubscriptionNotExists(){
+    public void deleteTagForSubscriptionData_SubscriptionNotExists() {
         fillDataOnlyTag(USER, TAG);
         addLink();
 
         assertThatThrownBy(() -> tagService.deleteTagForSubscriptionData(USER, LINK, TAG.value()))
-            .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
+                .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
     }
 
     @Test
-    public void getTagsBySubscriptionId_Success(){
+    public void getTagsBySubscriptionId_Success() {
         var ids = fillDataOnlyTag(USER, TAG);
         Long linkId = addLink();
         Long subId = addSubscriptionWithTag(ids.getKey(), linkId, ids.getValue());
@@ -121,35 +122,34 @@ public abstract class TagServiceTest {
         assertEquals(TAG.value(), tags.getFirst().value());
     }
 
-    private Long fillDataUserOnly(User user){
+    private Long fillDataUserOnly(User user) {
         return jdbcTemplate.queryForObject(
-            "INSERT INTO tg_user (chat_id) VALUES (?) RETURNING id",
-            Long.class, user.chatId());
+                "INSERT INTO tg_user (chat_id) VALUES (?) RETURNING id", Long.class, user.chatId());
     }
 
-    private Long addLink(){
-        return jdbcTemplate.queryForObject("INSERT INTO link (url, last_validation) VALUES (?, ?) RETURNING id",
-            Long.class,
-            LINK.url(),
-            LINK.lastValidation());
+    private Long addLink() {
+        return jdbcTemplate.queryForObject(
+                "INSERT INTO link (url, last_validation) VALUES (?, ?) RETURNING id",
+                Long.class,
+                LINK.url(),
+                LINK.lastValidation());
     }
 
     private Map.Entry<Long, Long> fillDataOnlyTag(User user, Tag tag) {
         Long userId = fillDataUserOnly(user);
-        Long tagId = jdbcTemplate.queryForObject("INSERT INTO tag (tag_text, user_id) VALUES(?,?) RETURNING id",
-            Long.class, tag.value(), userId);
+        Long tagId = jdbcTemplate.queryForObject(
+                "INSERT INTO tag (tag_text, user_id) VALUES(?,?) RETURNING id", Long.class, tag.value(), userId);
         return Map.entry(userId, tagId);
     }
 
-    private Long addSubscription(long userId, long linkId){
-        return jdbcTemplate.queryForObject("INSERT INTO subscription (user_id, link_id) VALUES(?,?) RETURNING id",
-            Long.class, userId, linkId);
+    private Long addSubscription(long userId, long linkId) {
+        return jdbcTemplate.queryForObject(
+                "INSERT INTO subscription (user_id, link_id) VALUES(?,?) RETURNING id", Long.class, userId, linkId);
     }
 
-    private Long addSubscriptionWithTag(long userId, long linkId, long tagId){
+    private Long addSubscriptionWithTag(long userId, long linkId, long tagId) {
         Long subscriptionId = addSubscription(userId, linkId);
-        jdbcTemplate.update("INSERT INTO subscription_tag(subscription_id, tag_id) VALUES(?,?)",
-            subscriptionId, tagId);
+        jdbcTemplate.update("INSERT INTO subscription_tag(subscription_id, tag_id) VALUES(?,?)", subscriptionId, tagId);
         return subscriptionId;
     }
 
@@ -161,17 +161,10 @@ public abstract class TagServiceTest {
     }
 
     private Long findAllAmount(String table) {
-        return jdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM "+table,
-            Long.class
-        );
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM " + table, Long.class);
     }
 
     private Long findSubWithTagAmount(Long tagId) {
-        return jdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM subscription_tag WHERE tag_id = ?",
-            Long.class,
-            tagId
-        );
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM subscription_tag WHERE tag_id = ?", Long.class, tagId);
     }
 }

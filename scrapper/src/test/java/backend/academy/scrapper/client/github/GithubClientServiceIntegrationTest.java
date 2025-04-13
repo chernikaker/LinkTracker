@@ -37,13 +37,11 @@ public class GithubClientServiceIntegrationTest {
     @Test
     public void testGetAllInfo_Success() {
         setWireMockSuccessAnswerWithJson(
-            "/repos/owner/repo/pulls",
-            "[{\"title\":\"Pull request title\",\"user\":{\"login\":\"author1\"},\"created_at\":\"2023-10-01T12:00:00Z\", \"body\":\"body\"}]"
-            );
+                "/repos/owner/repo/pulls",
+                "[{\"title\":\"Pull request title\",\"user\":{\"login\":\"author1\"},\"created_at\":\"2023-10-01T12:00:00Z\", \"body\":\"body\"}]");
         setWireMockSuccessAnswerWithJson(
-            "/repos/owner/repo/issues",
-            "[{\"title\":\"Issue title\",\"user\":{\"login\":\"author2\"},\"created_at\":\"2023-10-01T12:00:00Z\", \"body\":\"body\"}]"
-        );
+                "/repos/owner/repo/issues",
+                "[{\"title\":\"Issue title\",\"user\":{\"login\":\"author2\"},\"created_at\":\"2023-10-01T12:00:00Z\", \"body\":\"body\"}]");
 
         Link link =
                 new Link("https://github.com/owner/repo", LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
@@ -66,11 +64,9 @@ public class GithubClientServiceIntegrationTest {
                 .isInstanceOf(ScrapperInternalResponseException.class);
     }
 
-    private void setWireMockSuccessAnswerWithJson(String request, String response){
-        wireMockServer.stubFor(
-            get(urlEqualTo(request))
-                .willReturn(
-                    aResponse()
+    private void setWireMockSuccessAnswerWithJson(String request, String response) {
+        wireMockServer.stubFor(get(urlEqualTo(request))
+                .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(response)));

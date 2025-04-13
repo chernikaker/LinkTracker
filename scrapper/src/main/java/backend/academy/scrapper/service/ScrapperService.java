@@ -7,8 +7,8 @@ import backend.academy.dto.RemoveLinkRequest;
 import backend.academy.scrapper.client.external.github.GithubClientService;
 import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.db.contract.FilterService;
-import backend.academy.scrapper.db.contract.TagService;
 import backend.academy.scrapper.db.contract.SubscriptionService;
+import backend.academy.scrapper.db.contract.TagService;
 import backend.academy.scrapper.db.contract.UserService;
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Сервис с бизнес-логикой добавления и удаления клиентов, ссылок, подписок в репозитории. Связывает DTO и сущности
@@ -79,7 +78,9 @@ public class ScrapperService {
                     subscription.getKey(),
                     subscription.getValue().link().url(),
                     subscription.getValue().tags().stream().map(Tag::value).toList(),
-                    subscription.getValue().filters().stream().map(f -> f.key()+":"+f.value()).toList());
+                    subscription.getValue().filters().stream()
+                            .map(f -> f.key() + ":" + f.value())
+                            .toList());
             links.add(link);
         }
         return new ListLinksResponse(links, links.size());
@@ -94,26 +95,26 @@ public class ScrapperService {
      */
     public LinkResponse addSubscription(long chatId, AddLinkRequest request) {
         User user = new User(chatId);
-        Link link = new Link(request.link(), LinkType.fromValue(request.link()), LocalDateTime.now(ZoneId.systemDefault()));
+        Link link =
+                new Link(request.link(), LinkType.fromValue(request.link()), LocalDateTime.now(ZoneId.systemDefault()));
         if (link.type() == LinkType.STACKOVERFLOW) {
             processSOLink(link);
         }
-        if(!isAvailable(link)){
-            throw new ScrapperUnavailableLinkException("Link "+link.url()+" is not available");
+        if (!isAvailable(link)) {
+            throw new ScrapperUnavailableLinkException("Link " + link.url() + " is not available");
         }
         List<Tag> tags = new ArrayList<>();
-        for(String t: request.tags()) {
+        for (String t : request.tags()) {
             tags.add(new Tag(t));
         }
         List<Filter> filters = new ArrayList<>();
-        for(String f: request.filters()) {
+        for (String f : request.filters()) {
             String[] parts = f.split(":");
             filters.add(new Filter(parts[0], parts[1]));
         }
         long subscriptionId = subscriptionService.addSubscriptionOnLink(user, link, tags, filters);
 
-        return new LinkResponse(
-                subscriptionId, request.link(), request.tags(), request.filters());
+        return new LinkResponse(subscriptionId, request.link(), request.tags(), request.filters());
     }
 
     /**
@@ -132,14 +133,13 @@ public class ScrapperService {
         }
         Map.Entry<Long, Subscription> deletedSub = subscriptionService.deleteSubscriptionByUserAndLink(user, link);
         return new LinkResponse(
-            deletedSub.getKey(),
-            request.link(),
-            deletedSub.getValue().tags().stream().map(Tag::value).toList(),
-            deletedSub.getValue().filters().stream().map(f -> f.key()+":"+f.value()).toList()
-        );
+                deletedSub.getKey(),
+                request.link(),
+                deletedSub.getValue().tags().stream().map(Tag::value).toList(),
+                deletedSub.getValue().filters().stream()
+                        .map(f -> f.key() + ":" + f.value())
+                        .toList());
     }
-
-
 
     /**
      * Проверка доступа к ссылке с помощью сервисов внешних клиентов

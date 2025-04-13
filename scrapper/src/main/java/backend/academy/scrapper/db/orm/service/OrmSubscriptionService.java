@@ -33,7 +33,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @AllArgsConstructor
 public class OrmSubscriptionService implements SubscriptionService {
 
@@ -49,7 +48,7 @@ public class OrmSubscriptionService implements SubscriptionService {
             OrmUser u = tryGetUserByChatId(user.chatId());
             OrmLink l = tryGetLinkByData(link);
             checkExistingSubscription(u, link.url());
-            OrmSubscription sub = new OrmSubscription(l,u);
+            OrmSubscription sub = new OrmSubscription(l, u);
             List<OrmTag> ormTags = new ArrayList<>();
             for (Tag t : tags) {
                 OrmTag tag = createOrGetOrmTag(u, t);
@@ -79,7 +78,7 @@ public class OrmSubscriptionService implements SubscriptionService {
         try {
             OrmUser u = tryGetUserByChatId(user.chatId());
             Map<Long, Subscription> subscriptions = new HashMap<>();
-            for(OrmSubscription sub : u.subscriptions()){
+            for (OrmSubscription sub : u.subscriptions()) {
                 subscriptions.put(sub.id(), OrmSubscriptionMapper.mapFromOrm(sub));
             }
             return subscriptions;
@@ -93,9 +92,7 @@ public class OrmSubscriptionService implements SubscriptionService {
     public List<Long> getSubscribersChatsByLinkId(long linkId) {
         try {
             OrmLink link = tryGetLinkById(linkId);
-            return link.subscriptions().stream()
-                .map(s -> s.user().chatId())
-                .toList();
+            return link.subscriptions().stream().map(s -> s.user().chatId()).toList();
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while getting link subscribers with ORM", e);
         }
@@ -107,18 +104,16 @@ public class OrmSubscriptionService implements SubscriptionService {
         try {
             OrmUser u = tryGetUserByChatId(user.chatId());
             OrmSubscription sub = u.subscriptions().stream()
-                .filter(s -> s.link().url().equals(link.url()))
-                .findFirst()
-                .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("No subscription for user " + user.chatId()));
-            Map.Entry<Long, Subscription> response = Map.entry(
-                sub.id(),
-                OrmSubscriptionMapper.mapFromOrm(sub)
-            );
+                    .filter(s -> s.link().url().equals(link.url()))
+                    .findFirst()
+                    .orElseThrow(() ->
+                            new ScrapperSubscriptionNotExistsException("No subscription for user " + user.chatId()));
+            Map.Entry<Long, Subscription> response = Map.entry(sub.id(), OrmSubscriptionMapper.mapFromOrm(sub));
             OrmLink l = sub.link();
             l.subscriptions().remove(sub);
             u.subscriptions().remove(sub);
             subscrRepo.delete(sub);
-            if(l.subscriptions().isEmpty()) {
+            if (l.subscriptions().isEmpty()) {
                 linkRepo.delete(l);
             }
             subscrRepo.flush();
@@ -128,28 +123,25 @@ public class OrmSubscriptionService implements SubscriptionService {
         }
     }
 
-
-    private OrmUser tryGetUserByChatId(long chatId){
+    private OrmUser tryGetUserByChatId(long chatId) {
         return userRepo.findByChatId(chatId)
-            .orElseThrow(() -> new ScrapperUserNotExistsException("User " + chatId + " does not exist"));
+                .orElseThrow(() -> new ScrapperUserNotExistsException("User " + chatId + " does not exist"));
     }
 
-    private OrmLink tryGetLinkByData(Link link){
-        return linkRepo.findByUrl(link.url())
-            .orElseGet(() -> {
-                OrmLink newLink = OrmLinkMapper.mapToOrm(link);
-                return linkRepo.save(newLink);
-            });
+    private OrmLink tryGetLinkByData(Link link) {
+        return linkRepo.findByUrl(link.url()).orElseGet(() -> {
+            OrmLink newLink = OrmLinkMapper.mapToOrm(link);
+            return linkRepo.save(newLink);
+        });
     }
 
-    private OrmLink tryGetLinkById(long id){
+    private OrmLink tryGetLinkById(long id) {
         return linkRepo.findById(id)
-            .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + id + " does not exist"));
+                .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + id + " does not exist"));
     }
 
     private void checkExistingSubscription(OrmUser u, String url) {
-        if( u.subscriptions().stream()
-            .anyMatch(s -> s.link().url().equals(url))) {
+        if (u.subscriptions().stream().anyMatch(s -> s.link().url().equals(url))) {
             throw new ScrapperSubscriptionAlreadyExistsException("Subscription " + url + " already exists");
         }
     }

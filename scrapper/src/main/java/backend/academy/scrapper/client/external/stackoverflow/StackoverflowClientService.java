@@ -83,7 +83,6 @@ public class StackoverflowClientService {
         }
     }
 
-
     private String parseQuestionName(String jsonInfo) {
         try {
             JsonNode infoNode = mapper.readTree(jsonInfo);

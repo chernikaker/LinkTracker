@@ -9,5 +9,4 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Import(OrmConfig.class)
 @DataJpaTest
 @Testcontainers
-public class OrmFilterServiceTest extends FilterServiceTest {
-}
+public class OrmFilterServiceTest extends FilterServiceTest {}

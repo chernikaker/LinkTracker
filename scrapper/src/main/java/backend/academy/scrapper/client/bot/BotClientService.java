@@ -4,7 +4,6 @@ import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkUpdate;
 import backend.academy.dto.LinkUpdateUnit;
 import backend.academy.scrapper.db.contract.SubscriptionService;
-import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.model.UpdateInfo;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -69,7 +68,12 @@ public class BotClientService {
      */
     private List<LinkUpdateUnit> makeUpdateUnits(List<UpdateInfo> info) {
         return info.stream()
-            .map(i -> new LinkUpdateUnit(i.title(), i.message(), i.time(), i.authorName(), i.type().message()))
-            .toList();
+                .map(i -> new LinkUpdateUnit(
+                        i.title(),
+                        i.message(),
+                        i.time(),
+                        i.authorName(),
+                        i.type().message()))
+                .toList();
     }
 }

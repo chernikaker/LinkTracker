@@ -1,6 +1,5 @@
 package backend.academy.scrapper.db.sql.entity;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

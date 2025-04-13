@@ -1,8 +1,18 @@
 package backend.academy.scrapper.db.orm.unit;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.within;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.db.exception.TestDataAccessException;
 import backend.academy.scrapper.db.orm.entity.OrmLink;
-import backend.academy.scrapper.db.orm.mapper.OrmLinkMapper;
 import backend.academy.scrapper.db.orm.repository.OrmLinkRepository;
 import backend.academy.scrapper.db.orm.service.OrmLinkService;
 import backend.academy.scrapper.entity.Link;
@@ -20,16 +30,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.within;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OrmLinkServiceUnitTest {
@@ -53,7 +53,7 @@ public class OrmLinkServiceUnitTest {
 
     @BeforeEach
     void setUp() {
-        oldLink = new OrmLink(LINK_ID, url+"1", OLD_VALIDATION_TIME, List.of());
+        oldLink = new OrmLink(LINK_ID, url + "1", OLD_VALIDATION_TIME, List.of());
     }
 
     @Test
@@ -62,8 +62,7 @@ public class OrmLinkServiceUnitTest {
 
         assertDoesNotThrow(() -> linkService.updateLinkValidationOnCurrentTime(LINK_ID));
 
-        assertThat(oldLink.lastValidation())
-            .isCloseTo(LocalDateTime.now(), within(1, SECONDS));
+        assertThat(oldLink.lastValidation()).isCloseTo(LocalDateTime.now(), within(1, SECONDS));
         verify(linkRepo).save(oldLink);
         verify(linkRepo).flush();
     }
@@ -72,9 +71,8 @@ public class OrmLinkServiceUnitTest {
     public void updateLinkValidationOnCurrentTime_LinkNotFoundException() {
         when(linkRepo.findById(NON_EXISTENT_LINK_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(
-            () -> linkService.updateLinkValidationOnCurrentTime(NON_EXISTENT_LINK_ID))
-            .isInstanceOf(ScrapperLinkNotExistsException.class);
+        assertThatThrownBy(() -> linkService.updateLinkValidationOnCurrentTime(NON_EXISTENT_LINK_ID))
+                .isInstanceOf(ScrapperLinkNotExistsException.class);
         verify(linkRepo, never()).save(any());
         verify(linkRepo, never()).flush();
     }
@@ -83,19 +81,18 @@ public class OrmLinkServiceUnitTest {
     public void updateLinkValidationOnCurrentTime_DataAccessError() {
         when(linkRepo.findById(LINK_ID)).thenThrow(new TestDataAccessException("error"));
 
-        assertThatThrownBy(
-            () -> linkService.updateLinkValidationOnCurrentTime(LINK_ID))
-            .isInstanceOf(ScrapperOrmException.class);
+        assertThatThrownBy(() -> linkService.updateLinkValidationOnCurrentTime(LINK_ID))
+                .isInstanceOf(ScrapperOrmException.class);
     }
 
     @Test
     public void getLinksToCheck_returnsLinksSuccessfully() {
         Pageable pageable = PageRequest.of((int) (OFFSET / BATCH_SIZE), BATCH_SIZE);
 
-        when(linkRepo.findUncheckedLinks(any(), eq(pageable)))
-            .thenReturn(List.of(oldLink));
+        when(linkRepo.findUncheckedLinks(any(), eq(pageable))).thenReturn(List.of(oldLink));
 
-        Map<Long, Link> result = assertDoesNotThrow(() ->linkService.getLinksToCheck(BATCH_SIZE, OFFSET, DURATION_SECONDS));
+        Map<Long, Link> result =
+                assertDoesNotThrow(() -> linkService.getLinksToCheck(BATCH_SIZE, OFFSET, DURATION_SECONDS));
 
         assertThat(result).hasSize(1);
         assertThat(result).containsOnlyKeys(LINK_ID);
@@ -106,6 +103,6 @@ public class OrmLinkServiceUnitTest {
         when(linkRepo.findUncheckedLinks(any(), any())).thenThrow(new TestDataAccessException("error"));
 
         assertThatThrownBy(() -> linkService.getLinksToCheck(BATCH_SIZE, OFFSET, DURATION_SECONDS))
-            .isInstanceOf(ScrapperOrmException.class);
+                .isInstanceOf(ScrapperOrmException.class);
     }
 }

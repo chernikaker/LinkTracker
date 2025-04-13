@@ -31,21 +31,17 @@ public class OrmConfig {
 
     @Bean
     @Primary
-    public UserService userService(
-        OrmUserRepository userRepo,
-        OrmLinkRepository linkRepo
-    ) {
+    public UserService userService(OrmUserRepository userRepo, OrmLinkRepository linkRepo) {
         return new OrmUserService(userRepo, linkRepo);
     }
 
     @Bean
     @Primary
     public SubscriptionService subscriptionService(
-        OrmUserRepository userRepo,
-        OrmLinkRepository linkRepo,
-        OrmSubscriptionRepository subscriptionRepo,
-        OrmTagRepository tagRepo
-    ) {
+            OrmUserRepository userRepo,
+            OrmLinkRepository linkRepo,
+            OrmSubscriptionRepository subscriptionRepo,
+            OrmTagRepository tagRepo) {
         return new OrmSubscriptionService(subscriptionRepo, linkRepo, userRepo, tagRepo);
     }
 
@@ -58,10 +54,7 @@ public class OrmConfig {
     @Bean
     @Primary
     public TagService tagService(
-        OrmUserRepository userRepo,
-        OrmSubscriptionRepository subscriptionRepo,
-        OrmTagRepository tagRepo
-    ) {
+            OrmUserRepository userRepo, OrmSubscriptionRepository subscriptionRepo, OrmTagRepository tagRepo) {
         return new OrmTagService(userRepo, subscriptionRepo, tagRepo);
     }
 

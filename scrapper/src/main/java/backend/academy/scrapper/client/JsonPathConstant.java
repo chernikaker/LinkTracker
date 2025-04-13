@@ -17,6 +17,6 @@ public class JsonPathConstant {
     public static final String CREATION_DATE = "creation_date";
     public static final String ITEMS = "items";
 
-    //Common
+    // Common
     public static final String TITLE = "title";
 }

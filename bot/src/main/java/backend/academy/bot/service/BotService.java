@@ -1,21 +1,22 @@
 package backend.academy.bot.service;
 
+import static backend.academy.data.Constant.MAX_DESCRIPTION_LENGTH;
+
 import backend.academy.bot.telegram.TelegramBotService;
 import backend.academy.bot.validator.LinkUpdateValidator;
 import backend.academy.dto.LinkUpdate;
 import backend.academy.dto.LinkUpdateUnit;
 import com.pengrad.telegrambot.request.SendMessage;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import static backend.academy.data.Constant.MAX_DESCRIPTION_LENGTH;
 
 /** Сервис для обработки запросов контроллера */
 @Service
 @AllArgsConstructor
 public class BotService {
 
-    public static final String UPDATE_MESSAGE = "Новые уведомления для ссылки: %s %nОписание:\n %s";
+    public static final String UPDATE_MESSAGE = "Новые уведомления для ссылки: %s %nОписание:%n %s";
     private final TelegramBotService telegramBotService;
 
     public void sendUpdates(LinkUpdate update) {
@@ -44,10 +45,12 @@ public class BotService {
             sb.append("Тип сообщения: ").append(updates.get(i).type()).append('\n');
             sb.append("Заголовок: ").append(updates.get(i).title()).append('\n');
             sb.append("Автор: ").append(updates.get(i).author()).append('\n');
-            sb.append("Время обновления: ").append(updates.get(i).creationDate()).append('\n');
+            sb.append("Время обновления: ")
+                    .append(updates.get(i).creationDate())
+                    .append('\n');
             String descMessage = updates.get(i).description();
-            if(descMessage.length() == MAX_DESCRIPTION_LENGTH) {
-                descMessage+="...";
+            if (descMessage.length() == MAX_DESCRIPTION_LENGTH) {
+                descMessage += "...";
             }
             sb.append("Описание: ").append(descMessage).append("\n\n");
         }

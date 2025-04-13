@@ -1,5 +1,12 @@
 package backend.academy.scrapper.service.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
@@ -10,7 +17,6 @@ import backend.academy.scrapper.db.config.SqlConfig;
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
-import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkException;
@@ -26,12 +32,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Import(SqlConfig.class)
@@ -63,7 +63,6 @@ public class ServiceRepositoryIntegrationTest {
         filter = new Filter("key", "value");
     }
 
-
     @Test
     public void testRegisterUser_Success() {
         assertDoesNotThrow(() -> scrapperService.registerUser(1L));
@@ -92,9 +91,8 @@ public class ServiceRepositoryIntegrationTest {
         assertEquals(1, linkRes.tags().size());
         assertEquals(tag.value(), linkRes.tags().getFirst());
         assertEquals(1, linkRes.filters().size());
-        assertEquals(filter.key()+":"+filter.value(), linkRes.filters().getFirst());
+        assertEquals(filter.key() + ":" + filter.value(), linkRes.filters().getFirst());
     }
-
 
     @Test
     public void testGetUserLinks_noLinks() {
@@ -130,7 +128,6 @@ public class ServiceRepositoryIntegrationTest {
                 .isInstanceOf(ScrapperUnavailableLinkException.class);
     }
 
-
     @Test
     public void testDeleteSubscription_Success() {
         fillAllData(false);
@@ -142,15 +139,17 @@ public class ServiceRepositoryIntegrationTest {
         assertEquals(0, getSubAmountByChatIdAndLinkUrl(user.chatId(), link.url()));
     }
 
-
-    private Long getUserAmountByChat(long chatId){
+    private Long getUserAmountByChat(long chatId) {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM tg_user WHERE chat_id=?", Long.class, chatId);
     }
 
-    private Long getSubAmountByChatIdAndLinkUrl(long chatId, String url){
-        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM subscription s " +
-            "JOIN tg_user u ON u.id = s.user_id " +
-            "JOIN link l ON l.id = s.link_id WHERE l.url = ? AND u.chat_id = ?", Long.class, url, chatId);
+    private Long getSubAmountByChatIdAndLinkUrl(long chatId, String url) {
+        return jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM subscription s " + "JOIN tg_user u ON u.id = s.user_id "
+                        + "JOIN link l ON l.id = s.link_id WHERE l.url = ? AND u.chat_id = ?",
+                Long.class,
+                url,
+                chatId);
     }
 
     private Long addUserWithChatId(Long chatId) {
@@ -159,19 +158,24 @@ public class ServiceRepositoryIntegrationTest {
 
     private void fillAllData(boolean withAddInfo) {
         Long userId = addUserWithChatId(user.chatId());
-        Long linkId = jdbcTemplate.queryForObject("INSERT INTO link (url, last_validation) VALUES (?, ?) RETURNING id",
-            Long.class, link.url(), link.lastValidation());
-        Long subscriptionId = jdbcTemplate.queryForObject("INSERT INTO subscription (user_id, link_id) VALUES (?, ?) RETURNING id", Long.class, userId, linkId);
-        if (withAddInfo) {
-            Long tagId = jdbcTemplate.queryForObject("INSERT INTO tag (tag_text, user_id) VALUES (?, ?) RETURNING id",
+        Long linkId = jdbcTemplate.queryForObject(
+                "INSERT INTO link (url, last_validation) VALUES (?, ?) RETURNING id",
                 Long.class,
-                tag.value(),
-                userId
-            );
-            jdbcTemplate.update("INSERT INTO filter (key, value, subscription_id, user_id) VALUES (?, ?, ?, ?)"
-                , filter.key(), filter.value(), subscriptionId, userId);
-            jdbcTemplate.update("INSERT INTO subscription_tag (subscription_id, tag_id) VALUES (?, ?)",
-                subscriptionId, tagId);
+                link.url(),
+                link.lastValidation());
+        Long subscriptionId = jdbcTemplate.queryForObject(
+                "INSERT INTO subscription (user_id, link_id) VALUES (?, ?) RETURNING id", Long.class, userId, linkId);
+        if (withAddInfo) {
+            Long tagId = jdbcTemplate.queryForObject(
+                    "INSERT INTO tag (tag_text, user_id) VALUES (?, ?) RETURNING id", Long.class, tag.value(), userId);
+            jdbcTemplate.update(
+                    "INSERT INTO filter (key, value, subscription_id, user_id) VALUES (?, ?, ?, ?)",
+                    filter.key(),
+                    filter.value(),
+                    subscriptionId,
+                    userId);
+            jdbcTemplate.update(
+                    "INSERT INTO subscription_tag (subscription_id, tag_id) VALUES (?, ?)", subscriptionId, tagId);
         }
     }
 }

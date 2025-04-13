@@ -1,6 +1,5 @@
 package backend.academy.scrapper.db.orm.entity;
 
-import backend.academy.scrapper.entity.Link;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,26 +9,25 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Past;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="tag")
+@Table(name = "tag")
 public class OrmTag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="tag_text")
+    @Column(name = "tag_text")
     private String tagText;
 
     @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "id")

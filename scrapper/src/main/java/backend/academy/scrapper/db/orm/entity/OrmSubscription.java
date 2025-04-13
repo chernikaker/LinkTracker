@@ -10,13 +10,12 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.util.List;
 
 @Getter
 @Setter
@@ -42,9 +41,10 @@ public class OrmSubscription {
     private List<OrmFilter> filters;
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    @JoinTable(name="subscription_tag",
-        joinColumns = @JoinColumn(name = "subscription_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    @JoinTable(
+            name = "subscription_tag",
+            joinColumns = @JoinColumn(name = "subscription_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private List<OrmTag> tags;
 
     public OrmSubscription(OrmLink link, OrmUser user) {

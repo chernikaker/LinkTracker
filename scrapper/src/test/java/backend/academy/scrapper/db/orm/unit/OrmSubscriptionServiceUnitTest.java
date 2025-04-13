@@ -1,5 +1,15 @@
 package backend.academy.scrapper.db.orm.unit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.db.exception.TestDataAccessException;
 import backend.academy.scrapper.db.orm.entity.OrmFilter;
 import backend.academy.scrapper.db.orm.entity.OrmLink;
@@ -37,15 +47,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OrmSubscriptionServiceUnitTest {
@@ -61,7 +62,6 @@ public class OrmSubscriptionServiceUnitTest {
     private static final Tag TAG = new Tag(TAG_TEXT);
     private static final Filter FILTER = new Filter(FILTER_KEY, FILTER_VALUE);
 
-
     private static OrmUser ORM_USER = new OrmUser();
     private static OrmLink ORM_LINK = new OrmLink();
     private static OrmTag ORM_TAG = new OrmTag();
@@ -70,10 +70,13 @@ public class OrmSubscriptionServiceUnitTest {
 
     @Mock
     private OrmSubscriptionRepository subscrRepo;
+
     @Mock
     private OrmLinkRepository linkRepo;
+
     @Mock
     private OrmUserRepository userRepo;
+
     @Mock
     private OrmTagRepository tagRepo;
 
@@ -89,7 +92,8 @@ public class OrmSubscriptionServiceUnitTest {
         when(tagRepo.findByTagTextAndOwner(TAG_TEXT, ORM_USER)).thenReturn(Optional.empty());
         when(subscrRepo.save(any())).thenReturn(ORM_SUBSCRIPTION);
 
-        long result = assertDoesNotThrow(() -> subscriptionService.addSubscriptionOnLink(USER, LINK, List.of(TAG), List.of(FILTER)));
+        long result = assertDoesNotThrow(
+                () -> subscriptionService.addSubscriptionOnLink(USER, LINK, List.of(TAG), List.of(FILTER)));
 
         assertThat(result).isEqualTo(ID);
         verify(linkRepo).findByUrl(any());
@@ -122,7 +126,7 @@ public class OrmSubscriptionServiceUnitTest {
         when(linkRepo.findByUrl(URL)).thenReturn(Optional.of(ORM_LINK));
 
         assertThatThrownBy(() -> subscriptionService.addSubscriptionOnLink(USER, LINK, List.of(TAG), List.of(FILTER)))
-            .isInstanceOf(ScrapperSubscriptionAlreadyExistsException.class);
+                .isInstanceOf(ScrapperSubscriptionAlreadyExistsException.class);
     }
 
     @Test
@@ -130,7 +134,7 @@ public class OrmSubscriptionServiceUnitTest {
         when(userRepo.findByChatId(ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> subscriptionService.addSubscriptionOnLink(USER, LINK, List.of(TAG), List.of(FILTER)))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -138,14 +142,14 @@ public class OrmSubscriptionServiceUnitTest {
         when(userRepo.findByChatId(ID)).thenThrow(new TestDataAccessException("error"));
 
         assertThatThrownBy(() -> subscriptionService.addSubscriptionOnLink(USER, LINK, List.of(TAG), List.of(FILTER)))
-            .isInstanceOf(ScrapperOrmException.class);
+                .isInstanceOf(ScrapperOrmException.class);
     }
 
     @Test
     public void getUserSubscriptions_Success() {
         ORM_LINK = OrmLinkMapper.mapToOrm(LINK);
         ORM_TAG = OrmTagMapper.mapToOrm(TAG);
-        ORM_FILTER= OrmFilterMapper.mapToOrm(FILTER);
+        ORM_FILTER = OrmFilterMapper.mapToOrm(FILTER);
         ORM_USER = OrmUserMapper.mapToOrm(USER);
         ORM_SUBSCRIPTION = new OrmSubscription(ID, ORM_LINK, ORM_USER, List.of(ORM_FILTER), List.of(ORM_TAG));
         ORM_USER.subscriptions(List.of(ORM_SUBSCRIPTION));
@@ -167,7 +171,7 @@ public class OrmSubscriptionServiceUnitTest {
         when(userRepo.findByChatId(ID)).thenThrow(new TestDataAccessException("error"));
 
         assertThatThrownBy(() -> subscriptionService.getUserSubscriptions(USER))
-            .isInstanceOf(ScrapperOrmException.class);
+                .isInstanceOf(ScrapperOrmException.class);
     }
 
     @Test
@@ -197,7 +201,7 @@ public class OrmSubscriptionServiceUnitTest {
         when(linkRepo.findById(ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> subscriptionService.getSubscribersChatsByLinkId(ID))
-            .isInstanceOf(ScrapperLinkNotExistsException.class);
+                .isInstanceOf(ScrapperLinkNotExistsException.class);
     }
 
     @Test
@@ -205,14 +209,14 @@ public class OrmSubscriptionServiceUnitTest {
         when(linkRepo.findById(ID)).thenThrow(new TestDataAccessException("error"));
 
         assertThatThrownBy(() -> subscriptionService.getSubscribersChatsByLinkId(ID))
-            .isInstanceOf(ScrapperOrmException.class);
+                .isInstanceOf(ScrapperOrmException.class);
     }
 
     @Test
     public void deleteSubscriptionByUserAndLink_SuccessUniqueLinkSub() {
         ORM_LINK = OrmLinkMapper.mapToOrm(LINK);
         ORM_TAG = OrmTagMapper.mapToOrm(TAG);
-        ORM_FILTER= OrmFilterMapper.mapToOrm(FILTER);
+        ORM_FILTER = OrmFilterMapper.mapToOrm(FILTER);
         ORM_USER = OrmUserMapper.mapToOrm(USER);
         ORM_SUBSCRIPTION = new OrmSubscription(ID, ORM_LINK, ORM_USER, List.of(ORM_FILTER), List.of(ORM_TAG));
         ORM_USER.subscriptions(new ArrayList<>(List.of(ORM_SUBSCRIPTION)));
@@ -232,7 +236,7 @@ public class OrmSubscriptionServiceUnitTest {
     public void deleteSubscriptionByUserAndLink_SuccessNotUniqueLink() {
         ORM_LINK = OrmLinkMapper.mapToOrm(LINK);
         ORM_TAG = OrmTagMapper.mapToOrm(TAG);
-        ORM_FILTER= OrmFilterMapper.mapToOrm(FILTER);
+        ORM_FILTER = OrmFilterMapper.mapToOrm(FILTER);
         ORM_USER = OrmUserMapper.mapToOrm(USER);
         ORM_SUBSCRIPTION = new OrmSubscription(ID, ORM_LINK, ORM_USER, List.of(ORM_FILTER), List.of(ORM_TAG));
         ORM_USER.subscriptions(new ArrayList<>(List.of(ORM_SUBSCRIPTION)));
@@ -248,14 +252,13 @@ public class OrmSubscriptionServiceUnitTest {
         verify(subscrRepo).flush();
     }
 
-
     @Test
     public void deleteSubscriptionByUserAndLink_SubscriptionNotFound() {
         ORM_USER.subscriptions(List.of());
         when(userRepo.findByChatId(ID)).thenReturn(Optional.of(ORM_USER));
 
         assertThatThrownBy(() -> subscriptionService.deleteSubscriptionByUserAndLink(USER, LINK))
-            .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
+                .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
     }
 
     @Test
@@ -263,7 +266,7 @@ public class OrmSubscriptionServiceUnitTest {
         when(userRepo.findByChatId(ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> subscriptionService.deleteSubscriptionByUserAndLink(USER, LINK))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -271,6 +274,6 @@ public class OrmSubscriptionServiceUnitTest {
         when(userRepo.findByChatId(ID)).thenThrow(new TestDataAccessException("error"));
 
         assertThatThrownBy(() -> subscriptionService.deleteSubscriptionByUserAndLink(USER, LINK))
-            .isInstanceOf(ScrapperOrmException.class);
+                .isInstanceOf(ScrapperOrmException.class);
     }
 }

@@ -18,8 +18,8 @@ public class FilterSqlRepository {
 
     public void addFilterToSubscription(SqlFilter filter) {
         SqlParameterSource params = new BeanPropertySqlParameterSource(filter);
-        String sql = "INSERT INTO filter (key, value, subscription_id, user_id)" +
-            " VALUES (:key, :value, :subscriptionId, :userId)";
+        String sql = "INSERT INTO filter (key, value, subscription_id, user_id)"
+                + " VALUES (:key, :value, :subscriptionId, :userId)";
         jdbcTemplate.update(sql, params);
     }
 

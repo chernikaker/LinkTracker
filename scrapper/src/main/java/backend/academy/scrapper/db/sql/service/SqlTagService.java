@@ -10,7 +10,6 @@ import backend.academy.scrapper.db.sql.repository.SubscriptionSqlRepository;
 import backend.academy.scrapper.db.sql.repository.TagSqlRepository;
 import backend.academy.scrapper.db.sql.repository.UserSqlRepository;
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.db.ScrapperSqlException;
@@ -31,7 +30,6 @@ public class SqlTagService implements TagService {
     private final LinkSqlRepository linkRepo;
     private final SubscriptionSqlRepository subscrRepo;
     private final TagSqlRepository tagRepo;
-
 
     @Override
     @Transactional
@@ -64,7 +62,7 @@ public class SqlTagService implements TagService {
         try {
             List<SqlTag> tags = tagRepo.getSubscriptionTags(id);
             List<Tag> response = new ArrayList<>();
-            for(SqlTag tag : tags){
+            for (SqlTag tag : tags) {
                 response.add(new Tag(tag.tagText()));
             }
             return response;
@@ -75,21 +73,23 @@ public class SqlTagService implements TagService {
 
     private SqlUser tryGetUserByChatId(long chatId) {
         return userRepo.findUserByChatId(chatId)
-            .orElseThrow(() -> new ScrapperUserNotExistsException("User " + chatId + " does not exist"));
+                .orElseThrow(() -> new ScrapperUserNotExistsException("User " + chatId + " does not exist"));
     }
 
     private SqlLink tryGetLinkByUrl(String url) {
         return linkRepo.findLinkByUrl(url)
-            .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + url + " does not exist"));
+                .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + url + " does not exist"));
     }
 
     private SqlSubscription tryGetSubscriptionByLinkAndUserId(long linkId, long userId) {
-        return subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId)
-            .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("Subscription for link " +linkId+" by user "+userId + " does not exist"));
+        return subscrRepo
+                .getSubscriptionByLinkAndUserId(linkId, userId)
+                .orElseThrow(() -> new ScrapperSubscriptionNotExistsException(
+                        "Subscription for link " + linkId + " by user " + userId + " does not exist"));
     }
 
     private SqlTag tryGetTagByTextAndUserId(String text, long userId) {
         return tagRepo.getTagByTextAndUserId(userId, text)
-            .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + text + " does not exist"));
+                .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + text + " does not exist"));
     }
 }

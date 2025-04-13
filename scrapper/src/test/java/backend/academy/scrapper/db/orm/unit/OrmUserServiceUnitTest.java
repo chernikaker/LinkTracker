@@ -1,5 +1,13 @@
 package backend.academy.scrapper.db.orm.unit;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.db.exception.TestDataAccessException;
 import backend.academy.scrapper.db.orm.entity.OrmLink;
 import backend.academy.scrapper.db.orm.entity.OrmSubscription;
@@ -21,13 +29,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OrmUserServiceUnitTest {
@@ -79,8 +80,7 @@ public class OrmUserServiceUnitTest {
     public void addUser_UserAlreadyExists() {
         when(userRepo.findByChatId(CHAT_ID)).thenReturn(Optional.of(existingOrmUser));
 
-        assertThatThrownBy(() -> userService.addUser(testUser))
-            .isInstanceOf(ScrapperUserAlreadyExistsException.class);
+        assertThatThrownBy(() -> userService.addUser(testUser)).isInstanceOf(ScrapperUserAlreadyExistsException.class);
 
         verify(userRepo, never()).save(any());
     }
@@ -89,8 +89,7 @@ public class OrmUserServiceUnitTest {
     public void addUser_DatabaseError() {
         when(userRepo.findByChatId(CHAT_ID)).thenThrow(new TestDataAccessException("error"));
 
-        assertThatThrownBy(() -> userService.addUser(testUser))
-            .isInstanceOf(ScrapperOrmException.class);
+        assertThatThrownBy(() -> userService.addUser(testUser)).isInstanceOf(ScrapperOrmException.class);
     }
 
     @Test
@@ -116,14 +115,13 @@ public class OrmUserServiceUnitTest {
         verify(linkRepo).flush();
     }
 
-
     @Test
     void deleteUser_UserNotFound() {
         when(userRepo.findByChatId(CHAT_ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.deleteUser(new User(CHAT_ID)))
-            .isInstanceOf(ScrapperUserNotExistsException.class)
-            .hasMessageContaining("does not exist");
+                .isInstanceOf(ScrapperUserNotExistsException.class)
+                .hasMessageContaining("does not exist");
 
         verify(userRepo, never()).delete(any());
     }
@@ -132,7 +130,6 @@ public class OrmUserServiceUnitTest {
     void deleteUser_DatabaseError() {
         when(userRepo.findByChatId(CHAT_ID)).thenThrow(new TestDataAccessException("error"));
 
-        assertThatThrownBy(() -> userService.deleteUser(testUser))
-            .isInstanceOf(ScrapperOrmException.class);
+        assertThatThrownBy(() -> userService.deleteUser(testUser)).isInstanceOf(ScrapperOrmException.class);
     }
 }

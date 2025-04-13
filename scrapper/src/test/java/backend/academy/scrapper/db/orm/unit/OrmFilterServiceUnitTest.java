@@ -1,5 +1,11 @@
 package backend.academy.scrapper.db.orm.unit;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.db.exception.TestDataAccessException;
 import backend.academy.scrapper.db.orm.entity.OrmFilter;
 import backend.academy.scrapper.db.orm.entity.OrmSubscription;
@@ -14,11 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OrmFilterServiceUnitTest {
@@ -37,8 +38,7 @@ public class OrmFilterServiceUnitTest {
 
     @Test
     public void getFiltersBySubscriptionId_HasFilters() {
-        when(filterRepo.getAllBySubscription_Id(ID))
-            .thenReturn(TEST_FILTERS);
+        when(filterRepo.getAllBySubscription_Id(ID)).thenReturn(TEST_FILTERS);
 
         List<Filter> result = assertDoesNotThrow(() -> filterService.getFiltersBySubscriptionId(ID));
 
@@ -49,8 +49,7 @@ public class OrmFilterServiceUnitTest {
 
     @Test
     public void getFiltersBySubscriptionId_EmptyFilters() {
-        when(filterRepo.getAllBySubscription_Id(ID))
-            .thenReturn(List.of());
+        when(filterRepo.getAllBySubscription_Id(ID)).thenReturn(List.of());
 
         List<Filter> result = assertDoesNotThrow(() -> filterService.getFiltersBySubscriptionId(ID));
 
@@ -61,7 +60,6 @@ public class OrmFilterServiceUnitTest {
     public void getFiltersBySubscriptionId_DataAccessException() {
         when(filterRepo.getAllBySubscription_Id(ID)).thenThrow(new TestDataAccessException("error"));
 
-        assertThatThrownBy(() -> filterService.getFiltersBySubscriptionId(ID))
-            .isInstanceOf(ScrapperOrmException.class);
+        assertThatThrownBy(() -> filterService.getFiltersBySubscriptionId(ID)).isInstanceOf(ScrapperOrmException.class);
     }
 }

@@ -46,7 +46,7 @@ public class GithubClientServiceTest {
     @Test
     public void getAllInfo_DataIsValid() {
         String prJson =
-            "[{\"title\":\"Pull request title\",\"user\":{\"login\":\"author1\"},\"created_at\":\"2023-10-01T12:00:00Z\", \"body\":\"body\"}]";
+                "[{\"title\":\"Pull request title\",\"user\":{\"login\":\"author1\"},\"created_at\":\"2023-10-01T12:00:00Z\", \"body\":\"body\"}]";
         String issueJson =
                 "[{\"title\":\"Issue title\",\"user\":{\"login\":\"author2\"},\"created_at\":\"2023-10-01T12:00:00Z\", \"body\":\"body\"}]";
         when(githubClient.getResponse("repos/author/repo/pulls")).thenReturn(prJson);

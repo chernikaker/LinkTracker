@@ -51,18 +51,14 @@ public class StackoverflowClientServiceIntegrationTest {
     @Test
     public void testGetAllInfo_Success() {
         setWireMockSuccessAnswerWithJson(
-            "/questions/123?key=key&site=stackoverflow&filter=withbody",
-            "{\"items\": [{\"title\":\"title\"}]}"
-        );
+                "/questions/123?key=key&site=stackoverflow&filter=withbody", "{\"items\": [{\"title\":\"title\"}]}");
         setWireMockSuccessAnswerWithJson(
-            "/questions/123/comments?key=key&site=stackoverflow&filter=withbody",
-            "{\"items\": [{\"owner\":{\"display_name\":\"user1\"},\"creation_date\":1696156800, \"body\":\"body\"}]}"
-        );
+                "/questions/123/comments?key=key&site=stackoverflow&filter=withbody",
+                "{\"items\": [{\"owner\":{\"display_name\":\"user1\"},\"creation_date\":1696156800, \"body\":\"body\"}]}");
 
         setWireMockSuccessAnswerWithJson(
-            "/questions/123/answers?key=key&site=stackoverflow&filter=withbody",
-            "{\"items\": [{\"owner\":{\"display_name\":\"user2\"},\"creation_date\":1696156800, \"body\":\"body\"}]}"
-        );
+                "/questions/123/answers?key=key&site=stackoverflow&filter=withbody",
+                "{\"items\": [{\"owner\":{\"display_name\":\"user2\"},\"creation_date\":1696156800, \"body\":\"body\"}]}");
 
         Link link = new Link(
                 "https://stackoverflow.com/questions/123",
@@ -75,11 +71,9 @@ public class StackoverflowClientServiceIntegrationTest {
         assertEquals(2, result.size());
     }
 
-    private void setWireMockSuccessAnswerWithJson(String request, String response){
-        wireMockServer.stubFor(
-            get(urlEqualTo(request))
-                .willReturn(
-                    aResponse()
+    private void setWireMockSuccessAnswerWithJson(String request, String response) {
+        wireMockServer.stubFor(get(urlEqualTo(request))
+                .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody(response)));

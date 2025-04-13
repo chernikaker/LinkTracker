@@ -1,5 +1,12 @@
 package backend.academy.scrapper.db.sql.unit;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.db.exception.TestDataAccessException;
 import backend.academy.scrapper.db.sql.entity.SqlLink;
 import backend.academy.scrapper.db.sql.entity.SqlSubscription;
@@ -29,12 +36,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SqlTagServiceUnitTest {
@@ -48,14 +49,14 @@ class SqlTagServiceUnitTest {
     private static final long linkId = 10L;
     private static final long subId = 100L;
 
-    private static  User user;
-    private static  Tag tag;
-    private static  Link link;
+    private static User user;
+    private static Tag tag;
+    private static Link link;
 
-    private static  SqlUser sqlUser;
-    private static  SqlLink sqlLink;
-    private static  SqlSubscription sqlSub;
-    private static  SqlTag sqlTag;
+    private static SqlUser sqlUser;
+    private static SqlLink sqlLink;
+    private static SqlSubscription sqlSub;
+    private static SqlTag sqlTag;
 
     @Mock
     private UserSqlRepository userRepo;
@@ -98,8 +99,8 @@ class SqlTagServiceUnitTest {
     public void deleteTagForUser_UserNotFound() {
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy( () -> sqlTagService.deleteTagForUser(user, tag))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+        assertThatThrownBy(() -> sqlTagService.deleteTagForUser(user, tag))
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -107,16 +108,15 @@ class SqlTagServiceUnitTest {
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.of(sqlUser));
         when(tagRepo.getTagByTextAndUserId(userId, tagText)).thenReturn(Optional.empty());
 
-        assertThatThrownBy( () -> sqlTagService.deleteTagForUser(user, tag))
-            .isInstanceOf(ScrapperTagNotExistsException.class);
+        assertThatThrownBy(() -> sqlTagService.deleteTagForUser(user, tag))
+                .isInstanceOf(ScrapperTagNotExistsException.class);
     }
 
     @Test
     public void deleteTagForSubscription_Data_Success() {
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.of(sqlLink));
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.of(sqlUser));
-        when(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId))
-            .thenReturn(Optional.of(sqlSub));
+        when(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId)).thenReturn(Optional.of(sqlSub));
         when(tagRepo.getTagByTextAndUserId(userId, tagText)).thenReturn(Optional.of(sqlTag));
         assertDoesNotThrow(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText));
 
@@ -129,7 +129,7 @@ class SqlTagServiceUnitTest {
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
-            .isInstanceOf(ScrapperLinkNotExistsException.class);
+                .isInstanceOf(ScrapperLinkNotExistsException.class);
     }
 
     @Test
@@ -137,30 +137,28 @@ class SqlTagServiceUnitTest {
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
     public void deleteTagForSubscription_NoSuchSubscriptionDataException() {
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.of(sqlLink));
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.of(sqlUser));
-        when(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId))
-            .thenReturn(Optional.empty());
+        when(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
-            .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
+                .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
     }
 
     @Test
     public void deleteTagForSubscription_NoSuchTagExceptionData() {
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.of(sqlLink));
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.of(sqlUser));
-        when(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId))
-            .thenReturn(Optional.of(sqlSub));
+        when(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId)).thenReturn(Optional.of(sqlSub));
         when(tagRepo.getTagByTextAndUserId(userId, tagText)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
-            .isInstanceOf(ScrapperTagNotExistsException.class);
+                .isInstanceOf(ScrapperTagNotExistsException.class);
     }
 
     @Test
@@ -168,15 +166,12 @@ class SqlTagServiceUnitTest {
         when(userRepo.findUserByChatId(chatId)).thenThrow(new TestDataAccessException("error"));
 
         assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
-            .isInstanceOf(ScrapperSqlException.class);
+                .isInstanceOf(ScrapperSqlException.class);
     }
-
 
     @Test
     public void getTagsBySubscriptionId_TagsPresent() {
-        List<SqlTag> sqlTags = List.of(
-            new SqlTag(1L, tagText, 1L)
-        );
+        List<SqlTag> sqlTags = List.of(new SqlTag(1L, tagText, 1L));
         when(tagRepo.getSubscriptionTags(subId)).thenReturn(sqlTags);
 
         List<Tag> result = assertDoesNotThrow(() -> sqlTagService.getTagsBySubscriptionId(subId));
@@ -197,10 +192,8 @@ class SqlTagServiceUnitTest {
 
     @Test
     public void getTagsBySubscriptionId_DataAccessException() {
-        when(tagRepo.getSubscriptionTags(subId))
-            .thenThrow(new TestDataAccessException("error"));
+        when(tagRepo.getSubscriptionTags(subId)).thenThrow(new TestDataAccessException("error"));
 
-        assertThatThrownBy( () -> sqlTagService.getTagsBySubscriptionId(subId))
-            .isInstanceOf(ScrapperSqlException.class);
+        assertThatThrownBy(() -> sqlTagService.getTagsBySubscriptionId(subId)).isInstanceOf(ScrapperSqlException.class);
     }
 }

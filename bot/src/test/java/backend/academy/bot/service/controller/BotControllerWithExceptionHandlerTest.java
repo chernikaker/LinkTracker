@@ -1,30 +1,30 @@
-//package backend.academy.bot.service.controller;
+// package backend.academy.bot.service.controller;
 //
-//import static org.mockito.Mockito.doThrow;
-//import static org.mockito.Mockito.verify;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+// import static org.mockito.Mockito.doThrow;
+// import static org.mockito.Mockito.verify;
+// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 //
-//import backend.academy.bot.exception.BotException;
-//import backend.academy.bot.service.ApplicationExceptionHandler;
-//import backend.academy.bot.service.BotController;
-//import backend.academy.bot.service.BotService;
-//import backend.academy.dto.LinkUpdate;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import java.util.List;
-//import lombok.SneakyThrows;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-//import org.springframework.http.MediaType;
-//import org.springframework.test.context.ContextConfiguration;
-//import org.springframework.test.context.bean.override.mockito.MockitoBean;
-//import org.springframework.test.web.servlet.MockMvc;
+// import backend.academy.bot.exception.BotException;
+// import backend.academy.bot.service.ApplicationExceptionHandler;
+// import backend.academy.bot.service.BotController;
+// import backend.academy.bot.service.BotService;
+// import backend.academy.dto.LinkUpdate;
+// import com.fasterxml.jackson.databind.ObjectMapper;
+// import java.util.List;
+// import lombok.SneakyThrows;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+// import org.springframework.http.MediaType;
+// import org.springframework.test.context.ContextConfiguration;
+// import org.springframework.test.context.bean.override.mockito.MockitoBean;
+// import org.springframework.test.web.servlet.MockMvc;
 //
-//@WebMvcTest(controllers = {BotController.class, ApplicationExceptionHandler.class})
-//@ContextConfiguration(classes = {BotController.class, ApplicationExceptionHandler.class})
-//public class BotControllerWithExceptionHandlerTest {
+// @WebMvcTest(controllers = {BotController.class, ApplicationExceptionHandler.class})
+// @ContextConfiguration(classes = {BotController.class, ApplicationExceptionHandler.class})
+// public class BotControllerWithExceptionHandlerTest {
 //
 //    @Autowired
 //    private MockMvc mockMvc;
@@ -116,4 +116,4 @@
 //                .andExpect(jsonPath("$.code").value("400"))
 //                .andExpect(jsonPath("$.exceptionName").value("BotException"));
 //    }
-//}
+// }

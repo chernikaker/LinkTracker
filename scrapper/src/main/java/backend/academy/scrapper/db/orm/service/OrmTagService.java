@@ -4,12 +4,10 @@ import backend.academy.scrapper.db.contract.TagService;
 import backend.academy.scrapper.db.orm.entity.OrmSubscription;
 import backend.academy.scrapper.db.orm.entity.OrmTag;
 import backend.academy.scrapper.db.orm.entity.OrmUser;
-import backend.academy.scrapper.db.orm.repository.OrmLinkRepository;
 import backend.academy.scrapper.db.orm.repository.OrmSubscriptionRepository;
 import backend.academy.scrapper.db.orm.repository.OrmTagRepository;
 import backend.academy.scrapper.db.orm.repository.OrmUserRepository;
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.db.ScrapperOrmException;
@@ -19,9 +17,7 @@ import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsExcept
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @AllArgsConstructor
 public class OrmTagService implements TagService {
@@ -36,9 +32,9 @@ public class OrmTagService implements TagService {
         try {
             OrmUser ormUser = tryGetUserByChatId(user.chatId());
             OrmTag ormTag = ormUser.tags().stream()
-                .filter(t -> t.tagText().equals(tag.value()))
-                .findFirst()
-                .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + tag.value() + " not found"));
+                    .filter(t -> t.tagText().equals(tag.value()))
+                    .findFirst()
+                    .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + tag.value() + " not found"));
             ormUser.tags().remove(ormTag);
             tagRepo.delete(ormTag);
             tagRepo.flush();
@@ -53,17 +49,20 @@ public class OrmTagService implements TagService {
         try {
             OrmUser subscriber = tryGetUserByChatId(user.chatId());
             OrmSubscription sub = subscriber.subscriptions().stream()
-                .filter(s -> s.link().url().equals(link.url()))
-                .findFirst()
-                .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("Subscription " + link.url() + " not found"));
-            OrmTag tag = sub.tags().stream().filter(t -> t.tagText().equals(text)).findFirst()
+                    .filter(s -> s.link().url().equals(link.url()))
+                    .findFirst()
+                    .orElseThrow(() ->
+                            new ScrapperSubscriptionNotExistsException("Subscription " + link.url() + " not found"));
+            OrmTag tag = sub.tags().stream()
+                    .filter(t -> t.tagText().equals(text))
+                    .findFirst()
                     .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + text + " not found"));
             sub.tags().remove(tag);
             tag.subscriptions().remove(sub);
             subscrRepo.save(sub);
             subscrRepo.flush();
         } catch (DataAccessException e) {
-            throw new ScrapperOrmException("Error while deleting with ORM subscription " +link.url(), e);
+            throw new ScrapperOrmException("Error while deleting with ORM subscription " + link.url(), e);
         }
     }
 
@@ -71,20 +70,18 @@ public class OrmTagService implements TagService {
     @Transactional
     public List<Tag> getTagsBySubscriptionId(long id) {
         try {
-            OrmSubscription sub = subscrRepo.findById(id).orElseThrow(
-                () -> new ScrapperSubscriptionNotExistsException("Subscription " + id + " not found")
-            );
-            return sub.tags().stream()
-                .map(this::mapFromOrmTag)
-                .toList();
+            OrmSubscription sub = subscrRepo
+                    .findById(id)
+                    .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("Subscription " + id + " not found"));
+            return sub.tags().stream().map(this::mapFromOrmTag).toList();
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while getting tags with ORM by subscription " + id, e);
         }
     }
 
-    private OrmUser tryGetUserByChatId(long chatId){
+    private OrmUser tryGetUserByChatId(long chatId) {
         return userRepo.findByChatId(chatId)
-            .orElseThrow(() -> new ScrapperUserNotExistsException("User " + chatId + " does not exist"));
+                .orElseThrow(() -> new ScrapperUserNotExistsException("User " + chatId + " does not exist"));
     }
 
     private Tag mapFromOrmTag(OrmTag ormTag) {

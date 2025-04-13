@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 /**
  * Внутренняя модель данных в Scrapper. Информация о обновлении ресурса
+ *
  * @param title заголовок обновления
  * @param message сообщение обновления
  * @param authorName имя автора обновления

@@ -2,15 +2,12 @@ package backend.academy.scrapper.db.orm.service;
 
 import backend.academy.scrapper.db.contract.FilterService;
 import backend.academy.scrapper.db.orm.entity.OrmFilter;
-import backend.academy.scrapper.db.orm.entity.OrmSubscription;
 import backend.academy.scrapper.db.orm.repository.OrmFilterRepository;
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.exception.db.ScrapperOrmException;
-import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Service;
-import java.util.List;
 
 @AllArgsConstructor
 public class OrmFilterService implements FilterService {
@@ -20,10 +17,9 @@ public class OrmFilterService implements FilterService {
     @Override
     public List<Filter> getFiltersBySubscriptionId(long id) {
         try {
-            return filterRepo.getAllBySubscription_Id(id)
-                .stream()
-                .map(this::mapFromOrmFilter)
-                .toList();
+            return filterRepo.getAllBySubscription_Id(id).stream()
+                    .map(this::mapFromOrmFilter)
+                    .toList();
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while fetching filters with ORM by subscr id: " + id, e);
         }

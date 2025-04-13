@@ -18,5 +18,4 @@ public final class Constant {
 
     /** Максимальная длина имени автора. */
     public static final int MAX_AUTHOR_LENGTH = 100;
-
 }

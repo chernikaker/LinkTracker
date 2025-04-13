@@ -14,11 +14,7 @@ import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsExcept
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +28,11 @@ public class OrmUserService implements UserService {
     public void addUser(User user) {
         try {
             Optional<OrmUser> existingUser = userRepo.findByChatId(user.chatId());
-            if(existingUser.isPresent()) {
-                throw new ScrapperUserAlreadyExistsException("User "+user.chatId()+" already exists");
+            if (existingUser.isPresent()) {
+                throw new ScrapperUserAlreadyExistsException("User " + user.chatId() + " already exists");
             }
             userRepo.save(OrmUserMapper.mapToOrm(user));
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while adding user with ORM", e);
         }
     }
@@ -46,22 +42,22 @@ public class OrmUserService implements UserService {
     public void deleteUser(User user) {
         try {
             OrmUser existingUser = userRepo.findByChatId(user.chatId())
-                .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
+                    .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " does not exist"));
             List<OrmLink> linksToCheck = new ArrayList<>();
             if (existingUser.subscriptions() != null) {
-                for (OrmSubscription s: existingUser.subscriptions()) {
-                   linksToCheck.add(s.link());
+                for (OrmSubscription s : existingUser.subscriptions()) {
+                    linksToCheck.add(s.link());
                 }
             }
             userRepo.delete(existingUser);
             userRepo.flush();
-            for(OrmLink link: linksToCheck) {
-                if(link.subscriptions().isEmpty()) {
+            for (OrmLink link : linksToCheck) {
+                if (link.subscriptions().isEmpty()) {
                     linkRepo.delete(link);
                 }
             }
             linkRepo.flush();
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while deleting user with ORM", e);
         }
     }

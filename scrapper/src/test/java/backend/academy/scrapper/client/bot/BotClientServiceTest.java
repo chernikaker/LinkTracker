@@ -3,7 +3,6 @@ package backend.academy.scrapper.client.bot;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -55,7 +54,7 @@ public class BotClientServiceTest {
         link = new Link("http://github.com/mock", LinkType.GITHUB, now);
         info = new ArrayList<>();
         info.add(new UpdateInfo("title1", "message1", "author1", now, UpdateInfoType.PULL_REQUEST));
-        info.add(new UpdateInfo("title2","message2", "author2", now, UpdateInfoType.ISSUE));
+        info.add(new UpdateInfo("title2", "message2", "author2", now, UpdateInfoType.ISSUE));
     }
 
     @Test

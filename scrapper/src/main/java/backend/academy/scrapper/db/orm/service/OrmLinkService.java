@@ -5,7 +5,6 @@ import backend.academy.scrapper.db.orm.entity.OrmLink;
 import backend.academy.scrapper.db.orm.mapper.OrmLinkMapper;
 import backend.academy.scrapper.db.orm.repository.OrmLinkRepository;
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.db.ScrapperOrmException;
 import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
 import jakarta.transaction.Transactional;
@@ -19,7 +18,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 public class OrmLinkService implements LinkService {
@@ -30,29 +28,31 @@ public class OrmLinkService implements LinkService {
     @Transactional
     public void updateLinkValidationOnCurrentTime(long linkId) {
         try {
-            OrmLink ormLink = linkRepo.findById(linkId).orElseThrow(
-                () -> new ScrapperLinkNotExistsException("Link " + linkId + " not found")
-            );
+            OrmLink ormLink = linkRepo.findById(linkId)
+                    .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + linkId + " not found"));
             ormLink.lastValidation(LocalDateTime.now(ZoneId.systemDefault()));
             linkRepo.save(ormLink);
             linkRepo.flush();
-        } catch(DataAccessException e){
+        } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while updating link validation with ORM", e);
         }
     }
 
     @Override
     public Map<Long, Link> getLinksToCheck(int batchSize, long offset, long duration) {
-        try{
-            LocalDateTime minCheck = Instant.now().minusSeconds(duration).atZone(ZoneId.systemDefault()).toLocalDateTime();
-            Pageable pageReq = PageRequest.of((int)offset/batchSize, batchSize);
+        try {
+            LocalDateTime minCheck = Instant.now()
+                    .minusSeconds(duration)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+            Pageable pageReq = PageRequest.of((int) offset / batchSize, batchSize);
             List<OrmLink> linkData = linkRepo.findUncheckedLinks(minCheck, pageReq);
             Map<Long, Link> links = new HashMap<>();
             for (OrmLink link : linkData) {
                 links.put(link.id(), OrmLinkMapper.mapFromOrm(link));
             }
             return links;
-        } catch (DataAccessException e){
+        } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while retrieving links from ORM", e);
         }
     }

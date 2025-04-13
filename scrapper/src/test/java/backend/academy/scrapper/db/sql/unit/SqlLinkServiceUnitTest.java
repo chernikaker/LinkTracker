@@ -1,5 +1,17 @@
 package backend.academy.scrapper.db.sql.unit;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.db.exception.TestDataAccessException;
 import backend.academy.scrapper.db.sql.entity.SqlLink;
 import backend.academy.scrapper.db.sql.repository.LinkSqlRepository;
@@ -15,17 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SqlLinkServiceUnitTest {
@@ -45,9 +46,10 @@ class SqlLinkServiceUnitTest {
     public void getLinksToCheck_linksPresent() {
         SqlLink sqlLink = new SqlLink(1L, "https://github.com/1", TEST_TIME.minusHours(2));
         when(linkRepo.getUncheckedLinksWithBatching(eq(BATCH_SIZE), eq(OFFSET), any(LocalDateTime.class)))
-            .thenReturn(List.of(sqlLink));
+                .thenReturn(List.of(sqlLink));
 
-        Map<Long, Link> result = assertDoesNotThrow(() -> linkService.getLinksToCheck(BATCH_SIZE, OFFSET, DURATION_SECONDS));
+        Map<Long, Link> result =
+                assertDoesNotThrow(() -> linkService.getLinksToCheck(BATCH_SIZE, OFFSET, DURATION_SECONDS));
         assertEquals(1, result.size());
         assertEquals("https://github.com/1", result.get(1L).url());
     }
@@ -55,20 +57,21 @@ class SqlLinkServiceUnitTest {
     @Test
     public void getLinksToCheck_noLinks() {
         when(linkRepo.getUncheckedLinksWithBatching(eq(BATCH_SIZE), eq(OFFSET), any(LocalDateTime.class)))
-            .thenReturn(List.of());
+                .thenReturn(List.of());
 
-        Map<Long, Link> result = assertDoesNotThrow(() -> linkService.getLinksToCheck(BATCH_SIZE, OFFSET, DURATION_SECONDS));
+        Map<Long, Link> result =
+                assertDoesNotThrow(() -> linkService.getLinksToCheck(BATCH_SIZE, OFFSET, DURATION_SECONDS));
         assertEquals(0, result.size());
     }
 
     @Test
     void getLinksToCheck_ShouldThrowScrapperSqlExceptionOnError() {
         when(linkRepo.getUncheckedLinksWithBatching(anyInt(), anyLong(), any()))
-            .thenThrow(new TestDataAccessException("error"));
+                .thenThrow(new TestDataAccessException("error"));
 
-        assertThatThrownBy(() ->linkService.getLinksToCheck(10, 0, 3600))
-            .isInstanceOf(ScrapperSqlException.class)
-            .hasMessageContaining("Error while getting links to check");
+        assertThatThrownBy(() -> linkService.getLinksToCheck(10, 0, 3600))
+                .isInstanceOf(ScrapperSqlException.class)
+                .hasMessageContaining("Error while getting links to check");
     }
 
     @Test
@@ -78,8 +81,9 @@ class SqlLinkServiceUnitTest {
 
         linkService.updateLinkValidationOnCurrentTime(linkId);
 
-        verify(linkRepo).updateLinkValidationById(eq(linkId),
-            argThat(time -> time.isAfter(beforeCall) || time.equals(beforeCall)));
+        verify(linkRepo)
+                .updateLinkValidationById(
+                        eq(linkId), argThat(time -> time.isAfter(beforeCall) || time.equals(beforeCall)));
     }
 
     @Test
@@ -87,8 +91,8 @@ class SqlLinkServiceUnitTest {
         long linkId = 1L;
         doThrow(new TestDataAccessException("error")).when(linkRepo).updateLinkValidationById(anyLong(), any());
 
-        assertThatThrownBy(() ->linkService.updateLinkValidationOnCurrentTime(linkId))
-            .isInstanceOf(ScrapperSqlException.class)
-            .hasMessageContaining("Error while updating link validation");
+        assertThatThrownBy(() -> linkService.updateLinkValidationOnCurrentTime(linkId))
+                .isInstanceOf(ScrapperSqlException.class)
+                .hasMessageContaining("Error while updating link validation");
     }
 }

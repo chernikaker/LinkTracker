@@ -1,5 +1,13 @@
 package backend.academy.scrapper.db.orm.unit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.db.exception.TestDataAccessException;
 import backend.academy.scrapper.db.orm.entity.OrmLink;
 import backend.academy.scrapper.db.orm.entity.OrmSubscription;
@@ -28,13 +36,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OrmTagServiceUnitTest {
@@ -64,7 +65,7 @@ public class OrmTagServiceUnitTest {
     private OrmTagService tagService;
 
     @BeforeAll
-    public static void setUp(){
+    public static void setUp() {
         ORM_USER = new OrmUser(ID, ID, List.of(ORM_SUBSCRIPTION), List.of(), List.of());
 
         ORM_SUBSCRIPTION.id(ID);
@@ -82,7 +83,7 @@ public class OrmTagServiceUnitTest {
         ORM_USER.tags(new ArrayList<>(List.of(ORM_TAG)));
         when(userRepo.findByChatId(ID)).thenReturn(Optional.of(ORM_USER));
 
-        assertDoesNotThrow(()->tagService.deleteTagForUser(USER, TAG));
+        assertDoesNotThrow(() -> tagService.deleteTagForUser(USER, TAG));
 
         assertThat(ORM_USER.tags()).doesNotContain(ORM_TAG);
         verify(tagRepo).delete(ORM_TAG);
@@ -94,17 +95,15 @@ public class OrmTagServiceUnitTest {
         when(userRepo.findByChatId(ID)).thenReturn(Optional.of(ORM_USER));
 
         assertThatThrownBy(() -> tagService.deleteTagForUser(USER, TAG))
-            .isInstanceOf(ScrapperTagNotExistsException.class);
+                .isInstanceOf(ScrapperTagNotExistsException.class);
     }
 
     @Test
     public void deleteTagForUser_DataAccessException() {
         when(userRepo.findByChatId(ID)).thenThrow(new TestDataAccessException("error"));
 
-        assertThatThrownBy(() -> tagService.deleteTagForUser(USER, TAG))
-            .isInstanceOf(ScrapperOrmException.class);
+        assertThatThrownBy(() -> tagService.deleteTagForUser(USER, TAG)).isInstanceOf(ScrapperOrmException.class);
     }
-
 
     @Test
     public void deleteTagForSubscriptionData_success() {
@@ -126,7 +125,7 @@ public class OrmTagServiceUnitTest {
         when(userRepo.findByChatId(ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tagService.deleteTagForSubscriptionData(USER, LINK, TAG_TEXT))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -135,7 +134,7 @@ public class OrmTagServiceUnitTest {
         ORM_USER.subscriptions(List.of());
 
         assertThatThrownBy(() -> tagService.deleteTagForSubscriptionData(USER, LINK, TAG_TEXT))
-            .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
+                .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
     }
 
     @Test
@@ -145,7 +144,7 @@ public class OrmTagServiceUnitTest {
         when(userRepo.findByChatId(ID)).thenReturn(Optional.of(ORM_USER));
 
         assertThatThrownBy(() -> tagService.deleteTagForSubscriptionData(USER, LINK, TAG_TEXT))
-            .isInstanceOf(ScrapperTagNotExistsException.class);
+                .isInstanceOf(ScrapperTagNotExistsException.class);
     }
 
     @Test
@@ -153,14 +152,13 @@ public class OrmTagServiceUnitTest {
         when(userRepo.findByChatId(ID)).thenThrow(new TestDataAccessException("error"));
 
         assertThatThrownBy(() -> tagService.deleteTagForSubscriptionData(USER, LINK, TAG_TEXT))
-            .isInstanceOf(ScrapperOrmException.class);
+                .isInstanceOf(ScrapperOrmException.class);
     }
 
     @Test
     public void getTagsBySubscriptionId_successTagsExist() {
         ORM_SUBSCRIPTION.tags(List.of(ORM_TAG));
         when(subscrRepo.findById(ID)).thenReturn(Optional.of(ORM_SUBSCRIPTION));
-
 
         List<Tag> result = assertDoesNotThrow(() -> tagService.getTagsBySubscriptionId(ID));
 
@@ -183,14 +181,13 @@ public class OrmTagServiceUnitTest {
         when(subscrRepo.findById(ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tagService.getTagsBySubscriptionId(ID))
-            .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
+                .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
     }
 
     @Test
     public void getTagsBySubscriptionId_DataAccessException() {
         when(subscrRepo.findById(ID)).thenThrow(new TestDataAccessException("error"));
 
-        assertThatThrownBy(() -> tagService.getTagsBySubscriptionId(ID))
-            .isInstanceOf(ScrapperOrmException.class);
+        assertThatThrownBy(() -> tagService.getTagsBySubscriptionId(ID)).isInstanceOf(ScrapperOrmException.class);
     }
 }

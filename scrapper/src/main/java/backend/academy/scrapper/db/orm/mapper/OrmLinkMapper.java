@@ -8,18 +8,14 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class OrmLinkMapper {
 
-    public static OrmLink mapToOrm(Link link){
+    public static OrmLink mapToOrm(Link link) {
         OrmLink ormLink = new OrmLink();
         ormLink.url(link.url());
         ormLink.lastValidation(link.lastValidation());
         return ormLink;
     }
 
-    public static Link mapFromOrm(OrmLink ormLink){
-        return new Link(
-            ormLink.url(),
-            LinkType.fromValue(ormLink.url()),
-            ormLink.lastValidation()
-        );
+    public static Link mapFromOrm(OrmLink ormLink) {
+        return new Link(ormLink.url(), LinkType.fromValue(ormLink.url()), ormLink.lastValidation());
     }
 }

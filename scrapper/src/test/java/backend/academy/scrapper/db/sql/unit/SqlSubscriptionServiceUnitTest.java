@@ -1,5 +1,16 @@
 package backend.academy.scrapper.db.sql.unit;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.db.exception.TestDataAccessException;
 import backend.academy.scrapper.db.sql.entity.SqlFilter;
 import backend.academy.scrapper.db.sql.entity.SqlLink;
@@ -19,7 +30,6 @@ import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.db.ScrapperSqlException;
-import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionAlreadyExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
@@ -34,17 +44,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class SqlSubscriptionServiceUnitTest {
@@ -99,8 +98,8 @@ public class SqlSubscriptionServiceUnitTest {
         when(tagRepo.getTagByTextAndUserId(eq(1L), any())).thenReturn(Optional.empty());
         when(tagRepo.addTag(any())).thenReturn(1L);
 
-        long subscriptionId = assertDoesNotThrow(() ->
-            subscriptionService.addSubscriptionOnLink(testUser, testLink, testTags, testFilters));
+        long subscriptionId = assertDoesNotThrow(
+                () -> subscriptionService.addSubscriptionOnLink(testUser, testLink, testTags, testFilters));
 
         assertEquals(1L, subscriptionId);
         verify(userRepo).findUserByChatId(testUser.chatId());
@@ -118,9 +117,8 @@ public class SqlSubscriptionServiceUnitTest {
         when(subscrRepo.addSubscription(any())).thenReturn(1L);
         when(tagRepo.getTagByTextAndUserId(eq(1L), any())).thenReturn(Optional.of(sqlTag));
 
-        long subscriptionId = assertDoesNotThrow(() ->
-            subscriptionService.addSubscriptionOnLink(testUser, testLink, testTags, testFilters)
-        );
+        long subscriptionId = assertDoesNotThrow(
+                () -> subscriptionService.addSubscriptionOnLink(testUser, testLink, testTags, testFilters));
 
         assertEquals(1L, subscriptionId);
         verify(userRepo).findUserByChatId(testUser.chatId());
@@ -139,8 +137,8 @@ public class SqlSubscriptionServiceUnitTest {
         when(tagRepo.getTagByTextAndUserId(eq(1L), any())).thenReturn(Optional.empty());
         when(tagRepo.addTag(any())).thenReturn(1L);
 
-        long subscriptionId = assertDoesNotThrow(() ->
-            subscriptionService.addSubscriptionOnLink(testUser, testLink, testTags, testFilters));
+        long subscriptionId = assertDoesNotThrow(
+                () -> subscriptionService.addSubscriptionOnLink(testUser, testLink, testTags, testFilters));
 
         assertEquals(1L, subscriptionId);
         verify(userRepo).findUserByChatId(testUser.chatId());
@@ -156,7 +154,7 @@ public class SqlSubscriptionServiceUnitTest {
         when(userRepo.findUserByChatId(testUser.chatId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> subscriptionService.addSubscriptionOnLink(testUser, testLink, testTags, testFilters))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -166,18 +164,16 @@ public class SqlSubscriptionServiceUnitTest {
         when(subscrRepo.getSubscriptionByLinkAndUserId(1L, 1L)).thenReturn(Optional.of(sqlSubscription));
 
         assertThatThrownBy(() -> subscriptionService.addSubscriptionOnLink(testUser, testLink, testTags, testFilters))
-            .isInstanceOf(ScrapperSubscriptionAlreadyExistsException.class);
+                .isInstanceOf(ScrapperSubscriptionAlreadyExistsException.class);
     }
-
 
     @Test
     void addSubscriptionOnLink_DataAccessException() {
         when(userRepo.findUserByChatId(testUser.chatId())).thenThrow(new TestDataAccessException("DB error"));
 
         assertThatThrownBy(() -> subscriptionService.addSubscriptionOnLink(testUser, testLink, testTags, testFilters))
-            .isInstanceOf(ScrapperSqlException.class);
+                .isInstanceOf(ScrapperSqlException.class);
     }
-
 
     @Test
     void getUserSubscriptions_Success() {
@@ -187,9 +183,8 @@ public class SqlSubscriptionServiceUnitTest {
         when(tagRepo.getSubscriptionTags(1L)).thenReturn(List.of(sqlTag));
         when(filterRepo.getFiltersBySubscriptionId(1L)).thenReturn(List.of(sqlFilter));
 
-        Map<Long, Subscription> subscriptions = assertDoesNotThrow(() ->
-            subscriptionService.getUserSubscriptions(testUser)
-        );
+        Map<Long, Subscription> subscriptions =
+                assertDoesNotThrow(() -> subscriptionService.getUserSubscriptions(testUser));
 
         assertEquals(1, subscriptions.size());
         Subscription subscription = subscriptions.get(1L);
@@ -204,9 +199,8 @@ public class SqlSubscriptionServiceUnitTest {
         when(userRepo.findUserByChatId(testUser.chatId())).thenReturn(Optional.of(sqlUser));
         when(subscrRepo.getSubscriptionsByUserId(1L)).thenReturn(List.of());
 
-        Map<Long, Subscription> subscriptions = assertDoesNotThrow(() ->
-            subscriptionService.getUserSubscriptions(testUser)
-        );
+        Map<Long, Subscription> subscriptions =
+                assertDoesNotThrow(() -> subscriptionService.getUserSubscriptions(testUser));
 
         assertTrue(subscriptions.isEmpty());
     }
@@ -216,26 +210,22 @@ public class SqlSubscriptionServiceUnitTest {
         when(userRepo.findUserByChatId(testUser.chatId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> subscriptionService.getUserSubscriptions(testUser))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
     void getUserSubscriptions_DataAccessException() {
-        when(userRepo.findUserByChatId(testUser.chatId()))
-            .thenThrow(new TestDataAccessException("error"));
+        when(userRepo.findUserByChatId(testUser.chatId())).thenThrow(new TestDataAccessException("error"));
 
         assertThatThrownBy(() -> subscriptionService.getUserSubscriptions(testUser))
-            .isInstanceOf(ScrapperSqlException.class);
+                .isInstanceOf(ScrapperSqlException.class);
     }
 
     @Test
     public void getSubscribersChatsByLinkId_ReturnsChatIds() {
-        when(subscrRepo.getChatsByLink(1L))
-            .thenReturn(List.of(1L));
+        when(subscrRepo.getChatsByLink(1L)).thenReturn(List.of(1L));
 
-        List<Long> result = assertDoesNotThrow(() ->
-            subscriptionService.getSubscribersChatsByLinkId(1L)
-        );
+        List<Long> result = assertDoesNotThrow(() -> subscriptionService.getSubscribersChatsByLinkId(1L));
 
         assertThat(result).containsExactly(1L);
         verify(subscrRepo).getChatsByLink(1L);
@@ -246,23 +236,19 @@ public class SqlSubscriptionServiceUnitTest {
         long linkId = 1L;
         when(subscrRepo.getChatsByLink(linkId)).thenReturn(List.of());
 
-        List<Long> result = assertDoesNotThrow(() ->
-            subscriptionService.getSubscribersChatsByLinkId(linkId)
-        );
+        List<Long> result = assertDoesNotThrow(() -> subscriptionService.getSubscribersChatsByLinkId(linkId));
 
         assertThat(result).isEmpty();
         verify(subscrRepo).getChatsByLink(linkId);
     }
 
-
     @Test
     public void getSubscribersChatsByLinkId_DataAccessException() {
         long linkId = 1L;
-        when(subscrRepo.getChatsByLink(linkId))
-            .thenThrow(new TestDataAccessException("DB error"));
+        when(subscrRepo.getChatsByLink(linkId)).thenThrow(new TestDataAccessException("DB error"));
 
         assertThatThrownBy(() -> subscriptionService.getSubscribersChatsByLinkId(linkId))
-            .isInstanceOf(ScrapperSqlException.class);
+                .isInstanceOf(ScrapperSqlException.class);
     }
 
     @Test
@@ -273,9 +259,7 @@ public class SqlSubscriptionServiceUnitTest {
         when(tagRepo.getSubscriptionTags(1L)).thenReturn(List.of(sqlTag));
         when(filterRepo.getFiltersBySubscriptionId(1L)).thenReturn(List.of(sqlFilter));
 
-        var result = assertDoesNotThrow(() ->
-            subscriptionService.deleteSubscriptionByUserAndLink(testUser, testLink)
-        );
+        var result = assertDoesNotThrow(() -> subscriptionService.deleteSubscriptionByUserAndLink(testUser, testLink));
 
         assertEquals(1L, result.getKey());
         assertEquals(testUser, result.getValue().user());
@@ -287,7 +271,7 @@ public class SqlSubscriptionServiceUnitTest {
         when(userRepo.findUserByChatId(testUser.chatId())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> subscriptionService.deleteSubscriptionByUserAndLink(testUser, testLink))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -297,18 +281,14 @@ public class SqlSubscriptionServiceUnitTest {
         when(subscrRepo.getSubscriptionByLinkAndUserId(1L, 1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> subscriptionService.deleteSubscriptionByUserAndLink(testUser, testLink))
-            .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
+                .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
     }
 
     @Test
     void deleteSubscriptionByUserAndLink_DataAccessException() {
-        when(userRepo.findUserByChatId(testUser.chatId())).thenThrow(
-            new TestDataAccessException("error")
-        );
+        when(userRepo.findUserByChatId(testUser.chatId())).thenThrow(new TestDataAccessException("error"));
 
         assertThatThrownBy(() -> subscriptionService.deleteSubscriptionByUserAndLink(testUser, testLink))
-            .isInstanceOf(ScrapperSqlException.class);
+                .isInstanceOf(ScrapperSqlException.class);
     }
-
-
 }

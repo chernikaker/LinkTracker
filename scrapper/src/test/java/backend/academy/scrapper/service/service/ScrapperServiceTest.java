@@ -96,7 +96,8 @@ public class ScrapperServiceTest {
     public void addSubscriptionTest_AvailableLink() {
         long userId = 1L;
         when(githubService.isLinkAvailable(any())).thenReturn(true);
-        when(subscriptionService.addSubscriptionOnLink(any(), any(), any(), any())).thenReturn(1L);
+        when(subscriptionService.addSubscriptionOnLink(any(), any(), any(), any()))
+                .thenReturn(1L);
         AddLinkRequest request = new AddLinkRequest("link", List.of("tag"), List.of("key:value"));
         try (MockedStatic<LinkType> mockedStatic = Mockito.mockStatic(LinkType.class)) {
             mockedStatic.when(() -> LinkType.fromValue(request.link())).thenReturn(LinkType.GITHUB);
@@ -128,7 +129,6 @@ public class ScrapperServiceTest {
         Subscription s = new Subscription(USER, LINK, List.of(TAG), List.of(FILTER));
         RemoveLinkRequest request = new RemoveLinkRequest("https://github.com/1");
         when(subscriptionService.deleteSubscriptionByUserAndLink(any(), any())).thenReturn(Map.entry(1L, s));
-
 
         LinkResponse response = assertDoesNotThrow(() -> scrapperService.deleteSubscription(1L, request));
 

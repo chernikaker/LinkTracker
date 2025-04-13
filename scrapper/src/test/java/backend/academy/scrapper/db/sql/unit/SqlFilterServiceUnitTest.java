@@ -1,5 +1,11 @@
 package backend.academy.scrapper.db.sql.unit;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
 import backend.academy.scrapper.db.exception.TestDataAccessException;
 import backend.academy.scrapper.db.sql.entity.SqlFilter;
 import backend.academy.scrapper.db.sql.repository.FilterSqlRepository;
@@ -12,23 +18,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class SqlFilterServiceUnitTest {
 
-    private final static SqlFilter FILTER = new SqlFilter(1L, "key", "value", 2L, 3L);
+    private static final SqlFilter FILTER = new SqlFilter(1L, "key", "value", 2L, 3L);
 
     @Mock
     private FilterSqlRepository filterRepo;
 
     @InjectMocks
     private SqlFilterService sqlFilterService;
-
 
     @Test
     public void getFiltersBySubscriptionId_filtersPresent() {
@@ -59,7 +59,7 @@ public class SqlFilterServiceUnitTest {
         when(filterRepo.getFiltersBySubscriptionId(subscriptionId)).thenThrow(new TestDataAccessException("error"));
 
         assertThatThrownBy(() -> sqlFilterService.getFiltersBySubscriptionId(subscriptionId))
-            .isInstanceOf(ScrapperSqlException.class)
-            .hasMessageContaining("Error while getting filters");
+                .isInstanceOf(ScrapperSqlException.class)
+                .hasMessageContaining("Error while getting filters");
     }
 }

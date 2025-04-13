@@ -21,8 +21,7 @@ public record LinkUpdate(
                 @NotEmpty(message = "URL cannot be empty")
                 @Size(max = Constant.MAX_URL_LENGTH, message = "URL must be less than 2048 characters")
                 String url,
-        @NotNull(message = "Description is required")
-        @NotEmpty(message = "Update units can not be empty")
-        List<LinkUpdateUnit> updateUnits,
+        @NotNull(message = "Description is required") @NotEmpty(message = "Update units can not be empty")
+                List<LinkUpdateUnit> updateUnits,
         @NotNull(message = "tgChatIds is required") @NotEmpty(message = "tgChatIds cannot be empty")
                 List<Long> tgChatIds) {}

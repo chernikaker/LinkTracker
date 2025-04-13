@@ -51,8 +51,7 @@ public class SubscriptionSqlRepository {
         params.addValue("linkId", linkId);
         params.addValue("userId", userId);
         String query = "SELECT * FROM subscription WHERE link_id = :linkId AND user_id = :userId";
-        return jdbcTemplate.query(query, params, new SqlSubscriptionRowMapper())
-            .stream()
-            .findFirst();
+        return jdbcTemplate.query(query, params, new SqlSubscriptionRowMapper()).stream()
+                .findFirst();
     }
 }
