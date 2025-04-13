@@ -230,38 +230,35 @@ public class SqlSubscriptionServiceUnitTest {
 
     @Test
     public void getSubscribersChatsByLinkId_ReturnsChatIds() {
-        when(subscrRepo.getSubscriptionsByLink(1L))
-            .thenReturn(List.of(sqlSubscription));
-        when(userRepo.findUserById(1L)).thenReturn(sqlUser);
+        when(subscrRepo.getChatsByLink(1L))
+            .thenReturn(List.of(1L));
 
         List<Long> result = assertDoesNotThrow(() ->
             subscriptionService.getSubscribersChatsByLinkId(1L)
         );
 
         assertThat(result).containsExactly(1L);
-        verify(subscrRepo).getSubscriptionsByLink(1L);
-        verify(userRepo).findUserById(1L);
+        verify(subscrRepo).getChatsByLink(1L);
     }
 
     @Test
     public void getSubscribersChatsByLinkId_NoSubscribers() {
         long linkId = 1L;
-        when(subscrRepo.getSubscriptionsByLink(linkId)).thenReturn(List.of());
+        when(subscrRepo.getChatsByLink(linkId)).thenReturn(List.of());
 
         List<Long> result = assertDoesNotThrow(() ->
             subscriptionService.getSubscribersChatsByLinkId(linkId)
         );
 
         assertThat(result).isEmpty();
-        verify(subscrRepo).getSubscriptionsByLink(linkId);
-        verifyNoInteractions(userRepo);
+        verify(subscrRepo).getChatsByLink(linkId);
     }
 
 
     @Test
     public void getSubscribersChatsByLinkId_DataAccessException() {
         long linkId = 1L;
-        when(subscrRepo.getSubscriptionsByLink(linkId))
+        when(subscrRepo.getChatsByLink(linkId))
             .thenThrow(new TestDataAccessException("DB error"));
 
         assertThatThrownBy(() -> subscriptionService.getSubscribersChatsByLinkId(linkId))

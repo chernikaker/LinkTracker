@@ -95,13 +95,7 @@ public class SqlSubscriptionService implements SubscriptionService {
     @Transactional
     public List<Long> getSubscribersChatsByLinkId(long linkId) {
         try {
-            List<SqlSubscription> subs = subscrRepo.getSubscriptionsByLink(linkId);
-            List<Long> ans = new ArrayList<>();
-            for (SqlSubscription s : subs) {
-                SqlUser u = userRepo.findUserById(s.userId());
-                ans.add(u.chatId());
-            }
-            return ans;
+            return subscrRepo.getChatsByLink(linkId);
         } catch (DataAccessException e){
             throw new ScrapperSqlException("Error while getting user links ", e);
         }
