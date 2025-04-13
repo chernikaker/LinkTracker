@@ -23,19 +23,19 @@ public class WireMockClientTestConfig {
         return s;
     }
 
-    @Bean(name = "testGithubClient")
+    @Bean
     @Primary
     public ExternalClient githubClient(WireMockServer wireMockServer) {
         return new GithubClientImpl("test-token", "http://localhost:" + wireMockServer.port());
     }
 
-    @Bean(name = "testSOClient")
+    @Bean
     @Primary
     public ExternalClient stackoverflowClient(WireMockServer wireMockServer) {
         return new StackoverflowClientImpl("access-token", "key", "http://localhost:" + wireMockServer.port());
     }
 
-    @Bean(name = "testBotClient")
+    @Bean
     @Primary
     public BotClient botClient(WireMockServer wireMockServer) {
         return new BotClientImpl("http://localhost:" + wireMockServer.port());

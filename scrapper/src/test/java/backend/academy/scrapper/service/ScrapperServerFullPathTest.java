@@ -1,21 +1,10 @@
 package backend.academy.scrapper.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import backend.academy.scrapper.db.config.SqlConfig;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
 import backend.academy.scrapper.entity.User;
-import backend.academy.scrapper.repository.InMemoryLinkRepository;
-import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
-import backend.academy.scrapper.repository.InMemoryUserRepository;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -27,38 +16,47 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@Import(TestClientConfig.class)
+@Import({TestClientConfig.class, SqlConfig.class})
 @AutoConfigureMockMvc
+@Testcontainers
+@Transactional
 public class ScrapperServerFullPathTest {
+
+    private static final String ADD_SUB_REQUEST =
+        """
+        {
+            "link": "https://github.com/mock",
+            "tags": [],
+            "filters": []
+        }
+        """;
+
+    private static final String DELETE_SUB_REQUEST =
+        """
+        {
+            "link": "https://github.com/mock"
+        }
+        """;
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private InMemoryLinkRepository linkRepository;
-
-    @Autowired
-    private InMemorySubscriptionRepository subscriptionRepository;
-
-    @Autowired
-    private InMemoryUserRepository userRepository;
-
-    private User user;
-    private Link link;
-    private Subscription subscription;
-
-    @BeforeEach
-    public void setUp() {
-        linkRepository.clear();
-        subscriptionRepository.clear();
-        userRepository.clear();
-        user = new User(1L);
-        link = new Link("https://github.com/mock", LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
-        subscription = new Subscription(1L, user, 1L, link, List.of(), List.of());
-    }
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     @SneakyThrows
@@ -67,7 +65,7 @@ public class ScrapperServerFullPathTest {
 
         mockMvc.perform(post("/tg-chat/{id}", chatId)).andExpect(status().isOk());
 
-        assertTrue(userRepository.containsUser(1L));
+        assertTrue(containsUserWithChat(chatId));
     }
 
     @Test
@@ -79,17 +77,31 @@ public class ScrapperServerFullPathTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
 
-        assertFalse(userRepository.containsUser(-1L));
+        assertFalse(containsUserWithChat(invalidChatId));
+    }
+
+    @Test
+    @SneakyThrows
+    public void registerChatTest_userAlreadyExists() {
+        long chatId = 1L;
+
+        mockMvc.perform(post("/tg-chat/{id}", chatId)).andExpect(status().isOk());
+
+        mockMvc.perform(post("/tg-chat/{id}", chatId))
+            .andExpect(status().isBadRequest());
+
+        assertTrue(containsUserWithChat(chatId));
     }
 
     @Test
     @SneakyThrows
     public void deleteChatTest_validId() {
-        long chatId = userRepository.registerUser(user);
+        long chatId = 1L;
+        mockMvc.perform(post("/tg-chat/{id}", chatId));
 
         mockMvc.perform(delete("/tg-chat/{id}", chatId)).andExpect(status().isOk());
 
-        assertFalse(userRepository.containsUser(1L));
+        assertFalse(containsUserWithChat(chatId));
     }
 
     @Test
@@ -106,7 +118,7 @@ public class ScrapperServerFullPathTest {
     @SneakyThrows
     public void getLinksTest_successful() {
         long chatId = 1L;
-        userRepository.registerUser(user);
+        mockMvc.perform(post("/tg-chat/{id}", chatId));
 
         mockMvc.perform(get("/links").header("Tg-Chat-Id", chatId).accept(MediaType.ALL))
                 .andExpect(status().isOk())
@@ -136,151 +148,79 @@ public class ScrapperServerFullPathTest {
 
     @Test
     @SneakyThrows
-    public void addLinkSubscriptionTest_newLinkSuccess() {
+    public void addLinkSubscriptionTest_Success() {
         long chatId = 1L;
-        userRepository.registerUser(user);
+        mockMvc.perform(post("/tg-chat/{id}", chatId));
+
         mockMvc.perform(
                         post("/links")
                                 .header("Tg-Chat-Id", chatId)
                                 .contentType("application/json")
-                                .content(
-                                        """
-                            {
-                                "link": "https://github.com/mock",
-                                "tags": [],
-                                "filters": []
-                            }
-                            """))
+                                .content(ADD_SUB_REQUEST))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.url").value("https://github.com/mock"))
                 .andExpect(jsonPath("$.tags").isEmpty())
                 .andExpect(jsonPath("$.filters").isEmpty());
 
-        assertTrue(linkRepository.containsLink(1L));
-        assertTrue(subscriptionRepository.getUserSubscriptions(user).containsKey(1L));
-    }
-
-    @Test
-    @SneakyThrows
-    public void addLinkSubscriptionTest_existingLinkSuccess() {
-        long chatId = 1L;
-        userRepository.registerUser(user);
-        linkRepository.addLink(link);
-        mockMvc.perform(
-                        post("/links")
-                                .header("Tg-Chat-Id", chatId)
-                                .contentType("application/json")
-                                .content(
-                                        """
-                            {
-                                "link": "https://github.com/mock",
-                                "tags": [],
-                                "filters": []
-                            }
-                            """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.url").value("https://github.com/mock"))
-                .andExpect(jsonPath("$.tags").isEmpty())
-                .andExpect(jsonPath("$.filters").isEmpty());
-
-        assertEquals(1, linkRepository.size());
-        assertTrue(subscriptionRepository.getUserSubscriptions(user).containsKey(1L));
+        assertTrue(containsLinkWithUrl("https://github.com/mock"));
+        assertEquals(1, getSubAmountByChatIdAndLinkUrl(chatId, "https://github.com/mock"));
     }
 
     @Test
     @SneakyThrows
     public void addLinkSubscriptionTest_subscriptionAlreadyExist() {
         long chatId = 1L;
-        userRepository.registerUser(user);
-        linkRepository.addLink(link);
-        subscriptionRepository.addSubscription(subscription);
+        mockMvc.perform(post("/tg-chat/{id}", chatId));
+
+        mockMvc.perform(
+            post("/links")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(ADD_SUB_REQUEST));
+
         mockMvc.perform(
                         post("/links")
                                 .header("Tg-Chat-Id", chatId)
                                 .contentType("application/json")
-                                .content(
-                                        """
-                            {
-                                "link": "https://github.com/mock",
-                                "tags": [],
-                                "filters": []
-                            }
-                            """))
+                                .content(ADD_SUB_REQUEST))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.exceptionName").value("ScrapperSubscriptionAlreadyExistsException"));
     }
 
     @Test
     @SneakyThrows
-    public void deleteLinkSubscription_successUniqueLink() {
+    public void deleteLinkSubscription_Success() {
         long chatId = 1L;
-        userRepository.registerUser(user);
-        linkRepository.addLink(link);
-        subscriptionRepository.addSubscription(subscription);
+        mockMvc.perform(post("/tg-chat/{id}", chatId));
+        mockMvc.perform(
+            post("/links")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(ADD_SUB_REQUEST));
 
         mockMvc.perform(
                         delete("/links")
                                 .header("Tg-Chat-Id", chatId)
                                 .contentType("application/json")
-                                .content(
-                                        """
-                            {
-                                "link": "https://github.com/mock"
-                            }
-                            """))
+                                .content(DELETE_SUB_REQUEST))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.url").value(link.url()));
+                .andExpect(jsonPath("$.url").value("https://github.com/mock"));
 
-        assertTrue(subscriptionRepository.getUserSubscriptions(user).isEmpty());
-        assertEquals(0, linkRepository.size());
+        assertEquals(0, getSubAmountByChatIdAndLinkUrl(1L, "https://github.com/mock"));
     }
 
-    @Test
-    @SneakyThrows
-    public void deleteLinkSubscription_successLinkHasOtherSubscription() {
-        long chatId = 1L;
-        userRepository.registerUser(user);
-        linkRepository.addLink(link);
-        Subscription s = new Subscription(2L, new User(2L), 1L, link, List.of(), List.of());
-        subscriptionRepository.addSubscription(subscription);
-        subscriptionRepository.addSubscription(s);
-
-        mockMvc.perform(
-                        delete("/links")
-                                .header("Tg-Chat-Id", chatId)
-                                .contentType("application/json")
-                                .content(
-                                        """
-                            {
-                                "link": "https://github.com/mock"
-                            }
-                            """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.url").value(link.url()));
-
-        assertTrue(subscriptionRepository.getUserSubscriptions(user).isEmpty());
-        assertEquals(1, linkRepository.size());
-    }
 
     @Test
     @SneakyThrows
     public void deleteLinkSubscription_linkNotExistsException() {
         long chatId = 1L;
-        userRepository.registerUser(user);
+        mockMvc.perform(post("/tg-chat/{id}", chatId));
+
         mockMvc.perform(
                         delete("/links")
                                 .header("Tg-Chat-Id", chatId)
                                 .contentType("application/json")
-                                .content(
-                                        """
-                            {
-                                "link": "url"
-                            }
-                            """))
+                                .content(DELETE_SUB_REQUEST))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
     }
@@ -289,19 +229,33 @@ public class ScrapperServerFullPathTest {
     @SneakyThrows
     public void deleteLinkSubscription_subscriptionNotExistsException() {
         long chatId = 1L;
-        userRepository.registerUser(user);
-        linkRepository.addLink(link);
+        mockMvc.perform(post("/tg-chat/{id}", chatId));
+        addLink("https://github.com/mock");
+
         mockMvc.perform(
                         delete("/links")
                                 .header("Tg-Chat-Id", chatId)
                                 .contentType("application/json")
-                                .content(
-                                        """
-                            {
-                                "link": "url"
-                            }
-                            """))
+                                .content(DELETE_SUB_REQUEST))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
+    }
+
+    private Boolean containsUserWithChat(long chatId){
+        return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM tg_user WHERE chat_id=?)", Boolean.class, chatId);
+    }
+
+    private Long getSubAmountByChatIdAndLinkUrl(long chatId, String url){
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM subscription s " +
+            "JOIN tg_user u ON u.id = s.user_id " +
+            "JOIN link l ON l.id = s.link_id WHERE l.url = ? AND u.chat_id = ?", Long.class, url, chatId);
+    }
+
+    private Boolean containsLinkWithUrl(String url){
+        return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM link WHERE url = ?)", Boolean.class, url);
+    }
+
+    private void addLink(String url){
+        jdbcTemplate.update("INSERT INTO link (url, last_validation) VALUES (?, ?)", url, LocalDateTime.now(ZoneId.systemDefault()));
     }
 }

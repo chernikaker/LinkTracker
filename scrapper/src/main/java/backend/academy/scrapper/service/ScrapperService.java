@@ -73,7 +73,7 @@ public class ScrapperService {
         User u = new User(chatId);
         Map<Long, Subscription> subscriptions = subscriptionService.getUserSubscriptions(u);
         List<LinkResponse> links = new ArrayList<>();
-        // маппинг сущености подписки в DTO
+        // маппинг сущности подписки в DTO
         for (Map.Entry<Long, Subscription> subscription : subscriptions.entrySet()) {
             LinkResponse link = new LinkResponse(
                     subscription.getKey(),
@@ -98,6 +98,9 @@ public class ScrapperService {
         if (link.type() == LinkType.STACKOVERFLOW) {
             processSOLink(link);
         }
+        if(!isAvailable(link)){
+            throw new ScrapperUnavailableLinkException("Link "+link.url()+" is not available");
+        }
         List<Tag> tags = new ArrayList<>();
         for(String t: request.tags()) {
             tags.add(new Tag(t));
@@ -107,12 +110,8 @@ public class ScrapperService {
             String[] parts = f.split(":");
             filters.add(new Filter(parts[0], parts[1]));
         }
-        if(!isAvailable(link)){
-            throw new ScrapperUnavailableLinkException("Link "+link.url()+" is not available");
-        }
         long subscriptionId = subscriptionService.addSubscriptionOnLink(user, link, tags, filters);
 
-        // TODO: request params?
         return new LinkResponse(
                 subscriptionId, request.link(), request.tags(), request.filters());
     }

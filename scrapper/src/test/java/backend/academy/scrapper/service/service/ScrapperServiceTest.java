@@ -14,18 +14,19 @@ import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
 import backend.academy.scrapper.client.external.github.GithubClientService;
 import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
+import backend.academy.scrapper.db.contract.FilterService;
+import backend.academy.scrapper.db.contract.SubscriptionService;
+import backend.academy.scrapper.db.contract.TagService;
+import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
-import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
-import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
-import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
+import backend.academy.scrapper.entity.Tag;
+import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkException;
-import backend.academy.scrapper.repository.InMemoryLinkRepository;
-import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
-import backend.academy.scrapper.repository.InMemoryUserRepository;
 import backend.academy.scrapper.service.ScrapperService;
-import java.util.HashMap;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class ScrapperServiceTest {
 
+    private static final Link LINK = new Link("url", LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
+    private static final User USER = new User(1L);
+    private static final Tag TAG = new Tag("tag");
+    private static final Filter FILTER = new Filter("key", "value");
+
     @Mock
     private GithubClientService githubService;
 
@@ -46,22 +52,21 @@ public class ScrapperServiceTest {
     private StackoverflowClientService stackoverflowService;
 
     @Mock
-    private InMemoryUserRepository userRepository;
+    private SubscriptionService subscriptionService;
 
     @Mock
-    private InMemoryLinkRepository linkRepository;
+    private TagService tagService;
 
     @Mock
-    private InMemorySubscriptionRepository subscriptionRepository;
+    private FilterService filterService;
 
     @InjectMocks
     private ScrapperService scrapperService;
 
     @Test
     public void getUserLinksTest_UserHaveLinks() {
-        Link l = new Link("url", null, null);
-        Subscription s = new Subscription(1, null, 10, l, List.of("tag"), List.of("filter"));
-        when(subscriptionRepository.getUserSubscriptions(any())).thenReturn(Map.of(1L, s));
+        Subscription s = new Subscription(USER, LINK, List.of(TAG), List.of(FILTER));
+        when(subscriptionService.getUserSubscriptions(any())).thenReturn(Map.of(1L, s));
 
         ListLinksResponse response = scrapperService.getUserLinks(1L);
 
@@ -73,12 +78,12 @@ public class ScrapperServiceTest {
         assertEquals(1, link.tags().size());
         assertEquals("tag", link.tags().getFirst());
         assertEquals(1, link.filters().size());
-        assertEquals("filter", link.filters().getFirst());
+        assertEquals("key:value", link.filters().getFirst());
     }
 
     @Test
     public void getUserLinksTest_UserNotHaveLinks() {
-        when(subscriptionRepository.getUserSubscriptions(any())).thenReturn(new HashMap<>());
+        when(subscriptionService.getUserSubscriptions(any())).thenReturn(Map.of());
 
         ListLinksResponse response = scrapperService.getUserLinks(1L);
 
@@ -91,17 +96,17 @@ public class ScrapperServiceTest {
     public void addSubscriptionTest_AvailableLink() {
         long userId = 1L;
         when(githubService.isLinkAvailable(any())).thenReturn(true);
-        when(subscriptionRepository.addSubscription(any())).thenReturn(2L);
-        AddLinkRequest request = new AddLinkRequest("link", List.of(), List.of());
+        when(subscriptionService.addSubscriptionOnLink(any(), any(), any(), any())).thenReturn(1L);
+        AddLinkRequest request = new AddLinkRequest("link", List.of("tag"), List.of("key:value"));
         try (MockedStatic<LinkType> mockedStatic = Mockito.mockStatic(LinkType.class)) {
             mockedStatic.when(() -> LinkType.fromValue(request.link())).thenReturn(LinkType.GITHUB);
 
             LinkResponse response = assertDoesNotThrow(() -> scrapperService.addSubscription(userId, request));
 
             assertNotNull(response);
-            assertEquals(2L, response.id());
-            assertEquals(0, response.tags().size());
-            assertEquals(0, response.filters().size());
+            assertEquals(1L, response.id());
+            assertEquals(1, response.tags().size());
+            assertEquals(1, response.filters().size());
         }
     }
 
@@ -114,62 +119,25 @@ public class ScrapperServiceTest {
             mockedStatic.when(() -> LinkType.fromValue(request.link())).thenReturn(LinkType.GITHUB);
 
             assertThatThrownBy(() -> scrapperService.addSubscription(userId, request))
-                    .isInstanceOf(ScrapperUnavailableLinkException.class)
-                    .hasMessageContaining("Link is unavailable");
+                    .isInstanceOf(ScrapperUnavailableLinkException.class);
         }
     }
 
     @Test
     public void deleteSubscriptionTest_Successful() {
-        long userId = 3L;
-        Link link = new Link("url", null, null);
-        RemoveLinkRequest request = new RemoveLinkRequest("url");
-        when(userRepository.containsUser(userId)).thenReturn(true);
-        when(linkRepository.getLinkIdByURL(any())).thenReturn(1L);
-        when(subscriptionRepository.getSubscriptionId(userId, 1L)).thenReturn(2L);
-        when(subscriptionRepository.removeSubscriptionById(2L))
-                .thenReturn(new Subscription(userId, null, 1L, link, List.of("tag"), List.of("filter")));
+        Subscription s = new Subscription(USER, LINK, List.of(TAG), List.of(FILTER));
+        RemoveLinkRequest request = new RemoveLinkRequest("https://github.com/1");
+        when(subscriptionService.deleteSubscriptionByUserAndLink(any(), any())).thenReturn(Map.entry(1L, s));
 
-        LinkResponse response = assertDoesNotThrow(() -> scrapperService.deleteSubscription(userId, request));
+
+        LinkResponse response = assertDoesNotThrow(() -> scrapperService.deleteSubscription(1L, request));
 
         assertNotNull(response);
-        assertEquals(2L, response.id());
-        assertEquals("url", response.url());
+        assertEquals(1L, response.id());
+        assertEquals("https://github.com/1", response.url());
         assertEquals(1, response.tags().size());
         assertEquals("tag", response.tags().getFirst());
         assertEquals(1, response.filters().size());
-        assertEquals("filter", response.filters().getFirst());
-    }
-
-    @Test
-    public void deleteSubscriptionTest_PresentLinkNoSubscriptionException() {
-        long userId = 3L;
-        RemoveLinkRequest request = new RemoveLinkRequest("url");
-        when(linkRepository.getLinkIdByURL(any())).thenReturn(1L);
-        when(subscriptionRepository.getSubscriptionId(userId, 1L)).thenReturn(-1L);
-        when(userRepository.containsUser(userId)).thenReturn(true);
-
-        assertThatThrownBy(() -> scrapperService.deleteSubscription(userId, request))
-                .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
-    }
-
-    @Test
-    public void deleteSubscriptionTest_NoLinkException() {
-        long userId = 3L;
-        RemoveLinkRequest request = new RemoveLinkRequest("url");
-        when(linkRepository.getLinkIdByURL(any())).thenReturn(-1L);
-        when(userRepository.containsUser(userId)).thenReturn(true);
-
-        assertThatThrownBy(() -> scrapperService.deleteSubscription(userId, request))
-                .isInstanceOf(ScrapperLinkNotExistsException.class);
-    }
-
-    @Test
-    public void deleteSubscriptionTest_NoUserException() {
-        long userId = 3L;
-        RemoveLinkRequest request = new RemoveLinkRequest("url");
-
-        assertThatThrownBy(() -> scrapperService.deleteSubscription(userId, request))
-                .isInstanceOf(ScrapperUserNotExistsException.class);
+        assertEquals("key:value", response.filters().getFirst());
     }
 }

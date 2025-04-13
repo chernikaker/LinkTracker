@@ -1,32 +1,19 @@
 package backend.academy.scrapper.service.service;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.RemoveLinkRequest;
 import backend.academy.scrapper.client.external.github.GithubClientService;
 import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
+import backend.academy.scrapper.db.config.SqlConfig;
+import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
+import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
-import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
-import backend.academy.scrapper.exception.repository.ScrapperSubscriptionAlreadyExistsException;
-import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
-import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import backend.academy.scrapper.exception.service.ScrapperUnavailableLinkException;
-import backend.academy.scrapper.repository.InMemoryLinkRepository;
-import backend.academy.scrapper.repository.InMemorySubscriptionRepository;
-import backend.academy.scrapper.repository.InMemoryUserRepository;
 import backend.academy.scrapper.service.ScrapperService;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -35,28 +22,27 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest(
-        classes = {
-            ScrapperService.class,
-            InMemoryLinkRepository.class,
-            InMemorySubscriptionRepository.class,
-            InMemoryUserRepository.class
-        })
+@SpringBootTest
+@Import(SqlConfig.class)
+@Transactional
 public class ServiceRepositoryIntegrationTest {
 
     @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private ScrapperService scrapperService;
-
-    @Autowired
-    private InMemoryLinkRepository linkRepository;
-
-    @Autowired
-    private InMemorySubscriptionRepository subscriptionRepository;
-
-    @Autowired
-    private InMemoryUserRepository userRepository;
 
     @MockitoBean
     private GithubClientService githubClientService;
@@ -66,78 +52,53 @@ public class ServiceRepositoryIntegrationTest {
 
     private User user;
     private Link link;
-    private Subscription subscription;
+    private Tag tag;
+    private Filter filter;
 
     @BeforeEach
     public void setUp() {
-        linkRepository.clear();
-        subscriptionRepository.clear();
-        userRepository.clear();
         user = new User(1L);
         link = new Link("https://github.com/mock", LinkType.GITHUB, LocalDateTime.now(ZoneId.systemDefault()));
-        subscription = new Subscription(1L, user, 1L, link, List.of(), List.of());
+        tag = new Tag("tag");
+        filter = new Filter("key", "value");
+    }
+
+
+    @Test
+    public void testRegisterUser_Success() {
+        assertDoesNotThrow(() -> scrapperService.registerUser(1L));
+
+        assertEquals(1, getUserAmountByChat(1L));
     }
 
     @Test
-    public void testRegisterUser() {
-        scrapperService.registerUser(1L);
+    public void testDeleteUser_Success() {
+        addUserWithChatId(1L);
 
-        User registeredUser = assertDoesNotThrow(() -> userRepository.getUserById(1L));
-        assertEquals(1L, registeredUser.chatId());
-    }
+        assertDoesNotThrow(() -> scrapperService.deleteUser(1L));
 
-    @Test
-    public void testDeleteUser_AllInfoDeletedWithLink() {
-        linkRepository.addLink(link);
-        userRepository.registerUser(user);
-        subscriptionRepository.addSubscription(subscription);
-
-        scrapperService.deleteUser(1L);
-
-        assertFalse(userRepository.containsUser(1L));
-        assertTrue(subscriptionRepository.getUserSubscriptions(user).isEmpty());
-        assertFalse(linkRepository.containsLink(1L));
-    }
-
-    @Test
-    public void testDeleteUser_AllInfoDeletedLinkRemains() {
-        linkRepository.addLink(link);
-        Subscription otherSubscription = new Subscription(2L, new User(2L), 1L, link, List.of(), List.of());
-        userRepository.registerUser(user);
-        subscriptionRepository.addSubscription(subscription);
-        subscriptionRepository.addSubscription(otherSubscription);
-
-        scrapperService.deleteUser(1L);
-
-        assertFalse(userRepository.containsUser(1L));
-        assertTrue(subscriptionRepository.getUserSubscriptions(user).isEmpty());
-        assertTrue(linkRepository.containsLink(1L));
+        assertEquals(0, getUserAmountByChat(1L));
     }
 
     @Test
     public void testGetUserLinks_success() {
-        linkRepository.addLink(link);
-        userRepository.registerUser(user);
-        subscriptionRepository.addSubscription(subscription);
+        fillAllData(true);
 
         ListLinksResponse response = assertDoesNotThrow(() -> scrapperService.getUserLinks(1L));
 
         assertEquals(1, response.size());
-        assertEquals("https://github.com/mock", response.links().getFirst().url());
+        LinkResponse linkRes = response.links().getFirst();
+        assertEquals(link.url(), linkRes.url());
+        assertEquals(1, linkRes.tags().size());
+        assertEquals(tag.value(), linkRes.tags().getFirst());
+        assertEquals(1, linkRes.filters().size());
+        assertEquals(filter.key()+":"+filter.value(), linkRes.filters().getFirst());
     }
 
-    @Test
-    public void testGetUserLinks_notRegisteredUser() {
-        linkRepository.addLink(link);
-        subscriptionRepository.addSubscription(subscription);
-
-        assertThatThrownBy(() -> scrapperService.getUserLinks(1L)).isInstanceOf(ScrapperUserNotExistsException.class);
-    }
 
     @Test
     public void testGetUserLinks_noLinks() {
-        linkRepository.addLink(link);
-        userRepository.registerUser(user);
+        addUserWithChatId(1L);
 
         ListLinksResponse response = assertDoesNotThrow(() -> scrapperService.getUserLinks(1L));
 
@@ -145,43 +106,23 @@ public class ServiceRepositoryIntegrationTest {
     }
 
     @Test
-    public void testAddSubscription_NewLink() {
-        userRepository.registerUser(user);
+    public void testAddSubscription_Success() {
+        addUserWithChatId(1L);
         when(githubClientService.isLinkAvailable(any())).thenReturn(true);
         AddLinkRequest request = new AddLinkRequest("https://github.com/mock", List.of(), List.of());
 
         LinkResponse response = assertDoesNotThrow(() -> scrapperService.addSubscription(1L, request));
 
-        assertEquals(1L, response.id());
         assertEquals("https://github.com/mock", response.url());
         assertTrue(response.tags().isEmpty());
         assertTrue(response.filters().isEmpty());
 
-        assertNotEquals(-1, linkRepository.getLinkIdByURL("https://github.com/mock"));
-        assertTrue(subscriptionRepository.containsSubscription(response.id()));
-    }
-
-    @Test
-    public void testAddSubscription_ExistingLink() {
-        linkRepository.addLink(link);
-        userRepository.registerUser(user);
-        when(githubClientService.isLinkAvailable(any())).thenReturn(true);
-        AddLinkRequest request = new AddLinkRequest("https://github.com/mock", List.of(), List.of());
-
-        LinkResponse response = assertDoesNotThrow(() -> scrapperService.addSubscription(1L, request));
-
-        assertEquals(1L, response.id());
-        assertEquals("https://github.com/mock", response.url());
-        assertTrue(response.tags().isEmpty());
-        assertTrue(response.filters().isEmpty());
-
-        assertNotEquals(-1, linkRepository.getLinkIdByURL("https://github.com/mock"));
-        assertTrue(subscriptionRepository.containsSubscription(response.id()));
+        assertEquals(1, getSubAmountByChatIdAndLinkUrl(1L, "https://github.com/mock"));
     }
 
     @Test
     public void testAddSubscription_LinkUnavailable() {
-        userRepository.registerUser(user);
+        addUserWithChatId(1L);
         when(githubClientService.isLinkAvailable(any(Link.class))).thenReturn(false);
         AddLinkRequest request = new AddLinkRequest("https://github.com/mock", List.of(), List.of());
 
@@ -189,86 +130,48 @@ public class ServiceRepositoryIntegrationTest {
                 .isInstanceOf(ScrapperUnavailableLinkException.class);
     }
 
-    @Test
-    public void testAddSubscription_UnregisteredUser() {
-        when(githubClientService.isLinkAvailable(any(Link.class))).thenReturn(true);
-        AddLinkRequest request = new AddLinkRequest("https://github.com/mock", List.of(), List.of());
 
-        assertThatThrownBy(() -> scrapperService.addSubscription(1L, request))
-                .isInstanceOf(ScrapperUserNotExistsException.class);
+    @Test
+    public void testDeleteSubscription_Success() {
+        fillAllData(false);
+
+        RemoveLinkRequest request = new RemoveLinkRequest(link.url());
+        LinkResponse response = assertDoesNotThrow(() -> scrapperService.deleteSubscription(user.chatId(), request));
+
+        assertEquals(link.url(), response.url());
+        assertEquals(0, getSubAmountByChatIdAndLinkUrl(user.chatId(), link.url()));
     }
 
-    @Test
-    public void testAddSubscription_SubscriptionAlreadyExists() {
-        linkRepository.addLink(link);
-        userRepository.registerUser(user);
-        subscriptionRepository.addSubscription(new Subscription(1L, user, 1L, link, List.of(), List.of()));
-        when(githubClientService.isLinkAvailable(any())).thenReturn(true);
 
-        AddLinkRequest request = new AddLinkRequest("https://github.com/mock", List.of(), List.of());
-
-        assertThatThrownBy(() -> scrapperService.addSubscription(1L, request))
-                .isInstanceOf(ScrapperSubscriptionAlreadyExistsException.class);
+    private Long getUserAmountByChat(long chatId){
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM tg_user WHERE chat_id=?", Long.class, chatId);
     }
 
-    @Test
-    public void testDeleteSubscription_LinkRemoves() {
-        userRepository.registerUser(user);
-        long linkId = linkRepository.addLink(link);
-        subscriptionRepository.addSubscription(subscription);
-
-        RemoveLinkRequest request = new RemoveLinkRequest("https://github.com/mock");
-        LinkResponse response = assertDoesNotThrow(() -> scrapperService.deleteSubscription(1L, request));
-
-        assertEquals(1L, response.id());
-        assertEquals("https://github.com/mock", response.url());
-        assertFalse(subscriptionRepository.containsSubscription(response.id()));
-        assertFalse(linkRepository.containsLink(linkId));
+    private Long getSubAmountByChatIdAndLinkUrl(long chatId, String url){
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM subscription s " +
+            "JOIN tg_user u ON u.id = s.user_id " +
+            "JOIN link l ON l.id = s.link_id WHERE l.url = ? AND u.chat_id = ?", Long.class, url, chatId);
     }
 
-    @Test
-    public void testDeleteSubscription_LinkNotRemoves() {
-        userRepository.registerUser(user);
-        long linkId = linkRepository.addLink(link);
-        Subscription other = new Subscription(2L, new User(2L), 1L, link, List.of(), List.of());
-        subscriptionRepository.addSubscription(subscription);
-        subscriptionRepository.addSubscription(other);
-        RemoveLinkRequest request = new RemoveLinkRequest("https://github.com/mock");
-
-        LinkResponse response = assertDoesNotThrow(() -> scrapperService.deleteSubscription(1L, request));
-
-        assertEquals(1L, response.id());
-        assertEquals("https://github.com/mock", response.url());
-        assertFalse(subscriptionRepository.containsSubscription(response.id()));
-        assertTrue(linkRepository.containsLink(linkId));
+    private Long addUserWithChatId(Long chatId) {
+        return jdbcTemplate.queryForObject("INSERT INTO tg_user (chat_id) VALUES (?) RETURNING id", Long.class, chatId);
     }
 
-    @Test
-    public void testDeleteSubscription_LinkNotExists() {
-        userRepository.registerUser(user);
-
-        RemoveLinkRequest request = new RemoveLinkRequest("url");
-
-        assertThatThrownBy(() -> scrapperService.deleteSubscription(1L, request))
-                .isInstanceOf(ScrapperLinkNotExistsException.class);
-    }
-
-    @Test
-    public void testDeleteSubscription_UserNotExists() {
-        RemoveLinkRequest request = new RemoveLinkRequest("url");
-
-        assertThatThrownBy(() -> scrapperService.deleteSubscription(1L, request))
-                .isInstanceOf(ScrapperUserNotExistsException.class);
-    }
-
-    @Test
-    public void testDeleteSubscription_SubscriptionNotExists() {
-        userRepository.registerUser(user);
-        linkRepository.addLink(link);
-
-        RemoveLinkRequest request = new RemoveLinkRequest("https://github.com/mock");
-
-        assertThatThrownBy(() -> scrapperService.deleteSubscription(1L, request))
-                .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
+    private void fillAllData(boolean withAddInfo) {
+        Long userId = addUserWithChatId(user.chatId());
+        Long linkId = jdbcTemplate.queryForObject("INSERT INTO link (url, last_validation) VALUES (?, ?) RETURNING id",
+            Long.class, link.url(), link.lastValidation());
+        Long subscriptionId = jdbcTemplate.queryForObject("INSERT INTO subscription (user_id, link_id) VALUES (?, ?) RETURNING id", Long.class, userId, linkId);
+        if (withAddInfo) {
+            Long tagId = jdbcTemplate.queryForObject("INSERT INTO tag (tag_text, user_id) VALUES (?, ?) RETURNING id",
+                Long.class,
+                tag.value(),
+                userId
+            );
+            jdbcTemplate.update("INSERT INTO filter (key, value, subscription_id, user_id) VALUES (?, ?, ?, ?)"
+                , filter.key(), filter.value(), subscriptionId, userId);
+            jdbcTemplate.update("INSERT INTO subscription_tag (subscription_id, tag_id) VALUES (?, ?)",
+                subscriptionId, tagId);
+        }
     }
 }
