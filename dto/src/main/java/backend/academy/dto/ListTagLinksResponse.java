@@ -2,5 +2,5 @@ package backend.academy.dto;
 
 import java.util.List;
 
-public record ListTagLinksResponse(TagResponse tag, ListLinksResponse links) {
+public record ListTagLinksResponse(String tag, ListLinksResponse links) {
 }

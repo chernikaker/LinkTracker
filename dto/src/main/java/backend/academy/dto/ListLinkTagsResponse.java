@@ -1,4 +1,4 @@
 package backend.academy.dto;
 
-public record ListLinkTagsResponse(LinkResponse link, ListTagsResponse tags) {
+public record ListLinkTagsResponse(String url, ListTagsResponse tags) {
 }
