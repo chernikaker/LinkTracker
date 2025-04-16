@@ -2,8 +2,16 @@ package backend.academy.scrapper.service;
 
 import backend.academy.dto.AddLinkRequest;
 import backend.academy.dto.LinkResponse;
+import backend.academy.dto.LinkTagResponse;
+import backend.academy.dto.ListLinkTagsResponse;
 import backend.academy.dto.ListLinksResponse;
+import backend.academy.dto.ListTagLinksResponse;
+import backend.academy.dto.ListTagsResponse;
 import backend.academy.dto.RemoveLinkRequest;
+import backend.academy.dto.AddLinkTagsRequest;
+import backend.academy.dto.RemoveLinkTagRequest;
+import backend.academy.dto.RemoveTagRequest;
+import backend.academy.dto.TagResponse;
 import backend.academy.scrapper.client.external.github.GithubClientService;
 import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.db.contract.FilterService;
@@ -141,6 +149,69 @@ public class ScrapperService {
                         .toList());
     }
 
+    public ListLinkTagsResponse addTagsForSubscription(long chatId, AddLinkTagsRequest request) {
+        User user = new User(chatId);
+        Link link = new Link(request.link(), LinkType.fromValue(request.link()));
+        if (link.type() == LinkType.STACKOVERFLOW) {
+            processSOLink(link);
+        }
+        List<Tag> tags = request.tags().stream().map(Tag::new).toList();
+        Map<Long, Tag> ans = tagService.addTagsForUserAndLink(user, link, tags);
+        List<TagResponse> tagResponses = new ArrayList<>();
+        for(Map.Entry<Long, Tag> e : ans.entrySet()) {
+            tagResponses.add(new TagResponse(e.getKey(), e.getValue().value()));
+        }
+        return new ListLinkTagsResponse (
+            link.url(),
+            new ListTagsResponse(tagResponses, tagResponses.size())
+        );
+    }
+
+    public LinkTagResponse deleteTagsForSubscription(long chatId, RemoveLinkTagRequest request) {
+        User user = new User(chatId);
+        Link link = new Link(request.link(), LinkType.fromValue(request.link()));
+        if (link.type() == LinkType.STACKOVERFLOW) {
+            processSOLink(link);
+        }
+        Map.Entry<Long, Tag> ans = tagService.deleteTagForSubscriptionData(user, link, request.tag());
+        return new LinkTagResponse (
+            new TagResponse(ans.getKey(), ans.getValue().value()),
+            link.url()
+        );
+    }
+
+    public ListTagLinksResponse deleteSubscriptionsForTag(long chatId, String tagValue) {
+        User user = new User(chatId);
+        Tag tag = new Tag(tagValue);
+        Map<Long, Subscription> ans = subscriptionService.deleteSubscriptionsByUserAndTag(user, tag);
+        List<LinkResponse> linkResponses = new ArrayList<>();
+        for(Map.Entry<Long, Subscription> e : ans.entrySet()) {
+            linkResponses.add(mapSubscriptionToLink(e.getKey(), e.getValue()));
+        }
+        return new ListTagLinksResponse(
+            tagValue,
+            new ListLinksResponse(linkResponses, linkResponses.size())
+        );
+    }
+
+    public TagResponse deleteTag(long chatId, RemoveTagRequest request) {
+        User user = new User(chatId);
+        Tag tag = new Tag(request.tag());
+        Map.Entry<Long, Tag> ans = tagService.deleteTagForUser(user, tag);
+
+        return new TagResponse(ans.getKey(), ans.getValue().value());
+    }
+
+    public ListTagsResponse getTags(long chatId) {
+        User user = new User(chatId);
+        Map<Long, Tag> ans = tagService.getTagsForUser(user);
+        List<TagResponse> tagResponses = new ArrayList<>();
+        for(Map.Entry<Long, Tag> e : ans.entrySet()) {
+            tagResponses.add(new TagResponse(e.getKey(), e.getValue().value()));
+        }
+        return new ListTagsResponse(tagResponses, tagResponses.size());
+    }
+
     /**
      * Проверка доступа к ссылке с помощью сервисов внешних клиентов
      *
@@ -160,5 +231,15 @@ public class ScrapperService {
         if (!Character.isDigit(url.charAt(url.length() - 1))) {
             link.url(url.substring(0, url.lastIndexOf("/")));
         }
+    }
+
+    private LinkResponse mapSubscriptionToLink(Long id, Subscription subscription) {
+        return new LinkResponse(
+            id,
+            subscription.link().url(),
+            subscription.tags().stream().map(Tag::value).toList(),
+            subscription.filters().stream()
+                .map(f -> f.key() + ":" + f.value())
+                .toList());
     }
 }
