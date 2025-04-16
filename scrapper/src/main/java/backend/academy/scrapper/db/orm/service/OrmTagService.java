@@ -17,6 +17,7 @@ import backend.academy.scrapper.exception.repository.ScrapperTagNotExistsExcepti
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,11 +40,14 @@ public class OrmTagService implements TagService {
                     () -> new ScrapperSubscriptionNotExistsException("No subscription found for " + link.url())
                 );
             for(Tag tag : tags) {
-                OrmTag t = OrmTagMapper.mapToOrm(tag);
+                Optional<OrmTag> existingTag = ormUser.tags().stream()
+                    .filter(t -> t.tagText().equals(tag.value()))
+                    .findFirst();
+                OrmTag t = existingTag.orElseGet(() -> OrmTagMapper.mapToOrm(tag));
                 if(!sub.tags().contains(t)) {
                     sub.tags().add(t);
                     t.subscriptions(new ArrayList<>(List.of(sub)));
-                    if(!ormUser.tags().contains(t)) {
+                    if(existingTag.isEmpty()) {
                         ormUser.tags().add(t);
                         t.owner(ormUser);
                     }

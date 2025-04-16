@@ -45,6 +45,8 @@ public class SqlTagService implements TagService {
                 Long tagId = t.map(SqlTag::id).orElseGet(() -> tagRepo.addTag(new SqlTag(tag.value(), existingUser.id())));
                 tagRepo.addTagToSubscription(tagId, sub.id());
             }
+        } catch (ScrapperLinkNotExistsException e) {
+            throw new ScrapperSubscriptionNotExistsException("Subscription not exists on link " + link.url());
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Exception while adding tag for user " + user.chatId(), e);
         }
@@ -94,7 +96,7 @@ public class SqlTagService implements TagService {
     public List<Tag> getTagsForUser(User user) {
         try {
             SqlUser existingUser = tryGetUserByChatId(user.chatId());
-            List<SqlTag> tags = tagRepo.getSubscriptionTags(existingUser.id());
+            List<SqlTag> tags = tagRepo.getUserTagsById(existingUser.id());
             List<Tag> response = new ArrayList<>();
             for (SqlTag tag : tags) {
                 response.add(new Tag(tag.tagText()));
