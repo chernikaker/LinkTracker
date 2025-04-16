@@ -56,9 +56,9 @@ public class SubscriptionSqlRepository {
     }
 
     public List<SqlSubscription> getSubscriptionsByTagId(long tagId) {
-        SqlParameterSource params = new MapSqlParameterSource("id", tagId);
+        SqlParameterSource params = new MapSqlParameterSource("tagId", tagId);
         String query = "SELECT s.id, s.user_id, s.link_id FROM subscription s " +
-            "JOIN subscription_tag st WHERE st.tag_id = :tagId";
+            "JOIN subscription_tag st ON s.id = st.subscription_id WHERE st.tag_id = :tagId";
         return jdbcTemplate.query(query, params, new SqlSubscriptionRowMapper());
     }
 

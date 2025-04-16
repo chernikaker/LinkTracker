@@ -16,6 +16,7 @@ import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionAlreadyExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
+import backend.academy.scrapper.exception.repository.ScrapperTagNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -213,6 +214,95 @@ public abstract class SubscriptionServiceTest {
                 .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
     }
 
+    @Test
+    public void getSubscriptionsByUserAndTag_Success(){
+        fillAllSubscriptionData(true);
+
+        Map<Long, Subscription> subs = assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByUserAndTag(USER, TAG));
+
+        assertEquals(1, subs.size());
+        Subscription subscription = subs.values().iterator().next();
+        assertEquals(1, subscription.tags().size());
+        assertEquals(TAG.value(), subscription.tags().getFirst().value());
+    }
+
+    @Test
+    public void getSubscriptionsByUserAndTag_SuccessNoSubs(){
+        Long uId = addUser(USER);
+        addTagForUser(uId, TAG);
+
+        Map<Long, Subscription> subs = assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByUserAndTag(USER, TAG));
+
+        assertTrue(subs.isEmpty());
+    }
+
+    @Test
+    public void getSubscriptionsByUserAndTag_TagNotExists(){
+        addUser(USER);
+
+        assertThatThrownBy(() -> subscriptionService.getSubscriptionsByUserAndTag(USER, TAG))
+            .isInstanceOf(ScrapperTagNotExistsException.class);
+    }
+
+    @Test
+    public void getSubscriptionsByUserAndTag_UserNotExists(){
+        assertThatThrownBy(() -> subscriptionService.getSubscriptionsByUserAndTag(USER, TAG))
+            .isInstanceOf(ScrapperUserNotExistsException.class);
+    }
+
+    @Test
+    public void deleteSubscriptionsByUserAndTag_SuccessDeletingWithLink(){
+        fillAllSubscriptionData(true);
+
+        Map<Long, Subscription> subs = assertDoesNotThrow(() -> subscriptionService.deleteSubscriptionsByUserAndTag(USER, TAG));
+
+        assertEquals(1, subs.size());
+        Subscription subscription = subs.values().iterator().next();
+        assertEquals(1, subscription.tags().size());
+        assertEquals(TAG.value(), subscription.tags().getFirst().value());
+        assertEquals(0, findAllAmount("link"));
+        assertEquals(0, findAllAmount("subscription_tag"));
+        assertEquals(0, findAllAmount("subscription"));
+        assertEquals(1, findAllAmount("tag"));
+    }
+
+    @Test
+    public void deleteSubscriptionsByUserAndTag_SuccessDeletingWithoutLink(){
+        Long linkId = fillAllSubscriptionData(true);
+        User other = new User(2L);
+        addSubscription(addUser(other), linkId);
+
+        assertDoesNotThrow(() -> subscriptionService.deleteSubscriptionsByUserAndTag(USER, TAG));
+
+        assertEquals(1, findAllAmount("link"));
+        assertEquals(0, findAllAmount("subscription_tag"));
+        assertEquals(1, findAllAmount("subscription"));
+        assertEquals(1, findAllAmount("tag"));
+    }
+
+    @Test
+    public void deleteSubscriptionsByUserAndTag_NoSubsDoesNothing(){
+        addTagForUser(addUser(USER), TAG);
+
+        assertDoesNotThrow(() -> subscriptionService.deleteSubscriptionsByUserAndTag(USER, TAG));
+
+        assertEquals(1, findAllAmount("tag"));
+    }
+
+    @Test
+    public void deleteSubscriptionsByUserAndTag_TagNotExist(){
+        addUser(USER);
+
+        assertThatThrownBy(() -> subscriptionService.deleteSubscriptionsByUserAndTag(USER, TAG))
+            .isInstanceOf(ScrapperTagNotExistsException.class);
+    }
+
+    @Test
+    public void deleteSubscriptionsByUserAndTag_UserNotExist(){
+        assertThatThrownBy(() -> subscriptionService.deleteSubscriptionsByUserAndTag(USER, TAG))
+            .isInstanceOf(ScrapperUserNotExistsException.class);
+    }
+
     private Long addUser(User user) {
         return jdbcTemplate.queryForObject(
                 "INSERT INTO tg_user (chat_id) VALUES (?) RETURNING id", Long.class, user.chatId());
@@ -240,14 +330,16 @@ public abstract class SubscriptionServiceTest {
                 userId);
     }
 
-    private void fillAllSubscriptionData(boolean addInfo) {
+    private Long fillAllSubscriptionData(boolean addInfo) {
         Long userId = addUser(USER);
-        Long subId = addSubscription(userId, addLink(LINK));
+        Long linkId = addLink(LINK);
+        Long subId = addSubscription(userId, linkId);
         if (addInfo) {
             addFilterForUserAndSub(userId, subId, FILTER);
             Long tagId = addTagForUser(userId, TAG);
             jdbcTemplate.update("INSERT INTO subscription_tag (subscription_id, tag_id) VALUES (?, ?)", subId, tagId);
         }
+        return linkId;
     }
 
     private Long addSubscription(Long userId, Long linkId) {

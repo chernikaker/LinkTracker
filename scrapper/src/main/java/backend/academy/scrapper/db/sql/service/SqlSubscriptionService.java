@@ -124,7 +124,7 @@ public class SqlSubscriptionService implements SubscriptionService {
             SqlTag t = tryGetTagByUserAndText(tag, u);
             List<SqlSubscription> subscriptions = subscrRepo.getSubscriptionsByTagId(t.id());
             Map<Long, Subscription> ans = processSqlSubsListForUser(subscriptions, user);
-            subscrRepo.getSubscriptionsByTagId(t.id());
+            subscrRepo.deleteSubscriptionsByTagId(t.id());
             for(SqlSubscription s : subscriptions){
                 if (subscrRepo.getSubscriptionsByLink(s.linkId()).isEmpty()) {
                     linkRepo.deleteLinkById(s.linkId());
