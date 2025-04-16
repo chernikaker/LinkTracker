@@ -18,4 +18,7 @@ public final class Constant {
 
     /** Максимальная длина имени автора. */
     public static final int MAX_AUTHOR_LENGTH = 100;
+
+    /** Максимальная длина тега. */
+    public static final int MAX_TAG_LENGTH = 50;
 }
