@@ -23,12 +23,14 @@ import backend.academy.scrapper.exception.db.ScrapperOrmException;
 import backend.academy.scrapper.exception.repository.ScrapperLinkNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionAlreadyExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
+import backend.academy.scrapper.exception.repository.ScrapperTagNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,6 +122,43 @@ public class OrmSubscriptionService implements SubscriptionService {
             return response;
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while deleting subscription with ORM", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Map<Long, Subscription> deleteSubscriptionsByUserAndTag(User user, Tag tag) {
+        try {
+            OrmUser u = tryGetUserByChatId(user.chatId());
+            OrmTag t = u.tags().stream().filter(tg -> tag.value().equals(tg.tagText())).findFirst()
+                .orElseThrow(() -> new ScrapperTagNotExistsException("Tag "+tag.value()+" not found"));
+            List<OrmSubscription> subs = t.subscriptions();
+            var ans = subs.stream().collect(Collectors.toMap(OrmSubscription::id, OrmSubscriptionMapper::mapFromOrm));
+            for(OrmSubscription sub : subs) {
+                OrmLink l = sub.link();
+                u.subscriptions().remove(sub);
+                l.subscriptions().remove(sub);
+                subscrRepo.delete(sub);
+                if (l.subscriptions().isEmpty()) {
+                    linkRepo.delete(l);
+                }
+            }
+            subscrRepo.flush();
+            return ans;
+        } catch (DataAccessException e) {
+            throw new ScrapperOrmException("Error while getting subscriptions with ORM", e);
+        }
+    }
+
+    @Override
+    public Map<Long, Subscription> getSubscriptionsByUserAndTag(User user, Tag tag) {
+        try {
+            OrmUser u = tryGetUserByChatId(user.chatId());
+            OrmTag t = u.tags().stream().filter(tg -> tag.value().equals(tg.tagText())).findFirst()
+                .orElseThrow(() -> new ScrapperTagNotExistsException("Tag "+tag.value()+" not found"));
+            return t.subscriptions().stream().collect(Collectors.toMap(OrmSubscription::id, OrmSubscriptionMapper::mapFromOrm));
+        } catch (DataAccessException e) {
+            throw new ScrapperOrmException("Error while getting subscriptions with ORM", e);
         }
     }
 

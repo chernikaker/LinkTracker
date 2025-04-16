@@ -4,6 +4,7 @@ import backend.academy.scrapper.db.contract.TagService;
 import backend.academy.scrapper.db.orm.entity.OrmSubscription;
 import backend.academy.scrapper.db.orm.entity.OrmTag;
 import backend.academy.scrapper.db.orm.entity.OrmUser;
+import backend.academy.scrapper.db.orm.mapper.OrmTagMapper;
 import backend.academy.scrapper.db.orm.repository.OrmSubscriptionRepository;
 import backend.academy.scrapper.db.orm.repository.OrmTagRepository;
 import backend.academy.scrapper.db.orm.repository.OrmUserRepository;
@@ -14,6 +15,7 @@ import backend.academy.scrapper.exception.db.ScrapperOrmException;
 import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperTagNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
@@ -25,6 +27,34 @@ public class OrmTagService implements TagService {
     private final OrmUserRepository userRepo;
     private final OrmSubscriptionRepository subscrRepo;
     private final OrmTagRepository tagRepo;
+
+    @Override
+    @Transactional
+    public void addTagsForUserAndLink(User user, Link link, List<Tag> tags) {
+        try {
+            OrmUser ormUser = tryGetUserByChatId(user.chatId());
+            OrmSubscription sub = ormUser.subscriptions().stream()
+                .filter(s -> s.link().url().equals(link.url()))
+                .findFirst().orElseThrow(
+                    () -> new ScrapperSubscriptionNotExistsException("No subscription found for " + link.url())
+                );
+            for(Tag tag : tags) {
+                OrmTag t = OrmTagMapper.mapToOrm(tag);
+                if(!sub.tags().contains(t)) {
+                    sub.tags().add(t);
+                    t.subscriptions(new ArrayList<>(List.of(sub)));
+                    if(!ormUser.tags().contains(t)) {
+                        ormUser.tags().add(t);
+                        t.owner(ormUser);
+                    }
+                    tagRepo.save(t);
+                    tagRepo.flush();
+                }
+            }
+        } catch (DataAccessException e) {
+            throw new ScrapperOrmException("Error while adding  ORM tags to " + user.chatId(), e);
+        }
+    }
 
     @Override
     @Transactional
@@ -73,9 +103,19 @@ public class OrmTagService implements TagService {
             OrmSubscription sub = subscrRepo
                     .findById(id)
                     .orElseThrow(() -> new ScrapperSubscriptionNotExistsException("Subscription " + id + " not found"));
-            return sub.tags().stream().map(this::mapFromOrmTag).toList();
+            return sub.tags().stream().map(OrmTagMapper::mapFromOrm).toList();
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while getting tags with ORM by subscription " + id, e);
+        }
+    }
+
+    @Override
+    public List<Tag> getTagsForUser(User user) {
+        try {
+            OrmUser ormUser = tryGetUserByChatId(user.chatId());
+            return ormUser.tags().stream().map(OrmTagMapper::mapFromOrm).toList();
+        } catch (DataAccessException e) {
+            throw new ScrapperOrmException("Error while getting tags for user " + user.chatId(), e);
         }
     }
 
@@ -84,7 +124,4 @@ public class OrmTagService implements TagService {
                 .orElseThrow(() -> new ScrapperUserNotExistsException("User " + chatId + " does not exist"));
     }
 
-    private Tag mapFromOrmTag(OrmTag ormTag) {
-        return new Tag(ormTag.tagText());
-    }
 }

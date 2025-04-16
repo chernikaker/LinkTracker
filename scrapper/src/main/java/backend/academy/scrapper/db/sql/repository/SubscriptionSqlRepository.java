@@ -54,4 +54,20 @@ public class SubscriptionSqlRepository {
         return jdbcTemplate.query(query, params, new SqlSubscriptionRowMapper()).stream()
                 .findFirst();
     }
+
+    public List<SqlSubscription> getSubscriptionsByTagId(long tagId) {
+        SqlParameterSource params = new MapSqlParameterSource("id", tagId);
+        String query = "SELECT s.id, s.user_id, s.link_id FROM subscription s " +
+            "JOIN subscription_tag st WHERE st.tag_id = :tagId";
+        return jdbcTemplate.query(query, params, new SqlSubscriptionRowMapper());
+    }
+
+    public void deleteSubscriptionsByTagId(long tagId) {
+        SqlParameterSource params = new MapSqlParameterSource("tagId", tagId);
+
+        String deleteLinksQuery = "DELETE FROM subscription WHERE id IN " +
+            "(SELECT subscription_id FROM subscription_tag WHERE tag_id = :tagId)";
+        jdbcTemplate.update(deleteLinksQuery, params);
+
+    }
 }

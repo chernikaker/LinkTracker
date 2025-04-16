@@ -59,7 +59,7 @@ public class TagSqlRepository {
     public void addTagToSubscription(long tagId, long subscrId) {
         MapSqlParameterSource params = new MapSqlParameterSource("tagId", tagId);
         params.addValue("subscrId", subscrId);
-        String query = "INSERT INTO subscription_tag (subscription_id, tag_id) VALUES (:subscrId, :tagId)";
+        String query = "INSERT INTO subscription_tag (subscription_id, tag_id) VALUES (:subscrId, :tagId) ON CONFLICT (subscription_id, tag_id) DO NOTHING";
         jdbcTemplate.update(query, params);
     }
 

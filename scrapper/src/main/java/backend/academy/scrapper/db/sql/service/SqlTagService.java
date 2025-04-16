@@ -19,8 +19,10 @@ import backend.academy.scrapper.exception.repository.ScrapperTagNotExistsExcepti
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 @AllArgsConstructor
@@ -30,6 +32,23 @@ public class SqlTagService implements TagService {
     private final LinkSqlRepository linkRepo;
     private final SubscriptionSqlRepository subscrRepo;
     private final TagSqlRepository tagRepo;
+
+    @Override
+    @Transactional
+    public void addTagsForUserAndLink(User user, Link link, List<Tag> tags) {
+        try {
+            SqlUser existingUser = tryGetUserByChatId(user.chatId());
+            SqlLink existingLink = tryGetLinkByUrl(link.url());
+            SqlSubscription sub = tryGetSubscriptionByLinkAndUserId(existingLink.id(), existingUser.id());
+            for(Tag tag : tags) {
+                Optional<SqlTag> t = tagRepo.getTagByValue(tag.value());
+                Long tagId = t.map(SqlTag::id).orElseGet(() -> tagRepo.addTag(new SqlTag(tag.value(), existingUser.id())));
+                tagRepo.addTagToSubscription(tagId, sub.id());
+            }
+        } catch (DataAccessException e) {
+            throw new ScrapperSqlException("Exception while adding tag for user " + user.chatId(), e);
+        }
+    }
 
     @Override
     @Transactional
@@ -68,6 +87,21 @@ public class SqlTagService implements TagService {
             return response;
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Error while getting subscription tags", e);
+        }
+    }
+
+    @Override
+    public List<Tag> getTagsForUser(User user) {
+        try {
+            SqlUser existingUser = tryGetUserByChatId(user.chatId());
+            List<SqlTag> tags = tagRepo.getSubscriptionTags(existingUser.id());
+            List<Tag> response = new ArrayList<>();
+            for (SqlTag tag : tags) {
+                response.add(new Tag(tag.tagText()));
+            }
+            return response;
+        } catch (DataAccessException e) {
+            throw new ScrapperSqlException("Error while getting user tags", e);
         }
     }
 
