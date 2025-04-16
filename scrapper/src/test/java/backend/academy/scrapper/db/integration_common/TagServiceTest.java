@@ -3,6 +3,8 @@ package backend.academy.scrapper.db.integration_common;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import backend.academy.scrapper.db.contract.TagService;
@@ -41,19 +43,21 @@ public abstract class TagServiceTest {
     public void deleteTagForUser_TagWithNoSubs() {
         fillDataOnlyTag(USER, TAG);
 
-        assertDoesNotThrow(() -> tagService.deleteTagForUser(USER, TAG));
+        var ans = assertDoesNotThrow(() -> tagService.deleteTagForUser(USER, TAG));
         assertEquals(0, findAllAmount("tag"));
+        assertNotNull(ans.getKey());
     }
 
     @Test
     public void deleteTagForUser_TagWithSubs() {
         Long tagId = fillDataReturnTagId(USER, TAG);
 
-        assertDoesNotThrow(() -> tagService.deleteTagForUser(USER, TAG));
+        var ans = assertDoesNotThrow(() -> tagService.deleteTagForUser(USER, TAG));
         assertEquals(0, findAllAmount("tag"));
         assertEquals(1, findAllAmount("subscription"));
         assertEquals(1, findAllAmount("link"));
         assertEquals(0, findSubWithTagAmount(tagId));
+        assertNotNull(ans.getKey());
     }
 
     @Test
@@ -83,10 +87,11 @@ public abstract class TagServiceTest {
     public void deleteTagForSubscriptionData_Success() {
         fillDataReturnTagId(USER, TAG);
 
-        assertDoesNotThrow(() -> tagService.deleteTagForSubscriptionData(USER, LINK, TAG.value()));
+        var ans = assertDoesNotThrow(() -> tagService.deleteTagForSubscriptionData(USER, LINK, TAG.value()));
         assertEquals(1, findAllAmount("tag"));
         assertEquals(1, findAllAmount("subscription"));
         assertEquals(0, findAllAmount("subscription_tag"));
+        assertNotNull(ans.getKey());
     }
 
     @Test
@@ -130,11 +135,14 @@ public abstract class TagServiceTest {
         Long linkId = addLink();
         addSubscription(userId, linkId);
 
-        assertDoesNotThrow(() -> tagService.addTagsForUserAndLink(USER, LINK, List.of(TAG)));
+        var ans = assertDoesNotThrow(() -> tagService.addTagsForUserAndLink(USER, LINK, List.of(TAG)));
 
         assertEquals(1, findAllAmount("tag"));
         assertEquals(1, findUserTagAmount(userId));
         assertEquals(1, findSubWithTagValueAmount(TAG.value()));
+        for (var dbTag: ans.entrySet()){
+            assertNotNull(dbTag.getKey());
+        }
     }
 
     @Test
@@ -144,11 +152,14 @@ public abstract class TagServiceTest {
         Long linkId = addLink();
         addSubscription(userId, linkId);
 
-        assertDoesNotThrow(() -> tagService.addTagsForUserAndLink(USER, LINK, List.of(TAG)));
+        var ans = assertDoesNotThrow(() -> tagService.addTagsForUserAndLink(USER, LINK, List.of(TAG)));
 
         assertEquals(1, findAllAmount("tag"));
         assertEquals(1, findUserTagAmount(userId));
         assertEquals(1, findSubWithTagValueAmount(TAG.value()));
+        for (var dbTag: ans.entrySet()){
+            assertNotNull(dbTag.getKey());
+        }
     }
 
     @Test
@@ -159,11 +170,12 @@ public abstract class TagServiceTest {
         Long linkId = addLink();
         addSubscriptionWithTag(userId, linkId, tagId);
 
-        assertDoesNotThrow(() -> tagService.addTagsForUserAndLink(USER, LINK, List.of(TAG)));
+        var ans = assertDoesNotThrow(() -> tagService.addTagsForUserAndLink(USER, LINK, List.of(TAG)));
 
         assertEquals(1, findAllAmount("tag"));
         assertEquals(1, findUserTagAmount(userId));
         assertEquals(1, findSubWithTagValueAmount(TAG.value()));
+        assertFalse(ans.isEmpty());
     }
 
     @Test
@@ -182,22 +194,23 @@ public abstract class TagServiceTest {
     }
 
     @Test
-    public void getTagsForUser_Success() {
+    public void getTagsForUser_SuccessNoTags() {
         fillDataUserOnly(USER);
 
-        List<Tag> tags = assertDoesNotThrow(() -> tagService.getTagsForUser(USER));
+        Map<Long, Tag> tags = assertDoesNotThrow(() -> tagService.getTagsForUser(USER));
 
         assertTrue(tags.isEmpty());
     }
 
     @Test
-    public void getTagsForUser_SuccessNoTags() {
+    public void getTagsForUser_Success() {
         fillDataOnlyTag(USER, TAG);
 
-        List<Tag> tags = assertDoesNotThrow(() -> tagService.getTagsForUser(USER));
+        Map<Long, Tag> tags = assertDoesNotThrow(() -> tagService.getTagsForUser(USER));
 
         assertEquals(1, tags.size());
-        assertEquals(TAG.value(), tags.getFirst().value());
+        assertNotNull(tags.keySet().iterator().next());
+        assertEquals(TAG.value(), tags.values().iterator().next().value());
     }
 
     @Test
