@@ -16,8 +16,11 @@ import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExis
 import backend.academy.scrapper.exception.repository.ScrapperTagNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +34,7 @@ public class OrmTagService implements TagService {
 
     @Override
     @Transactional
-    public void addTagsForUserAndLink(User user, Link link, List<Tag> tags) {
+    public Map<Long, Tag> addTagsForUserAndLink(User user, Link link, List<Tag> tags) {
         try {
             OrmUser ormUser = tryGetUserByChatId(user.chatId());
             OrmSubscription sub = ormUser.subscriptions().stream()
@@ -39,6 +42,7 @@ public class OrmTagService implements TagService {
                 .findFirst().orElseThrow(
                     () -> new ScrapperSubscriptionNotExistsException("No subscription found for " + link.url())
                 );
+            Map<Long, Tag> result = new HashMap<>();
             for(Tag tag : tags) {
                 Optional<OrmTag> existingTag = ormUser.tags().stream()
                     .filter(t -> t.tagText().equals(tag.value()))
@@ -54,7 +58,9 @@ public class OrmTagService implements TagService {
                     tagRepo.save(t);
                     tagRepo.flush();
                 }
+                result.put(t.id(), tag);
             }
+            return result;
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while adding  ORM tags to " + user.chatId(), e);
         }
@@ -62,7 +68,7 @@ public class OrmTagService implements TagService {
 
     @Override
     @Transactional
-    public void deleteTagForUser(User user, Tag tag) {
+    public Map.Entry<Long, Tag> deleteTagForUser(User user, Tag tag) {
         try {
             OrmUser ormUser = tryGetUserByChatId(user.chatId());
             OrmTag ormTag = ormUser.tags().stream()
@@ -72,6 +78,7 @@ public class OrmTagService implements TagService {
             ormUser.tags().remove(ormTag);
             tagRepo.delete(ormTag);
             tagRepo.flush();
+            return Map.entry(ormTag.id(), OrmTagMapper.mapFromOrm(ormTag));
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while deleting with ORM tag " + tag.value(), e);
         }
@@ -79,7 +86,7 @@ public class OrmTagService implements TagService {
 
     @Override
     @Transactional
-    public void deleteTagForSubscriptionData(User user, Link link, String text) {
+    public Map.Entry<Long, Tag> deleteTagForSubscriptionData(User user, Link link, String text) {
         try {
             OrmUser subscriber = tryGetUserByChatId(user.chatId());
             OrmSubscription sub = subscriber.subscriptions().stream()
@@ -95,6 +102,7 @@ public class OrmTagService implements TagService {
             tag.subscriptions().remove(sub);
             subscrRepo.save(sub);
             subscrRepo.flush();
+            return Map.entry(tag.id(), OrmTagMapper.mapFromOrm(tag));
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while deleting with ORM subscription " + link.url(), e);
         }
@@ -114,10 +122,10 @@ public class OrmTagService implements TagService {
     }
 
     @Override
-    public List<Tag> getTagsForUser(User user) {
+    public Map<Long, Tag> getTagsForUser(User user) {
         try {
             OrmUser ormUser = tryGetUserByChatId(user.chatId());
-            return ormUser.tags().stream().map(OrmTagMapper::mapFromOrm).toList();
+            return ormUser.tags().stream().collect(Collectors.toMap(OrmTag::id, OrmTagMapper::mapFromOrm));
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while getting tags for user " + user.chatId(), e);
         }

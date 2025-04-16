@@ -18,7 +18,9 @@ import backend.academy.scrapper.exception.repository.ScrapperSubscriptionNotExis
 import backend.academy.scrapper.exception.repository.ScrapperTagNotExistsException;
 import backend.academy.scrapper.exception.repository.ScrapperUserNotExistsException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
@@ -35,16 +37,19 @@ public class SqlTagService implements TagService {
 
     @Override
     @Transactional
-    public void addTagsForUserAndLink(User user, Link link, List<Tag> tags) {
+    public Map<Long, Tag> addTagsForUserAndLink(User user, Link link, List<Tag> tags) {
         try {
             SqlUser existingUser = tryGetUserByChatId(user.chatId());
             SqlLink existingLink = tryGetLinkByUrl(link.url());
             SqlSubscription sub = tryGetSubscriptionByLinkAndUserId(existingLink.id(), existingUser.id());
+            Map<Long, Tag> addedTags = new HashMap<>();
             for(Tag tag : tags) {
                 Optional<SqlTag> t = tagRepo.getTagByValue(tag.value());
                 Long tagId = t.map(SqlTag::id).orElseGet(() -> tagRepo.addTag(new SqlTag(tag.value(), existingUser.id())));
                 tagRepo.addTagToSubscription(tagId, sub.id());
+                addedTags.put(tagId, tag);
             }
+            return addedTags;
         } catch (ScrapperLinkNotExistsException e) {
             throw new ScrapperSubscriptionNotExistsException("Subscription not exists on link " + link.url());
         } catch (DataAccessException e) {
@@ -54,11 +59,12 @@ public class SqlTagService implements TagService {
 
     @Override
     @Transactional
-    public void deleteTagForUser(User user, Tag tag) {
+    public Map.Entry<Long, Tag> deleteTagForUser(User user, Tag tag) {
         try {
             SqlUser existingUser = tryGetUserByChatId(user.chatId());
             SqlTag existingTag = tryGetTagByTextAndUserId(tag.value(), existingUser.id());
             tagRepo.removeTagById(existingTag.id());
+            return Map.entry(existingTag.id(), tag);
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Exception while deleting tag for user " + user.chatId(), e);
         }
@@ -66,13 +72,14 @@ public class SqlTagService implements TagService {
 
     @Override
     @Transactional
-    public void deleteTagForSubscriptionData(User u, Link l, String text) {
+    public Map.Entry<Long, Tag> deleteTagForSubscriptionData(User u, Link l, String text) {
         try {
             SqlUser user = tryGetUserByChatId(u.chatId());
             SqlLink link = tryGetLinkByUrl(l.url());
             SqlSubscription existingSub = tryGetSubscriptionByLinkAndUserId(link.id(), user.id());
             SqlTag tag = tryGetTagByTextAndUserId(text, user.id());
             tagRepo.removeTagFromSubscription(tag.id(), existingSub.id());
+            return Map.entry(tag.id(), new Tag(text));
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Error while deleting tag from link " + l.url(), e);
         }
@@ -93,13 +100,13 @@ public class SqlTagService implements TagService {
     }
 
     @Override
-    public List<Tag> getTagsForUser(User user) {
+    public Map<Long, Tag> getTagsForUser(User user) {
         try {
             SqlUser existingUser = tryGetUserByChatId(user.chatId());
             List<SqlTag> tags = tagRepo.getUserTagsById(existingUser.id());
-            List<Tag> response = new ArrayList<>();
+            Map<Long, Tag> response = new HashMap<>();
             for (SqlTag tag : tags) {
-                response.add(new Tag(tag.tagText()));
+                response.put(tag.id(), new Tag(tag.tagText()));
             }
             return response;
         } catch (DataAccessException e) {
