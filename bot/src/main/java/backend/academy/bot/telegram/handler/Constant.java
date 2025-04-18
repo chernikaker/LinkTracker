@@ -9,6 +9,9 @@ public class Constant {
     public static final String EMPTY_INPUT = "-";
     public static final String NOT_REGISTERED = "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
     public static final String REQUEST_CANCELLED = "Запрос отклонен, попробуйте ещё раз";
+    public static final String INTERNAL_ERROR = "Ошибка сервера";
+    public static final String UNKNOWN_ERROR  = "Неизвестная ошибка";
+    public static final String NO_SUBSCRIPTION = "У вас нет подписки на данную ссылку";
     public static final String LINK_NOT_VALID =
             """
         Ссылка введена неверно или не поддерживается, попробуйте ещё раз.
@@ -47,6 +50,8 @@ public class Constant {
 
     // LinkTextCommandHandler
     public static final String TAGS_TRACKING_MESSAGE = "Введите тэги(опционально, введите %s для пустых тегов)";
+    public static final String TAG_TRACKING_MESSAGE = "Введите тэг (один)";
+    public static final String TAG_INVALID_INPUT = "Введено несколько тэгов. Повторите попытку";
 
     // ListCommandHandler
     public static final String NO_LINKS = "Отслеживаемых ссылок нет";
@@ -64,9 +69,16 @@ public class Constant {
             "Тэги не установлены. Введите фильтры(опционально, введите %s для пустых фильтров)";
     public static final String ENTER_FILTER =
             "Тэги установлены. Введите фильтры(опционально, введите %s для пустых фильтров)";
+    public static final String TAGS_ADDED_AND_SENT = "Теги успешно добавлены к ссылке";
+    public static final String TAG_DETACHED = "Тег успешно откреплен от ссылки";
+    public static final String SUBS_DELETED_BY_TAG = "Ссылки по тегу успешно удалены";
+    public static final String TAG_DELETED = "Тег успешно удалены";
+    public static final String TAG_SUBS_HEADER = "Ссылки по тегу";
+    public static final String NO_TAG_FOR_USER = "Данный тег отсутствует. Сначала добавьте его";
+    public static final String NO_TAG_FOR_SUBSCRIPTION = "Данный тег отсутствует. Сначала добавьте его к ссылке";
 
     // TrackCommandHandler
-    public static final String LINK_TRACK_MESSAGE = "Введите ссылку для отслеживания";
+    public static final String LINK_TRACK_MESSAGE = "Введите ссылку";
 
     // UnknownCommandHandler
     public static final String UNKNOWN_COMMAND_MESSAGE = "Команда неизвестна или недоступна на данный момент";
@@ -76,5 +88,4 @@ public class Constant {
 
     // UntrackingLinkTextCommandHandler
     public static final String LINK_REMOVED_SUCCESS = "Ссылка успешно удалена";
-    public static final String NO_SUBSCRIPTION = "У вас нет подписки на данную ссылку";
 }

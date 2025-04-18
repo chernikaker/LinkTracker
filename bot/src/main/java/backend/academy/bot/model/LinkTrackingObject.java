@@ -1,6 +1,7 @@
 package backend.academy.bot.model;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
+import backend.academy.bot.telegram.handler.Command;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,5 +22,6 @@ public class LinkTrackingObject {
     private String link;
     private String[] tags;
     private String[] filters;
-    private UserState state = UserState.TRACKING_LINK;
+    private UserState state;
+    private Command command;
 }

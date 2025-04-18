@@ -5,6 +5,5 @@ public enum UserState {
     DEFAULT,
     TRACKING_LINK,
     TRACKING_TAG,
-    TRACKING_FILTER,
-    UNTRACKING_LINK;
+    TRACKING_FILTER;
 }
