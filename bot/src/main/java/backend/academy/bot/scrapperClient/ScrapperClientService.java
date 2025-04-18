@@ -3,10 +3,16 @@ package backend.academy.bot.scrapperClient;
 import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.dto.AddLinkRequest;
+import backend.academy.dto.AddLinkTagsRequest;
 import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.ListLinksResponse;
+import backend.academy.dto.ListTagLinksResponse;
+import backend.academy.dto.ListTagsResponse;
 import backend.academy.dto.RemoveLinkRequest;
 import java.util.Arrays;
+import java.util.List;
+import backend.academy.dto.RemoveLinkTagRequest;
+import backend.academy.dto.RemoveTagRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -61,6 +67,71 @@ public final class ScrapperClientService {
             RemoveLinkRequest request = new RemoveLinkRequest(link);
             client.deleteLinkSubscription(chatId, request);
             log.atInfo().addKeyValue("chat id", chatId).log("Subscription removed successfully");
+        } catch (HttpClientErrorException e) {
+            ApiErrorResponse r = handleException(e);
+            throw new BotRequestException(r);
+        }
+    }
+
+    public void addTagsToSubscription(long chatId, LinkTrackingObject data) {
+        try {
+            AddLinkTagsRequest request = new AddLinkTagsRequest(data.link(), List.of(data.tags()));
+            client.addTagsToSubscription(chatId, request);
+            log.atInfo().addKeyValue("chat id", chatId).log("Tags added successfully");
+        } catch (HttpClientErrorException e) {
+            ApiErrorResponse r = handleException(e);
+            throw new BotRequestException(r);
+        }
+    }
+
+    public void removeTagBySubscription(long chatId, LinkTrackingObject data) {
+        try {
+            RemoveLinkTagRequest request = new RemoveLinkTagRequest(data.link(), data.tags()[0]);
+            client.removeTagFromSubscription(chatId, request);
+            log.atInfo().addKeyValue("chat id", chatId).log("Tag was removed from subscription successfully");
+        } catch (HttpClientErrorException e) {
+            ApiErrorResponse r = handleException(e);
+            throw new BotRequestException(r);
+        }
+    }
+
+    public void removeSubscriptionsByTag(long chatId, String tag) {
+        try {
+            client.removeSubscriptionsByTag(chatId, tag);
+            log.atInfo().addKeyValue("chat id", chatId).log("Subscriptions removed by tag successfully");
+        } catch (HttpClientErrorException e) {
+            ApiErrorResponse r = handleException(e);
+            throw new BotRequestException(r);
+        }
+    }
+
+    public void deleteTag(long chatId, String tag) {
+        try {
+            RemoveTagRequest request = new RemoveTagRequest(tag);
+            client.deleteTag(chatId, request);
+            log.atInfo().addKeyValue("chat id", chatId).log("Tag removed successfully");
+        } catch (HttpClientErrorException e) {
+            ApiErrorResponse r = handleException(e);
+            throw new BotRequestException(r);
+        }
+    }
+
+    public ListTagLinksResponse getSubscriptionsByTag(long chatId, String tag) {
+        try {
+            ListTagLinksResponse response = client.getTagSubscriptions(chatId, tag);
+            log.atInfo().addKeyValue("chat id", chatId).log("Tag subscriptions were sent successfully");
+            return response;
+        } catch (HttpClientErrorException e) {
+            ApiErrorResponse r = handleException(e);
+            throw new BotRequestException(r);
+        }
+    }
+
+    public ListTagsResponse getUserTags(long chatId){
+        try {
+            ListTagsResponse response = client.getTags(chatId);
+            log.atInfo().addKeyValue("chat id", chatId).log("Tags were sent successfully");
+            return response;
         } catch (HttpClientErrorException e) {
             ApiErrorResponse r = handleException(e);
             throw new BotRequestException(r);
