@@ -102,8 +102,8 @@ public abstract class TagServiceTest {
 
     @Test
     public void deleteTagForSubscriptionData_TagNotExists() {
-        var ids = fillDataUserOnly(USER);
-        addSubscription(ids, addLink());
+        var ids = fillDataOnlyTag(USER, TAG);
+        addSubscription(ids.getKey(), addLink());
 
         assertThatThrownBy(() -> tagService.deleteTagForSubscriptionData(USER, LINK, TAG.value()))
                 .isInstanceOf(ScrapperTagNotExistsException.class);

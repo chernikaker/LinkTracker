@@ -77,7 +77,7 @@ public class SqlTagService implements TagService {
             SqlUser user = tryGetUserByChatId(u.chatId());
             SqlLink link = tryGetLinkByUrl(l.url());
             SqlSubscription existingSub = tryGetSubscriptionByLinkAndUserId(link.id(), user.id());
-            SqlTag tag = tryGetTagByTextAndUserId(text, user.id());
+            SqlTag tag = tryGetTagByTextAndSubscriptionId(text, existingSub.id());
             tagRepo.removeTagFromSubscription(tag.id(), existingSub.id());
             return Map.entry(tag.id(), new Tag(text));
         } catch (DataAccessException e) {
@@ -134,5 +134,10 @@ public class SqlTagService implements TagService {
     private SqlTag tryGetTagByTextAndUserId(String text, long userId) {
         return tagRepo.getTagByTextAndUserId(userId, text)
                 .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + text + " does not exist"));
+    }
+
+    private SqlTag tryGetTagByTextAndSubscriptionId(String text, long subId) {
+        return tagRepo.getTagByTextAndSubscriptionId(subId, text)
+            .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + text + " does not exist"));
     }
 }

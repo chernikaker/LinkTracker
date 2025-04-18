@@ -117,7 +117,7 @@ class SqlTagServiceUnitTest {
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.of(sqlLink));
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.of(sqlUser));
         when(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId)).thenReturn(Optional.of(sqlSub));
-        when(tagRepo.getTagByTextAndUserId(userId, tagText)).thenReturn(Optional.of(sqlTag));
+        when(tagRepo.getTagByTextAndSubscriptionId(subId, tagText)).thenReturn(Optional.of(sqlTag));
         assertDoesNotThrow(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText));
 
         verify(tagRepo).removeTagFromSubscription(tagId, subId);
@@ -155,7 +155,7 @@ class SqlTagServiceUnitTest {
         when(linkRepo.findLinkByUrl(url)).thenReturn(Optional.of(sqlLink));
         when(userRepo.findUserByChatId(chatId)).thenReturn(Optional.of(sqlUser));
         when(subscrRepo.getSubscriptionByLinkAndUserId(linkId, userId)).thenReturn(Optional.of(sqlSub));
-        when(tagRepo.getTagByTextAndUserId(userId, tagText)).thenReturn(Optional.empty());
+        when(tagRepo.getTagByTextAndSubscriptionId(subId, tagText)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> sqlTagService.deleteTagForSubscriptionData(user, link, tagText))
                 .isInstanceOf(ScrapperTagNotExistsException.class);

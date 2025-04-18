@@ -43,6 +43,15 @@ public class TagSqlRepository {
         return jdbcTemplate.query(query, params, new SqlTagRowMapper()).stream().findFirst();
     }
 
+    public Optional<SqlTag> getTagByTextAndSubscriptionId(long subId, String tagText) {
+        MapSqlParameterSource params = new MapSqlParameterSource("subId", subId);
+        params.addValue("tagText", tagText);
+        String query = "SELECT t.id, t.tag_text, t.user_id FROM tag t " +
+            "JOIN subscription_tag st ON t.id = st.tag_id " +
+            "WHERE t.tag_text = :tagText AND st.subscription_id = :subId";
+        return jdbcTemplate.query(query, params, new SqlTagRowMapper()).stream().findFirst();
+    }
+
     public Long removeTagById(long tagId) {
         SqlParameterSource params = new MapSqlParameterSource("tagId", tagId);
         String query = "DELETE FROM tag WHERE id = :tagId RETURNING id";
