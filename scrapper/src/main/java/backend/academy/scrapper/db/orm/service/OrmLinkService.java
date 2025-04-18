@@ -39,6 +39,7 @@ public class OrmLinkService implements LinkService {
     }
 
     @Override
+    @Transactional
     public Map<Long, Link> getLinksToCheck(int batchSize, long offset, long duration) {
         try {
             LocalDateTime minCheck = Instant.now()

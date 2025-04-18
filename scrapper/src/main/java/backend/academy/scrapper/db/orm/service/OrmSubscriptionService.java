@@ -153,6 +153,7 @@ public class OrmSubscriptionService implements SubscriptionService {
     }
 
     @Override
+    @Transactional
     public Map<Long, Subscription> getSubscriptionsByUserAndTag(User user, Tag tag) {
         try {
             OrmUser u = tryGetUserByChatId(user.chatId());

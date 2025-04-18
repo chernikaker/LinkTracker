@@ -122,6 +122,7 @@ public class OrmTagService implements TagService {
     }
 
     @Override
+    @Transactional
     public Map<Long, Tag> getTagsForUser(User user) {
         try {
             OrmUser ormUser = tryGetUserByChatId(user.chatId());

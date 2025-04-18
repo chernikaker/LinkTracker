@@ -8,6 +8,7 @@ import backend.academy.scrapper.exception.db.ScrapperOrmException;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.transaction.annotation.Transactional;
 
 @AllArgsConstructor
 public class OrmFilterService implements FilterService {
@@ -15,6 +16,7 @@ public class OrmFilterService implements FilterService {
     private final OrmFilterRepository filterRepo;
 
     @Override
+    @Transactional
     public List<Filter> getFiltersBySubscriptionId(long id) {
         try {
             return filterRepo.getAllBySubscription_Id(id).stream()

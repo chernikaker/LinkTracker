@@ -25,6 +25,7 @@ public class OrmUserService implements UserService {
     private final OrmLinkRepository linkRepo;
 
     @Override
+    @Transactional
     public void addUser(User user) {
         try {
             Optional<OrmUser> existingUser = userRepo.findByChatId(user.chatId());
