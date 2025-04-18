@@ -12,11 +12,11 @@ import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Message;
 
 /** Обработчик команды /start */
-public class StartCommandHandler extends CommandHandler {
+public class StartHandler extends CommandHandler {
 
     private final ScrapperClientService service;
 
-    public StartCommandHandler(InMemoryTrackingCache repository, ScrapperClientService service) {
+    public StartHandler(InMemoryTrackingCache repository, ScrapperClientService service) {
         super(repository);
         this.service = service;
     }

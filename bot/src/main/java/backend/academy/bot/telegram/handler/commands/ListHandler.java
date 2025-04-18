@@ -17,11 +17,11 @@ import backend.academy.dto.ListLinksResponse;
 import com.pengrad.telegrambot.model.Message;
 
 /** Обработчик команды /list */
-public class ListCommandHandler extends CommandHandler {
+public class ListHandler extends CommandHandler {
 
     private final ScrapperClientService service;
 
-    public ListCommandHandler(InMemoryTrackingCache repository, ScrapperClientService service) {
+    public ListHandler(InMemoryTrackingCache repository, ScrapperClientService service) {
         super(repository);
         this.service = service;
     }

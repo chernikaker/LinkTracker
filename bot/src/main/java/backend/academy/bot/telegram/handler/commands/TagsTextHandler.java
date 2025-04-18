@@ -7,14 +7,20 @@ import static backend.academy.bot.telegram.handler.Constant.ENTER_FILTER_NO_TAGS
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
+import backend.academy.bot.telegram.handler.Command;
+import backend.academy.bot.telegram.handler.sender.tag_text.TagCommandSenderFactory;
+import backend.academy.bot.telegram.handler.sender.tag_text.TagTextSender;
 import com.pengrad.telegrambot.model.Message;
 import java.util.Optional;
 
 /** Обработчик тегов ссылки при ее удалении */
-public class TagsTextCommandHandler extends CommandHandler {
+public class TagsTextHandler extends CommandHandler {
 
-    public TagsTextCommandHandler(InMemoryTrackingCache repository) {
+    private final TagCommandSenderFactory factory;
+
+    public TagsTextHandler(InMemoryTrackingCache repository, TagCommandSenderFactory factory) {
         super(repository);
+        this.factory = factory;
     }
 
     @Override
@@ -23,7 +29,12 @@ public class TagsTextCommandHandler extends CommandHandler {
         Optional<LinkTrackingObject> potentialTracking =
                 repository.getTrack(message.chat().id());
         LinkTrackingObject tracking = potentialTracking.orElseThrow();
-        return writeTags(message.text(), tracking);
+        if(tracking.command() == Command.TRACK) {
+            return writeTags(message.text(), tracking);
+        } else {
+            TagTextSender sender = factory.getSenderByCommand(tracking.command());
+            return sender.writeTagAndSendRequest(message.text(), tracking, message.chat().id());
+        }
     }
 
     @Override

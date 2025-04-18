@@ -7,9 +7,9 @@ import backend.academy.bot.telegram.handler.Command;
 import com.pengrad.telegrambot.model.Message;
 
 /** Обработчик команды /help */
-public class HelpCommandHandler extends CommandHandler {
+public class HelpHandler extends CommandHandler {
 
-    public HelpCommandHandler(InMemoryTrackingCache repository) {
+    public HelpHandler(InMemoryTrackingCache repository) {
         super(repository);
     }
 

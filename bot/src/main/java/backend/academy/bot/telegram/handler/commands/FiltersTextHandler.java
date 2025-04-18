@@ -3,10 +3,10 @@ package backend.academy.bot.telegram.handler.commands;
 import static backend.academy.bot.telegram.handler.Constant.EMPTY_INPUT;
 import static backend.academy.bot.telegram.handler.Constant.FILTERS_NOT_REGISTERD;
 import static backend.academy.bot.telegram.handler.Constant.FILTERS_REGISTERED;
+import static backend.academy.bot.telegram.handler.Constant.INTERNAL_ERROR;
 import static backend.academy.bot.telegram.handler.Constant.LINK_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.LINK_UNABAILABLE;
 import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
-import static backend.academy.bot.telegram.handler.Constant.REQUEST_CANCELLED;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotRequestException;
@@ -18,11 +18,11 @@ import com.pengrad.telegrambot.model.Message;
 import java.util.Optional;
 
 /** Обработчик фильтров ссылки при ее удалении */
-public class FiltersTextCommandHandler extends CommandHandler {
+public class FiltersTextHandler extends CommandHandler {
 
     private final ScrapperClientService service;
 
-    public FiltersTextCommandHandler(InMemoryTrackingCache repository, ScrapperClientService service) {
+    public FiltersTextHandler(InMemoryTrackingCache repository, ScrapperClientService service) {
         super(repository);
         this.service = service;
     }
@@ -51,7 +51,7 @@ public class FiltersTextCommandHandler extends CommandHandler {
                 return LINK_UNABAILABLE;
             }
             // ошибка, не зависящая от пользователя
-            return REQUEST_CANCELLED;
+            return INTERNAL_ERROR;
         }
     }
 
