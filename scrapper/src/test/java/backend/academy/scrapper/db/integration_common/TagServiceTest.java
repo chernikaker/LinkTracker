@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -130,7 +129,7 @@ public abstract class TagServiceTest {
     }
 
     @Test
-    public void addTagsForUserAndLink_SuccessNewTag(){
+    public void addTagsForUserAndLink_SuccessNewTag() {
         Long userId = fillDataUserOnly(USER);
         Long linkId = addLink();
         addSubscription(userId, linkId);
@@ -140,13 +139,13 @@ public abstract class TagServiceTest {
         assertEquals(1, findAllAmount("tag"));
         assertEquals(1, findUserTagAmount(userId));
         assertEquals(1, findSubWithTagValueAmount(TAG.value()));
-        for (var dbTag: ans.entrySet()){
+        for (var dbTag : ans.entrySet()) {
             assertNotNull(dbTag.getKey());
         }
     }
 
     @Test
-    public void addTagsForUserAndLink_SuccessExistingTag(){
+    public void addTagsForUserAndLink_SuccessExistingTag() {
         var ids = fillDataOnlyTag(USER, TAG);
         Long userId = ids.getKey();
         Long linkId = addLink();
@@ -157,13 +156,13 @@ public abstract class TagServiceTest {
         assertEquals(1, findAllAmount("tag"));
         assertEquals(1, findUserTagAmount(userId));
         assertEquals(1, findSubWithTagValueAmount(TAG.value()));
-        for (var dbTag: ans.entrySet()){
+        for (var dbTag : ans.entrySet()) {
             assertNotNull(dbTag.getKey());
         }
     }
 
     @Test
-    public void addTagsForUserAndLink_ExistingTagForSubscription_NothingHappens(){
+    public void addTagsForUserAndLink_ExistingTagForSubscription_NothingHappens() {
         var ids = fillDataOnlyTag(USER, TAG);
         Long userId = ids.getKey();
         Long tagId = ids.getValue();
@@ -179,18 +178,18 @@ public abstract class TagServiceTest {
     }
 
     @Test
-    public void addTagsForUserAndLink_SubscriptionNotFound(){
+    public void addTagsForUserAndLink_SubscriptionNotFound() {
         Long userId = fillDataUserOnly(USER);
         Long linkId = addLink();
 
         assertThatThrownBy(() -> tagService.addTagsForUserAndLink(USER, LINK, List.of(TAG)))
-            .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
+                .isInstanceOf(ScrapperSubscriptionNotExistsException.class);
     }
 
     @Test
-    public void addTagsForUserAndLink_UserNotFound(){
+    public void addTagsForUserAndLink_UserNotFound() {
         assertThatThrownBy(() -> tagService.addTagsForUserAndLink(USER, LINK, List.of(TAG)))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
@@ -215,8 +214,7 @@ public abstract class TagServiceTest {
 
     @Test
     public void getTagsForUser_UserNotFound() {
-        assertThatThrownBy(() -> tagService.getTagsForUser(USER))
-        .isInstanceOf(ScrapperUserNotExistsException.class);
+        assertThatThrownBy(() -> tagService.getTagsForUser(USER)).isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     private Long fillDataUserOnly(User user) {
@@ -266,7 +264,10 @@ public abstract class TagServiceTest {
     }
 
     private Long findSubWithTagValueAmount(String val) {
-        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM subscription_tag s JOIN tag t ON s.tag_id = t.id WHERE t.tag_text = ?", Long.class, val);
+        return jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM subscription_tag s JOIN tag t ON s.tag_id = t.id WHERE t.tag_text = ?",
+                Long.class,
+                val);
     }
 
     private Long findUserTagAmount(Long userId) {

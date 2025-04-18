@@ -125,7 +125,7 @@ public class SqlSubscriptionService implements SubscriptionService {
             List<SqlSubscription> subscriptions = subscrRepo.getSubscriptionsByTagId(t.id());
             Map<Long, Subscription> ans = processSqlSubsListForUser(subscriptions, user);
             subscrRepo.deleteSubscriptionsByTagId(t.id());
-            for(SqlSubscription s : subscriptions){
+            for (SqlSubscription s : subscriptions) {
                 if (subscrRepo.getSubscriptionsByLink(s.linkId()).isEmpty()) {
                     linkRepo.deleteLinkById(s.linkId());
                 }
@@ -191,7 +191,7 @@ public class SqlSubscriptionService implements SubscriptionService {
 
     private Map<Long, Subscription> processSqlSubsListForUser(List<SqlSubscription> subs, User user) {
         Map<Long, Subscription> ans = new HashMap<>();
-        for(SqlSubscription s : subs) {
+        for (SqlSubscription s : subs) {
             SqlLink l = linkRepo.getLinkById(s.linkId());
             Link link = new Link(l.url(), LinkType.fromValue(l.url()), l.lastValidation());
             List<Tag> tags = mapSubscriptionTags(s.id());
@@ -203,6 +203,6 @@ public class SqlSubscriptionService implements SubscriptionService {
 
     private SqlTag tryGetTagByUserAndText(Tag tag, SqlUser u) {
         return tagRepo.getTagByTextAndUserId(u.id(), tag.value())
-            .orElseThrow(() -> new ScrapperTagNotExistsException("Tag not exists: " + tag.value()));
+                .orElseThrow(() -> new ScrapperTagNotExistsException("Tag not exists: " + tag.value()));
     }
 }

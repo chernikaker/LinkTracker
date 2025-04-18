@@ -40,7 +40,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.shaded.com.github.dockerjava.core.dockerfile.DockerfileStatement;
 
 @SpringBootTest
 @Import(SqlConfig.class)
@@ -149,24 +148,26 @@ public class ServiceRepositoryIntegrationTest {
     }
 
     @Test
-    public void addTagsForSubscription_Success(){
+    public void addTagsForSubscription_Success() {
         fillAllData(false);
         AddLinkTagsRequest request = new AddLinkTagsRequest(link.url(), List.of(tag.value()));
 
-        ListLinkTagsResponse response = assertDoesNotThrow(() -> scrapperService.addTagsForSubscription(user.chatId(), request));
+        ListLinkTagsResponse response =
+                assertDoesNotThrow(() -> scrapperService.addTagsForSubscription(user.chatId(), request));
         assertEquals(1, response.tags().size());
         assertEquals(tag.value(), response.tags().tags().getFirst().value());
-        assertTrue(response.tags().tags().getFirst().id()>=1);
+        assertTrue(response.tags().tags().getFirst().id() >= 1);
         assertEquals(1, findAllAmount("tag"));
         assertEquals(1, findAllAmount("subscription_tag"));
     }
 
     @Test
-    public void addTagsForSubscription_SuccessReturnsTagsThatExist(){
+    public void addTagsForSubscription_SuccessReturnsTagsThatExist() {
         fillAllData(true);
         AddLinkTagsRequest request = new AddLinkTagsRequest(link.url(), List.of(tag.value()));
 
-        ListLinkTagsResponse response = assertDoesNotThrow(() -> scrapperService.addTagsForSubscription(user.chatId(), request));
+        ListLinkTagsResponse response =
+                assertDoesNotThrow(() -> scrapperService.addTagsForSubscription(user.chatId(), request));
         assertEquals(1, response.tags().size());
         assertEquals(tag.value(), response.tags().tags().getFirst().value());
         assertEquals(1, findAllAmount("tag"));
@@ -174,31 +175,33 @@ public class ServiceRepositoryIntegrationTest {
     }
 
     @Test
-    public void deleteTagForSubscription_Success(){
+    public void deleteTagForSubscription_Success() {
         fillAllData(true);
         RemoveLinkTagRequest request = new RemoveLinkTagRequest(link.url(), tag.value());
 
-        LinkTagResponse response = assertDoesNotThrow(() -> scrapperService.deleteTagForSubscription(user.chatId(), request));
+        LinkTagResponse response =
+                assertDoesNotThrow(() -> scrapperService.deleteTagForSubscription(user.chatId(), request));
         assertEquals(tag.value(), response.tag().value());
-        assertTrue(response.tag().id()>=1);
+        assertTrue(response.tag().id() >= 1);
         assertEquals(1, findAllAmount("tag"));
         assertEquals(0, findAllAmount("subscription_tag"));
     }
 
     @Test
-    public void deleteSubscriptionsForTag_Success(){
+    public void deleteSubscriptionsForTag_Success() {
         fillAllData(true);
 
-        ListTagLinksResponse response = assertDoesNotThrow(() -> scrapperService.deleteSubscriptionsForTag(user.chatId(), tag.value()));
+        ListTagLinksResponse response =
+                assertDoesNotThrow(() -> scrapperService.deleteSubscriptionsForTag(user.chatId(), tag.value()));
         assertEquals(tag.value(), response.tag());
         assertEquals(1, response.links().size());
-        assertTrue(response.links().links().getFirst().id()>=1);
+        assertTrue(response.links().links().getFirst().id() >= 1);
         assertEquals(0, findAllAmount("subscription"));
         assertEquals(0, findAllAmount("subscription_tag"));
     }
 
     @Test
-    public void deleteTag_Success(){
+    public void deleteTag_Success() {
         fillAllData(true);
 
         RemoveTagRequest request = new RemoveTagRequest(tag.value());
@@ -210,7 +213,7 @@ public class ServiceRepositoryIntegrationTest {
     }
 
     @Test
-    public void getTags_Success(){
+    public void getTags_Success() {
         fillAllData(true);
 
         ListTagsResponse response = assertDoesNotThrow(() -> scrapperService.getTags(user.chatId()));

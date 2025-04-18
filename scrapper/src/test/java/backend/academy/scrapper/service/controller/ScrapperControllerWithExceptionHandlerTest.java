@@ -33,7 +33,6 @@ import backend.academy.scrapper.service.ScrapperController;
 import backend.academy.scrapper.service.ScrapperService;
 import java.util.List;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -44,7 +43,7 @@ import org.springframework.test.web.servlet.MockMvc;
 public class ScrapperControllerWithExceptionHandlerTest {
 
     private static final String ADD_TAG_REQUEST =
-        """
+            """
         {
             "link": "url",
             "tags": [
@@ -53,7 +52,8 @@ public class ScrapperControllerWithExceptionHandlerTest {
         }
         """;
 
-    private static final String REMOVE_SUB_TAG_REQUEST= """
+    private static final String REMOVE_SUB_TAG_REQUEST =
+            """
         {
         "link": "url",
         "tag": "tag"
@@ -61,7 +61,7 @@ public class ScrapperControllerWithExceptionHandlerTest {
         """;
 
     private static final String REMOVE_TAG_REQUEST =
-                      """
+            """
                       {
                       "tag" : "tag"
                       }
@@ -425,20 +425,19 @@ public class ScrapperControllerWithExceptionHandlerTest {
     public void addTagsForSubscription_success() {
         long chatId = 1L;
         AddLinkTagsRequest request = new AddLinkTagsRequest("url", List.of("tag"));
-        ListLinkTagsResponse response = new ListLinkTagsResponse("url",
-            new ListTagsResponse(List.of(new TagResponse(1L, "tag")), 1L));
+        ListLinkTagsResponse response =
+                new ListLinkTagsResponse("url", new ListTagsResponse(List.of(new TagResponse(1L, "tag")), 1L));
         when(scrapperService.addTagsForSubscription(chatId, request)).thenReturn(response);
 
-        mockMvc.perform(
-                post("/links/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(ADD_TAG_REQUEST))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.url").value("url"))
-            .andExpect(jsonPath("$.tags.size").value(1L))
-             .andExpect(jsonPath("$.tags.tags[0].id").value(1L))
-            .andExpect(jsonPath("$.tags.tags.[0].value").value("tag"));
+        mockMvc.perform(post("/links/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(ADD_TAG_REQUEST))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.url").value("url"))
+                .andExpect(jsonPath("$.tags.size").value(1L))
+                .andExpect(jsonPath("$.tags.tags[0].id").value(1L))
+                .andExpect(jsonPath("$.tags.tags.[0].value").value("tag"));
     }
 
     @Test
@@ -446,20 +445,17 @@ public class ScrapperControllerWithExceptionHandlerTest {
     public void addTagsForSubscription_invalidRequestSchema() {
         long chatId = 1L;
         AddLinkTagsRequest request = new AddLinkTagsRequest("url", List.of("tag"));
-        ListLinkTagsResponse response = new ListLinkTagsResponse("url",
-            new ListTagsResponse(List.of(new TagResponse(1L, "tag")), 1L));
+        ListLinkTagsResponse response =
+                new ListLinkTagsResponse("url", new ListTagsResponse(List.of(new TagResponse(1L, "tag")), 1L));
         when(scrapperService.addTagsForSubscription(chatId, request)).thenReturn(response);
 
-        mockMvc.perform(
-                post("/links/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(
-                        """
-                    """
-                    ))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("HttpMessageNotReadableException"));
+        mockMvc.perform(post("/links/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content("""
+                    """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("HttpMessageNotReadableException"));
     }
 
     @Test
@@ -467,30 +463,29 @@ public class ScrapperControllerWithExceptionHandlerTest {
     public void addTagsForSubscription_InvalidId() {
         long chatId = -1L;
 
-        mockMvc.perform(
-                post("/links/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(ADD_TAG_REQUEST))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
-            .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
+        mockMvc.perform(post("/links/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(ADD_TAG_REQUEST))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
+                .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
     }
 
     @Test
     @SneakyThrows
     public void addTagsForSubscription_ScrapperBadRequestException() {
         long chatId = 1L;
-        when(scrapperService.addTagsForSubscription(eq(chatId), any())).thenThrow(new ScrapperUserNotExistsException("error"));
+        when(scrapperService.addTagsForSubscription(eq(chatId), any()))
+                .thenThrow(new ScrapperUserNotExistsException("error"));
 
-        mockMvc.perform(
-                post("/links/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(ADD_TAG_REQUEST))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperUserNotExistsException"))
-            .andExpect(jsonPath("$.exceptionMessage").value("error"));
+        mockMvc.perform(post("/links/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(ADD_TAG_REQUEST))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperUserNotExistsException"))
+                .andExpect(jsonPath("$.exceptionMessage").value("error"));
     }
 
     @Test
@@ -499,14 +494,13 @@ public class ScrapperControllerWithExceptionHandlerTest {
         long chatId = 1L;
         when(scrapperService.addTagsForSubscription(eq(chatId), any())).thenThrow(new ScrapperSqlException("error"));
 
-        mockMvc.perform(
-                post("/links/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(ADD_TAG_REQUEST))
-            .andExpect(status().is5xxServerError())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperSqlException"))
-            .andExpect(jsonPath("$.exceptionMessage").value("error"));
+        mockMvc.perform(post("/links/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(ADD_TAG_REQUEST))
+                .andExpect(status().is5xxServerError())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperSqlException"))
+                .andExpect(jsonPath("$.exceptionMessage").value("error"));
     }
 
     @Test
@@ -514,18 +508,17 @@ public class ScrapperControllerWithExceptionHandlerTest {
     public void deleteTagForSubscription_success() {
         long chatId = 1L;
         RemoveLinkTagRequest request = new RemoveLinkTagRequest("url", "tag");
-        LinkTagResponse response = new LinkTagResponse(new TagResponse(1L, "tag"),"url");
+        LinkTagResponse response = new LinkTagResponse(new TagResponse(1L, "tag"), "url");
         when(scrapperService.deleteTagForSubscription(chatId, request)).thenReturn(response);
 
-        mockMvc.perform(
-                delete("/links/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(REMOVE_SUB_TAG_REQUEST))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.url").value("url"))
-            .andExpect(jsonPath("$.tag.id").value(1L))
-            .andExpect(jsonPath("$.tag.value").value("tag"));
+        mockMvc.perform(delete("/links/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(REMOVE_SUB_TAG_REQUEST))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.url").value("url"))
+                .andExpect(jsonPath("$.tag.id").value(1L))
+                .andExpect(jsonPath("$.tag.value").value("tag"));
     }
 
     @Test
@@ -533,14 +526,13 @@ public class ScrapperControllerWithExceptionHandlerTest {
     public void deleteTagForSubscription_InvalidId() {
         long chatId = -1L;
 
-        mockMvc.perform(
-                delete("/links/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(REMOVE_SUB_TAG_REQUEST))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
-            .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
+        mockMvc.perform(delete("/links/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(REMOVE_SUB_TAG_REQUEST))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
+                .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
     }
 
     @Test
@@ -548,16 +540,15 @@ public class ScrapperControllerWithExceptionHandlerTest {
     public void deleteTagForSubscription_ScrapperBadRequestException() {
         long chatId = 1L;
         when(scrapperService.deleteTagForSubscription(eq(chatId), any()))
-            .thenThrow(new ScrapperSubscriptionNotExistsException("error"));
+                .thenThrow(new ScrapperSubscriptionNotExistsException("error"));
 
-        mockMvc.perform(
-                delete("/links/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(REMOVE_SUB_TAG_REQUEST))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperSubscriptionNotExistsException"))
-            .andExpect(jsonPath("$.exceptionMessage").value("error"));
+        mockMvc.perform(delete("/links/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(REMOVE_SUB_TAG_REQUEST))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperSubscriptionNotExistsException"))
+                .andExpect(jsonPath("$.exceptionMessage").value("error"));
     }
 
     @Test
@@ -565,347 +556,312 @@ public class ScrapperControllerWithExceptionHandlerTest {
     public void deleteTagForSubscription_ScrapperEntityNotFoundException() {
         long chatId = 1L;
         when(scrapperService.deleteTagForSubscription(eq(chatId), any()))
-            .thenThrow(new ScrapperTagNotExistsException("error"));
+                .thenThrow(new ScrapperTagNotExistsException("error"));
 
-        mockMvc.perform(
-                delete("/links/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(REMOVE_SUB_TAG_REQUEST))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
+        mockMvc.perform(delete("/links/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(REMOVE_SUB_TAG_REQUEST))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
     }
 
     @Test
     @SneakyThrows
     public void deleteTagForSubscription_InternalException() {
         long chatId = 1L;
-        when(scrapperService.deleteTagForSubscription(eq(chatId), any()))
-            .thenThrow(new ScrapperSqlException("error"));
+        when(scrapperService.deleteTagForSubscription(eq(chatId), any())).thenThrow(new ScrapperSqlException("error"));
 
-        mockMvc.perform(
-                delete("/links/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(REMOVE_SUB_TAG_REQUEST))
-            .andExpect(status().is5xxServerError());
+        mockMvc.perform(delete("/links/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(REMOVE_SUB_TAG_REQUEST))
+                .andExpect(status().is5xxServerError());
     }
 
     @Test
     @SneakyThrows
-    public void deleteSubscriptionsWithTag_Success(){
+    public void deleteSubscriptionsWithTag_Success() {
         long chatId = 1L;
         String tag = "tag";
         LinkResponse link = new LinkResponse(1L, "url", List.of("tag"), List.of("filter"));
-        ListTagLinksResponse response = new ListTagLinksResponse(tag,
-            new ListLinksResponse(List.of(link), 1));
+        ListTagLinksResponse response = new ListTagLinksResponse(tag, new ListLinksResponse(List.of(link), 1));
         when(scrapperService.deleteSubscriptionsForTag(chatId, tag)).thenReturn(response);
 
-        mockMvc.perform(
-                delete("/tags/tag/links")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.tag").value("tag"))
-            .andExpect(jsonPath("$.links.size").value(1L))
-            .andExpect(jsonPath("$.links.links[0].id").value(1L))
-            .andExpect(jsonPath("$.links.links[0].url").value("url"));
+        mockMvc.perform(delete("/tags/tag/links")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tag").value("tag"))
+                .andExpect(jsonPath("$.links.size").value(1L))
+                .andExpect(jsonPath("$.links.links[0].id").value(1L))
+                .andExpect(jsonPath("$.links.links[0].url").value("url"));
     }
 
     @Test
     @SneakyThrows
-    public void deleteSubscriptionsWithTag_InvalidIdException(){
+    public void deleteSubscriptionsWithTag_InvalidIdException() {
         long chatId = -1L;
 
-        mockMvc.perform(
-                delete("/tags/tag/links")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
-            .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
+        mockMvc.perform(delete("/tags/tag/links")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
+                .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
     }
 
     @Test
     @SneakyThrows
-    public void deleteSubscriptionsWithTag_BadRequestException(){
+    public void deleteSubscriptionsWithTag_BadRequestException() {
         long chatId = 1L;
         when(scrapperService.deleteSubscriptionsForTag(chatId, "tag"))
-            .thenThrow(new ScrapperTagNotExistsException("error"));
+                .thenThrow(new ScrapperTagNotExistsException("error"));
 
-        mockMvc.perform(
-                delete("/tags/tag/links")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperTagNotExistsException"));
+        mockMvc.perform(delete("/tags/tag/links")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperTagNotExistsException"));
     }
 
     @Test
     @SneakyThrows
-    public void deleteSubscriptionsWithTag_ScrapperInternalException(){
+    public void deleteSubscriptionsWithTag_ScrapperInternalException() {
         long chatId = 1L;
-        when(scrapperService.deleteSubscriptionsForTag(chatId, "tag"))
-            .thenThrow(new ScrapperOrmException("error"));
+        when(scrapperService.deleteSubscriptionsForTag(chatId, "tag")).thenThrow(new ScrapperOrmException("error"));
 
-        mockMvc.perform(
-                delete("/tags/tag/links")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().is5xxServerError());
+        mockMvc.perform(delete("/tags/tag/links")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().is5xxServerError());
     }
 
     @Test
     @SneakyThrows
-    public void deleteUserTag_Success(){
+    public void deleteUserTag_Success() {
         long chatId = 1L;
         RemoveTagRequest request = new RemoveTagRequest("tag");
         TagResponse response = new TagResponse(1L, "tag");
         when(scrapperService.deleteTag(chatId, request)).thenReturn(response);
 
-        mockMvc.perform(
-                delete("/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(REMOVE_TAG_REQUEST))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.value").value("tag"))
-            .andExpect(jsonPath("$.id").value(1L));
+        mockMvc.perform(delete("/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(REMOVE_TAG_REQUEST))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.value").value("tag"))
+                .andExpect(jsonPath("$.id").value(1L));
     }
 
     @Test
     @SneakyThrows
-    public void deleteUserTag_InvalidIdException(){
+    public void deleteUserTag_InvalidIdException() {
         long chatId = -1L;
 
-        mockMvc.perform(
-                delete("/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(REMOVE_TAG_REQUEST))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
-            .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
+        mockMvc.perform(delete("/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(REMOVE_TAG_REQUEST))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
+                .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
     }
 
     @Test
     @SneakyThrows
-    public void deleteUserTag_BadRequestException(){
+    public void deleteUserTag_BadRequestException() {
         long chatId = 1L;
-        when(scrapperService.deleteTag(eq(chatId), any())).thenThrow(
-            new ScrapperUserNotExistsException("error")
-        );
+        when(scrapperService.deleteTag(eq(chatId), any())).thenThrow(new ScrapperUserNotExistsException("error"));
 
-        mockMvc.perform(
-                delete("/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(REMOVE_TAG_REQUEST))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperUserNotExistsException"));
+        mockMvc.perform(delete("/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(REMOVE_TAG_REQUEST))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperUserNotExistsException"));
     }
 
     @Test
     @SneakyThrows
-    public void deleteUserTag_EntityNotFoundException(){
+    public void deleteUserTag_EntityNotFoundException() {
         long chatId = 1L;
-        when(scrapperService.deleteTag(eq(chatId), any())).thenThrow(
-            new ScrapperTagNotExistsException("error")
-        );
+        when(scrapperService.deleteTag(eq(chatId), any())).thenThrow(new ScrapperTagNotExistsException("error"));
 
-        mockMvc.perform(
-                delete("/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(REMOVE_TAG_REQUEST))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
+        mockMvc.perform(delete("/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(REMOVE_TAG_REQUEST))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
     }
 
     @Test
     @SneakyThrows
-    public void deleteUserTag_ScrapperInternalException(){
+    public void deleteUserTag_ScrapperInternalException() {
         long chatId = 1L;
-        when(scrapperService.deleteTag(eq(chatId), any())).thenThrow(
-            new ScrapperOrmException("error")
-        );
+        when(scrapperService.deleteTag(eq(chatId), any())).thenThrow(new ScrapperOrmException("error"));
 
-        mockMvc.perform(
-                delete("/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(REMOVE_TAG_REQUEST))
-            .andExpect(status().is5xxServerError());
+        mockMvc.perform(delete("/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(REMOVE_TAG_REQUEST))
+                .andExpect(status().is5xxServerError());
     }
 
     @Test
     @SneakyThrows
-    public void getUserTags_Success(){
+    public void getUserTags_Success() {
         long chatId = 1L;
         ListTagsResponse response = new ListTagsResponse(List.of(new TagResponse(1L, "tag")), 1L);
         when(scrapperService.getTags(eq(chatId))).thenReturn(response);
 
-        mockMvc.perform(
-                get("/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.size").value(1L))
-            .andExpect(jsonPath("$.tags[0].id").value(1L))
-            .andExpect(jsonPath("$.tags[0].value").value("tag"));
+        mockMvc.perform(get("/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size").value(1L))
+                .andExpect(jsonPath("$.tags[0].id").value(1L))
+                .andExpect(jsonPath("$.tags[0].value").value("tag"));
     }
 
     @Test
     @SneakyThrows
-    public void getUserTags_SuccessNoTags(){
+    public void getUserTags_SuccessNoTags() {
         long chatId = 1L;
         ListTagsResponse response = new ListTagsResponse(List.of(), 0L);
         when(scrapperService.getTags(eq(chatId))).thenReturn(response);
 
-        mockMvc.perform(
-                get("/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.size").value(0L));
+        mockMvc.perform(get("/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size").value(0L));
     }
 
     @Test
     @SneakyThrows
-    public void getUserTags_InvalidIdException(){
+    public void getUserTags_InvalidIdException() {
         long chatId = -1L;
 
-        mockMvc.perform(
-                get("/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
-            .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
+        mockMvc.perform(get("/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
+                .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
     }
 
     @Test
     @SneakyThrows
-    public void getUserTags_BadRequestException(){
+    public void getUserTags_BadRequestException() {
         long chatId = 1L;
         when(scrapperService.getTags(chatId)).thenThrow(new ScrapperUserNotExistsException("error"));
 
-        mockMvc.perform(
-                get("/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperUserNotExistsException"));
+        mockMvc.perform(get("/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperUserNotExistsException"));
     }
 
     @Test
     @SneakyThrows
-    public void getUserTags_ScrapperInternalException(){
+    public void getUserTags_ScrapperInternalException() {
         long chatId = 1L;
         when(scrapperService.getTags(chatId)).thenThrow(new ScrapperOrmException("error"));
 
-        mockMvc.perform(
-                get("/tags")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().is5xxServerError());
+        mockMvc.perform(get("/tags")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().is5xxServerError());
     }
 
     @Test
     @SneakyThrows
-    public void getSubscriptionsWithTag_Success(){
+    public void getSubscriptionsWithTag_Success() {
         long chatId = 1L;
         String tag = "tag";
         LinkResponse link = new LinkResponse(1L, "url", List.of("tag"), List.of("filter"));
-        ListTagLinksResponse response = new ListTagLinksResponse(tag,
-            new ListLinksResponse(List.of(link), 1));
+        ListTagLinksResponse response = new ListTagLinksResponse(tag, new ListLinksResponse(List.of(link), 1));
         when(scrapperService.deleteSubscriptionsForTag(chatId, tag)).thenReturn(response);
 
-        mockMvc.perform(
-                get("/tags/tag/links")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.tag").value("tag"))
-            .andExpect(jsonPath("$.links.size").value(1L))
-            .andExpect(jsonPath("$.links.links[0].id").value(1L))
-            .andExpect(jsonPath("$.links.links[0].url").value("url"));
+        mockMvc.perform(get("/tags/tag/links")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tag").value("tag"))
+                .andExpect(jsonPath("$.links.size").value(1L))
+                .andExpect(jsonPath("$.links.links[0].id").value(1L))
+                .andExpect(jsonPath("$.links.links[0].url").value("url"));
     }
 
     @Test
     @SneakyThrows
-    public void getSubscriptionsWithTag_SuccessNoSubs(){
+    public void getSubscriptionsWithTag_SuccessNoSubs() {
         long chatId = 1L;
         String tag = "tag";
-        ListTagLinksResponse response = new ListTagLinksResponse(tag,
-            new ListLinksResponse(List.of(), 0));
+        ListTagLinksResponse response = new ListTagLinksResponse(tag, new ListLinksResponse(List.of(), 0));
         when(scrapperService.deleteSubscriptionsForTag(chatId, tag)).thenReturn(response);
 
-        mockMvc.perform(
-                get("/tags/tag/links")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.tag").value("tag"))
-            .andExpect(jsonPath("$.links.size").value(0L));
+        mockMvc.perform(get("/tags/tag/links")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tag").value("tag"))
+                .andExpect(jsonPath("$.links.size").value(0L));
     }
 
     @Test
     @SneakyThrows
-    public void getSubscriptionsWithTag_InvalidIdException(){
+    public void getSubscriptionsWithTag_InvalidIdException() {
         long chatId = -1L;
 
-        mockMvc.perform(
-                get("/tags/tag/links")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
-            .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
+        mockMvc.perform(get("/tags/tag/links")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperInvalidIdException"))
+                .andExpect(jsonPath("$.exceptionMessage").value("Id must be a positive integer"));
     }
 
     @Test
     @SneakyThrows
-    public void getSubscriptionsWithTag_BadRequestException(){
+    public void getSubscriptionsWithTag_BadRequestException() {
         long chatId = 1L;
         when(scrapperService.deleteSubscriptionsForTag(chatId, "tag"))
-            .thenThrow(new ScrapperTagNotExistsException("error"));
+                .thenThrow(new ScrapperTagNotExistsException("error"));
 
-        mockMvc.perform(
-                get("/tags/tag/links")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.exceptionName").value("ScrapperTagNotExistsException"));
+        mockMvc.perform(get("/tags/tag/links")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.exceptionName").value("ScrapperTagNotExistsException"));
     }
 
     @Test
     @SneakyThrows
-    public void getSubscriptionsWithTag_ScrapperInternalException(){
+    public void getSubscriptionsWithTag_ScrapperInternalException() {
         long chatId = 1L;
-        when(scrapperService.deleteSubscriptionsForTag(chatId, "tag"))
-            .thenThrow(new ScrapperOrmException("error"));
+        when(scrapperService.deleteSubscriptionsForTag(chatId, "tag")).thenThrow(new ScrapperOrmException("error"));
 
-        mockMvc.perform(
-                get("/tags/tag/links")
-                    .header("Tg-Chat-Id", chatId)
-                    .contentType("application/json")
-                    .content(""))
-            .andExpect(status().is5xxServerError());
+        mockMvc.perform(get("/tags/tag/links")
+                        .header("Tg-Chat-Id", chatId)
+                        .contentType("application/json")
+                        .content(""))
+                .andExpect(status().is5xxServerError());
     }
-
-
 }

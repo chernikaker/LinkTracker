@@ -38,20 +38,20 @@ public class OrmTagService implements TagService {
         try {
             OrmUser ormUser = tryGetUserByChatId(user.chatId());
             OrmSubscription sub = ormUser.subscriptions().stream()
-                .filter(s -> s.link().url().equals(link.url()))
-                .findFirst().orElseThrow(
-                    () -> new ScrapperSubscriptionNotExistsException("No subscription found for " + link.url())
-                );
+                    .filter(s -> s.link().url().equals(link.url()))
+                    .findFirst()
+                    .orElseThrow(() ->
+                            new ScrapperSubscriptionNotExistsException("No subscription found for " + link.url()));
             Map<Long, Tag> result = new HashMap<>();
-            for(Tag tag : tags) {
+            for (Tag tag : tags) {
                 Optional<OrmTag> existingTag = ormUser.tags().stream()
-                    .filter(t -> t.tagText().equals(tag.value()))
-                    .findFirst();
+                        .filter(t -> t.tagText().equals(tag.value()))
+                        .findFirst();
                 OrmTag t = existingTag.orElseGet(() -> OrmTagMapper.mapToOrm(tag));
-                if(!sub.tags().contains(t)) {
+                if (!sub.tags().contains(t)) {
                     sub.tags().add(t);
                     t.subscriptions(new ArrayList<>(List.of(sub)));
-                    if(existingTag.isEmpty()) {
+                    if (existingTag.isEmpty()) {
                         ormUser.tags().add(t);
                         t.owner(ormUser);
                     }
@@ -135,5 +135,4 @@ public class OrmTagService implements TagService {
         return userRepo.findByChatId(chatId)
                 .orElseThrow(() -> new ScrapperUserNotExistsException("User " + chatId + " does not exist"));
     }
-
 }

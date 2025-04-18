@@ -130,11 +130,13 @@ public class OrmSubscriptionService implements SubscriptionService {
     public Map<Long, Subscription> deleteSubscriptionsByUserAndTag(User user, Tag tag) {
         try {
             OrmUser u = tryGetUserByChatId(user.chatId());
-            OrmTag t = u.tags().stream().filter(tg -> tag.value().equals(tg.tagText())).findFirst()
-                .orElseThrow(() -> new ScrapperTagNotExistsException("Tag "+tag.value()+" not found"));
+            OrmTag t = u.tags().stream()
+                    .filter(tg -> tag.value().equals(tg.tagText()))
+                    .findFirst()
+                    .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + tag.value() + " not found"));
             List<OrmSubscription> subs = t.subscriptions();
             var ans = subs.stream().collect(Collectors.toMap(OrmSubscription::id, OrmSubscriptionMapper::mapFromOrm));
-            for(OrmSubscription sub : subs) {
+            for (OrmSubscription sub : subs) {
                 OrmLink l = sub.link();
                 u.subscriptions().remove(sub);
                 l.subscriptions().remove(sub);
@@ -154,9 +156,12 @@ public class OrmSubscriptionService implements SubscriptionService {
     public Map<Long, Subscription> getSubscriptionsByUserAndTag(User user, Tag tag) {
         try {
             OrmUser u = tryGetUserByChatId(user.chatId());
-            OrmTag t = u.tags().stream().filter(tg -> tag.value().equals(tg.tagText())).findFirst()
-                .orElseThrow(() -> new ScrapperTagNotExistsException("Tag "+tag.value()+" not found"));
-            return t.subscriptions().stream().collect(Collectors.toMap(OrmSubscription::id, OrmSubscriptionMapper::mapFromOrm));
+            OrmTag t = u.tags().stream()
+                    .filter(tg -> tag.value().equals(tg.tagText()))
+                    .findFirst()
+                    .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + tag.value() + " not found"));
+            return t.subscriptions().stream()
+                    .collect(Collectors.toMap(OrmSubscription::id, OrmSubscriptionMapper::mapFromOrm));
         } catch (DataAccessException e) {
             throw new ScrapperOrmException("Error while getting subscriptions with ORM", e);
         }

@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 @AllArgsConstructor
@@ -43,9 +42,10 @@ public class SqlTagService implements TagService {
             SqlLink existingLink = tryGetLinkByUrl(link.url());
             SqlSubscription sub = tryGetSubscriptionByLinkAndUserId(existingLink.id(), existingUser.id());
             Map<Long, Tag> addedTags = new HashMap<>();
-            for(Tag tag : tags) {
+            for (Tag tag : tags) {
                 Optional<SqlTag> t = tagRepo.getTagByValue(tag.value());
-                Long tagId = t.map(SqlTag::id).orElseGet(() -> tagRepo.addTag(new SqlTag(tag.value(), existingUser.id())));
+                Long tagId =
+                        t.map(SqlTag::id).orElseGet(() -> tagRepo.addTag(new SqlTag(tag.value(), existingUser.id())));
                 tagRepo.addTagToSubscription(tagId, sub.id());
                 addedTags.put(tagId, tag);
             }
@@ -138,6 +138,6 @@ public class SqlTagService implements TagService {
 
     private SqlTag tryGetTagByTextAndSubscriptionId(String text, long subId) {
         return tagRepo.getTagByTextAndSubscriptionId(subId, text)
-            .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + text + " does not exist"));
+                .orElseThrow(() -> new ScrapperTagNotExistsException("Tag " + text + " does not exist"));
     }
 }

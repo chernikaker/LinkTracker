@@ -1,6 +1,7 @@
 package backend.academy.scrapper.service;
 
 import backend.academy.dto.AddLinkRequest;
+import backend.academy.dto.AddLinkTagsRequest;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.LinkTagResponse;
 import backend.academy.dto.ListLinkTagsResponse;
@@ -8,7 +9,6 @@ import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.ListTagLinksResponse;
 import backend.academy.dto.ListTagsResponse;
 import backend.academy.dto.RemoveLinkRequest;
-import backend.academy.dto.AddLinkTagsRequest;
 import backend.academy.dto.RemoveLinkTagRequest;
 import backend.academy.dto.RemoveTagRequest;
 import backend.academy.dto.TagResponse;
@@ -133,8 +133,7 @@ public class ScrapperController {
 
     @PostMapping("links/tags")
     public final ResponseEntity<?> addTagsForSubscription(
-        @RequestHeader("Tg-Chat-Id") final Long id,
-        @RequestBody @Valid final AddLinkTagsRequest request) {
+            @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final AddLinkTagsRequest request) {
         if (id <= 0) {
             throw new ScrapperInvalidIdException("Id must be a positive integer");
         }
@@ -144,22 +143,22 @@ public class ScrapperController {
 
     @DeleteMapping("links/tags")
     public final ResponseEntity<?> deleteTagForSubscription(
-        @RequestHeader("Tg-Chat-Id") final Long id,
-        @RequestBody @Valid final RemoveLinkTagRequest request) {
+            @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final RemoveLinkTagRequest request) {
         if (id <= 0) {
             throw new ScrapperInvalidIdException("Id must be a positive integer");
-        }try {
+        }
+        try {
             LinkTagResponse response = scrapperService.deleteTagForSubscription(id, request);
             return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
-        } catch (ScrapperTagNotExistsException e){
-            throw new ScrapperControllerEntityNotFoundException("Tag "+request.tag()+" for link "+request.link()+" not exists", e);
+        } catch (ScrapperTagNotExistsException e) {
+            throw new ScrapperControllerEntityNotFoundException(
+                    "Tag " + request.tag() + " for link " + request.link() + " not exists", e);
         }
     }
 
     @DeleteMapping("tags/{tag}/links")
     public final ResponseEntity<?> deleteSubscriptionsWithTag(
-        @RequestHeader("Tg-Chat-Id") final Long id,
-        @PathVariable final String tag) {
+            @RequestHeader("Tg-Chat-Id") final Long id, @PathVariable final String tag) {
         if (id <= 0) {
             throw new ScrapperInvalidIdException("Id must be a positive integer");
         }
@@ -168,16 +167,16 @@ public class ScrapperController {
     }
 
     @DeleteMapping("/tags")
-    public final ResponseEntity<?> deleteUserTag(@RequestHeader("Tg-Chat-Id") final Long id,
-                                                 @RequestBody @Valid final RemoveTagRequest request) {
+    public final ResponseEntity<?> deleteUserTag(
+            @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final RemoveTagRequest request) {
         if (id <= 0) {
             throw new ScrapperInvalidIdException("Id must be a positive integer");
         }
         try {
             TagResponse response = scrapperService.deleteTag(id, request);
             return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
-        } catch (ScrapperTagNotExistsException e){
-            throw new ScrapperControllerEntityNotFoundException("Tag "+request.tag()+" not found", e);
+        } catch (ScrapperTagNotExistsException e) {
+            throw new ScrapperControllerEntityNotFoundException("Tag " + request.tag() + " not found", e);
         }
     }
 
@@ -192,8 +191,7 @@ public class ScrapperController {
 
     @GetMapping("tags/{tag}/links")
     public final ResponseEntity<?> getSubscriptionsWithTag(
-        @RequestHeader("Tg-Chat-Id") final Long id,
-        @PathVariable final String tag) {
+            @RequestHeader("Tg-Chat-Id") final Long id, @PathVariable final String tag) {
         if (id <= 0) {
             throw new ScrapperInvalidIdException("Id must be a positive integer");
         }

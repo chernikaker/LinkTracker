@@ -46,9 +46,9 @@ public class TagSqlRepository {
     public Optional<SqlTag> getTagByTextAndSubscriptionId(long subId, String tagText) {
         MapSqlParameterSource params = new MapSqlParameterSource("subId", subId);
         params.addValue("tagText", tagText);
-        String query = "SELECT t.id, t.tag_text, t.user_id FROM tag t " +
-            "JOIN subscription_tag st ON t.id = st.tag_id " +
-            "WHERE t.tag_text = :tagText AND st.subscription_id = :subId";
+        String query =
+                "SELECT t.id, t.tag_text, t.user_id FROM tag t " + "JOIN subscription_tag st ON t.id = st.tag_id "
+                        + "WHERE t.tag_text = :tagText AND st.subscription_id = :subId";
         return jdbcTemplate.query(query, params, new SqlTagRowMapper()).stream().findFirst();
     }
 
@@ -68,7 +68,8 @@ public class TagSqlRepository {
     public void addTagToSubscription(long tagId, long subscrId) {
         MapSqlParameterSource params = new MapSqlParameterSource("tagId", tagId);
         params.addValue("subscrId", subscrId);
-        String query = "INSERT INTO subscription_tag (subscription_id, tag_id) VALUES (:subscrId, :tagId) ON CONFLICT (subscription_id, tag_id) DO NOTHING";
+        String query =
+                "INSERT INTO subscription_tag (subscription_id, tag_id) VALUES (:subscrId, :tagId) ON CONFLICT (subscription_id, tag_id) DO NOTHING";
         jdbcTemplate.update(query, params);
     }
 

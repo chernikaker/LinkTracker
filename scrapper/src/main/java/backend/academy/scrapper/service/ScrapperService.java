@@ -1,6 +1,7 @@
 package backend.academy.scrapper.service;
 
 import backend.academy.dto.AddLinkRequest;
+import backend.academy.dto.AddLinkTagsRequest;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.LinkTagResponse;
 import backend.academy.dto.ListLinkTagsResponse;
@@ -8,7 +9,6 @@ import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.ListTagLinksResponse;
 import backend.academy.dto.ListTagsResponse;
 import backend.academy.dto.RemoveLinkRequest;
-import backend.academy.dto.AddLinkTagsRequest;
 import backend.academy.dto.RemoveLinkTagRequest;
 import backend.academy.dto.RemoveTagRequest;
 import backend.academy.dto.TagResponse;
@@ -158,13 +158,10 @@ public class ScrapperService {
         List<Tag> tags = request.tags().stream().map(Tag::new).toList();
         Map<Long, Tag> ans = tagService.addTagsForUserAndLink(user, link, tags);
         List<TagResponse> tagResponses = new ArrayList<>();
-        for(Map.Entry<Long, Tag> e : ans.entrySet()) {
+        for (Map.Entry<Long, Tag> e : ans.entrySet()) {
             tagResponses.add(new TagResponse(e.getKey(), e.getValue().value()));
         }
-        return new ListLinkTagsResponse (
-            link.url(),
-            new ListTagsResponse(tagResponses, tagResponses.size())
-        );
+        return new ListLinkTagsResponse(link.url(), new ListTagsResponse(tagResponses, tagResponses.size()));
     }
 
     public LinkTagResponse deleteTagForSubscription(long chatId, RemoveLinkTagRequest request) {
@@ -174,10 +171,7 @@ public class ScrapperService {
             processSOLink(link);
         }
         Map.Entry<Long, Tag> ans = tagService.deleteTagForSubscriptionData(user, link, request.tag());
-        return new LinkTagResponse (
-            new TagResponse(ans.getKey(), ans.getValue().value()),
-            link.url()
-        );
+        return new LinkTagResponse(new TagResponse(ans.getKey(), ans.getValue().value()), link.url());
     }
 
     public ListTagLinksResponse deleteSubscriptionsForTag(long chatId, String tagValue) {
@@ -185,13 +179,10 @@ public class ScrapperService {
         Tag tag = new Tag(tagValue);
         Map<Long, Subscription> ans = subscriptionService.deleteSubscriptionsByUserAndTag(user, tag);
         List<LinkResponse> linkResponses = new ArrayList<>();
-        for(Map.Entry<Long, Subscription> e : ans.entrySet()) {
+        for (Map.Entry<Long, Subscription> e : ans.entrySet()) {
             linkResponses.add(mapSubscriptionToLink(e.getKey(), e.getValue()));
         }
-        return new ListTagLinksResponse(
-            tagValue,
-            new ListLinksResponse(linkResponses, linkResponses.size())
-        );
+        return new ListTagLinksResponse(tagValue, new ListLinksResponse(linkResponses, linkResponses.size()));
     }
 
     public TagResponse deleteTag(long chatId, RemoveTagRequest request) {
@@ -206,7 +197,7 @@ public class ScrapperService {
         User user = new User(chatId);
         Map<Long, Tag> ans = tagService.getTagsForUser(user);
         List<TagResponse> tagResponses = new ArrayList<>();
-        for(Map.Entry<Long, Tag> e : ans.entrySet()) {
+        for (Map.Entry<Long, Tag> e : ans.entrySet()) {
             tagResponses.add(new TagResponse(e.getKey(), e.getValue().value()));
         }
         return new ListTagsResponse(tagResponses, tagResponses.size());
@@ -235,11 +226,11 @@ public class ScrapperService {
 
     private LinkResponse mapSubscriptionToLink(Long id, Subscription subscription) {
         return new LinkResponse(
-            id,
-            subscription.link().url(),
-            subscription.tags().stream().map(Tag::value).toList(),
-            subscription.filters().stream()
-                .map(f -> f.key() + ":" + f.value())
-                .toList());
+                id,
+                subscription.link().url(),
+                subscription.tags().stream().map(Tag::value).toList(),
+                subscription.filters().stream()
+                        .map(f -> f.key() + ":" + f.value())
+                        .toList());
     }
 }

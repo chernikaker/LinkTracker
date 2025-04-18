@@ -215,10 +215,11 @@ public abstract class SubscriptionServiceTest {
     }
 
     @Test
-    public void getSubscriptionsByUserAndTag_Success(){
+    public void getSubscriptionsByUserAndTag_Success() {
         fillAllSubscriptionData(true);
 
-        Map<Long, Subscription> subs = assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByUserAndTag(USER, TAG));
+        Map<Long, Subscription> subs =
+                assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByUserAndTag(USER, TAG));
 
         assertEquals(1, subs.size());
         Subscription subscription = subs.values().iterator().next();
@@ -227,34 +228,36 @@ public abstract class SubscriptionServiceTest {
     }
 
     @Test
-    public void getSubscriptionsByUserAndTag_SuccessNoSubs(){
+    public void getSubscriptionsByUserAndTag_SuccessNoSubs() {
         Long uId = addUser(USER);
         addTagForUser(uId, TAG);
 
-        Map<Long, Subscription> subs = assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByUserAndTag(USER, TAG));
+        Map<Long, Subscription> subs =
+                assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByUserAndTag(USER, TAG));
 
         assertTrue(subs.isEmpty());
     }
 
     @Test
-    public void getSubscriptionsByUserAndTag_TagNotExists(){
+    public void getSubscriptionsByUserAndTag_TagNotExists() {
         addUser(USER);
 
         assertThatThrownBy(() -> subscriptionService.getSubscriptionsByUserAndTag(USER, TAG))
-            .isInstanceOf(ScrapperTagNotExistsException.class);
+                .isInstanceOf(ScrapperTagNotExistsException.class);
     }
 
     @Test
-    public void getSubscriptionsByUserAndTag_UserNotExists(){
+    public void getSubscriptionsByUserAndTag_UserNotExists() {
         assertThatThrownBy(() -> subscriptionService.getSubscriptionsByUserAndTag(USER, TAG))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     @Test
-    public void deleteSubscriptionsByUserAndTag_SuccessDeletingWithLink(){
+    public void deleteSubscriptionsByUserAndTag_SuccessDeletingWithLink() {
         fillAllSubscriptionData(true);
 
-        Map<Long, Subscription> subs = assertDoesNotThrow(() -> subscriptionService.deleteSubscriptionsByUserAndTag(USER, TAG));
+        Map<Long, Subscription> subs =
+                assertDoesNotThrow(() -> subscriptionService.deleteSubscriptionsByUserAndTag(USER, TAG));
 
         assertEquals(1, subs.size());
         Subscription subscription = subs.values().iterator().next();
@@ -267,7 +270,7 @@ public abstract class SubscriptionServiceTest {
     }
 
     @Test
-    public void deleteSubscriptionsByUserAndTag_SuccessDeletingWithoutLink(){
+    public void deleteSubscriptionsByUserAndTag_SuccessDeletingWithoutLink() {
         Long linkId = fillAllSubscriptionData(true);
         User other = new User(2L);
         addSubscription(addUser(other), linkId);
@@ -281,7 +284,7 @@ public abstract class SubscriptionServiceTest {
     }
 
     @Test
-    public void deleteSubscriptionsByUserAndTag_NoSubsDoesNothing(){
+    public void deleteSubscriptionsByUserAndTag_NoSubsDoesNothing() {
         addTagForUser(addUser(USER), TAG);
 
         assertDoesNotThrow(() -> subscriptionService.deleteSubscriptionsByUserAndTag(USER, TAG));
@@ -290,17 +293,17 @@ public abstract class SubscriptionServiceTest {
     }
 
     @Test
-    public void deleteSubscriptionsByUserAndTag_TagNotExist(){
+    public void deleteSubscriptionsByUserAndTag_TagNotExist() {
         addUser(USER);
 
         assertThatThrownBy(() -> subscriptionService.deleteSubscriptionsByUserAndTag(USER, TAG))
-            .isInstanceOf(ScrapperTagNotExistsException.class);
+                .isInstanceOf(ScrapperTagNotExistsException.class);
     }
 
     @Test
-    public void deleteSubscriptionsByUserAndTag_UserNotExist(){
+    public void deleteSubscriptionsByUserAndTag_UserNotExist() {
         assertThatThrownBy(() -> subscriptionService.deleteSubscriptionsByUserAndTag(USER, TAG))
-            .isInstanceOf(ScrapperUserNotExistsException.class);
+                .isInstanceOf(ScrapperUserNotExistsException.class);
     }
 
     private Long addUser(User user) {
