@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import backend.academy.scrapper.db.config.SqlConfig;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import backend.academy.scrapper.exception.repository.ScrapperTagNotExistsException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,31 @@ public class ScrapperServerFullPathTest {
             "link": "https://github.com/mock"
         }
         """;
+
+    private static final String ADD_TAG_REQUEST =
+        """
+        {
+            "link": "https://github.com/mock",
+            "tags": [
+                "tag"
+            ]
+        }
+        """;
+
+    private static final String REMOVE_SUB_TAG_REQUEST= """
+        {
+        "link": "https://github.com/mock",
+        "tag": "tag"
+        }
+        """;
+
+    private static final String REMOVE_TAG_REQUEST =
+        """
+        {
+        "tag" : "tag"
+        }
+      """;
+    public static final String URL = "https://github.com/mock";
 
     @Autowired
     private MockMvc mockMvc;
@@ -91,7 +117,7 @@ public class ScrapperServerFullPathTest {
     @SneakyThrows
     public void deleteChatTest_validId() {
         long chatId = 1L;
-        mockMvc.perform(post("/tg-chat/{id}", chatId));
+        addUser(chatId);
 
         mockMvc.perform(delete("/tg-chat/{id}", chatId)).andExpect(status().isOk());
 
@@ -112,7 +138,7 @@ public class ScrapperServerFullPathTest {
     @SneakyThrows
     public void getLinksTest_successful() {
         long chatId = 1L;
-        mockMvc.perform(post("/tg-chat/{id}", chatId));
+        addUser(chatId);
 
         mockMvc.perform(get("/links").header("Tg-Chat-Id", chatId).accept(MediaType.ALL))
                 .andExpect(status().isOk())
@@ -144,31 +170,27 @@ public class ScrapperServerFullPathTest {
     @SneakyThrows
     public void addLinkSubscriptionTest_Success() {
         long chatId = 1L;
-        mockMvc.perform(post("/tg-chat/{id}", chatId));
+        addUser(chatId);
 
         mockMvc.perform(post("/links")
                         .header("Tg-Chat-Id", chatId)
                         .contentType("application/json")
                         .content(ADD_SUB_REQUEST))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.url").value("https://github.com/mock"))
+                .andExpect(jsonPath("$.url").value(URL))
                 .andExpect(jsonPath("$.tags").isEmpty())
                 .andExpect(jsonPath("$.filters").isEmpty());
 
-        assertTrue(containsLinkWithUrl("https://github.com/mock"));
-        assertEquals(1, getSubAmountByChatIdAndLinkUrl(chatId, "https://github.com/mock"));
+        assertTrue(containsLinkWithUrl(URL));
+        assertEquals(1, getSubAmountByChatIdAndLinkUrl(chatId, URL));
     }
 
     @Test
     @SneakyThrows
     public void addLinkSubscriptionTest_subscriptionAlreadyExist() {
         long chatId = 1L;
-        mockMvc.perform(post("/tg-chat/{id}", chatId));
-
-        mockMvc.perform(post("/links")
-                .header("Tg-Chat-Id", chatId)
-                .contentType("application/json")
-                .content(ADD_SUB_REQUEST));
+        addUser(chatId);
+        addSubscriptionWithMockMvc(chatId);
 
         mockMvc.perform(post("/links")
                         .header("Tg-Chat-Id", chatId)
@@ -182,27 +204,24 @@ public class ScrapperServerFullPathTest {
     @SneakyThrows
     public void deleteLinkSubscription_Success() {
         long chatId = 1L;
-        mockMvc.perform(post("/tg-chat/{id}", chatId));
-        mockMvc.perform(post("/links")
-                .header("Tg-Chat-Id", chatId)
-                .contentType("application/json")
-                .content(ADD_SUB_REQUEST));
+        addUser(chatId);
+        addSubscriptionWithMockMvc(chatId);
 
         mockMvc.perform(delete("/links")
                         .header("Tg-Chat-Id", chatId)
                         .contentType("application/json")
                         .content(DELETE_SUB_REQUEST))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.url").value("https://github.com/mock"));
+                .andExpect(jsonPath("$.url").value(URL));
 
-        assertEquals(0, getSubAmountByChatIdAndLinkUrl(1L, "https://github.com/mock"));
+        assertEquals(0, getSubAmountByChatIdAndLinkUrl(1L, URL));
     }
 
     @Test
     @SneakyThrows
     public void deleteLinkSubscription_linkNotExistsException() {
         long chatId = 1L;
-        mockMvc.perform(post("/tg-chat/{id}", chatId));
+        addUser(chatId);
 
         mockMvc.perform(delete("/links")
                         .header("Tg-Chat-Id", chatId)
@@ -216,8 +235,8 @@ public class ScrapperServerFullPathTest {
     @SneakyThrows
     public void deleteLinkSubscription_subscriptionNotExistsException() {
         long chatId = 1L;
-        mockMvc.perform(post("/tg-chat/{id}", chatId));
-        addLink("https://github.com/mock");
+        addUser(chatId);
+        addLink(URL);
 
         mockMvc.perform(delete("/links")
                         .header("Tg-Chat-Id", chatId)
@@ -226,6 +245,292 @@ public class ScrapperServerFullPathTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.exceptionName").value("ScrapperControllerEntityNotFoundException"));
     }
+
+    @Test
+    @SneakyThrows
+    public void addTagsForSubscription_Success(){
+        long chatId = 1L;
+        addUser(chatId);
+        addSubscriptionWithMockMvc(chatId);
+
+        mockMvc.perform(post("/links/tags")
+            .header("Tg-Chat-Id", chatId)
+            .contentType("application/json")
+            .content(ADD_TAG_REQUEST))
+            .andExpect(status().isOk());
+
+        assertEquals(1, findAllAmount("tag"));
+        assertEquals(1, findAllAmount("subscription_tag"));
+    }
+
+    @Test
+    @SneakyThrows
+    public void addTagsForSubscription_TagsExistDoesNotFail(){
+        long chatId = 1L;
+        addUser(chatId);
+        addSubscriptionWithMockMvc(chatId);
+        addTagOnSubscriptionWithMockMvc(chatId);
+
+        mockMvc.perform(post("/links/tags")
+            .header("Tg-Chat-Id", chatId)
+            .contentType("application/json")
+            .content(ADD_TAG_REQUEST))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.tags.size").value(1L));
+        assertEquals(1, findAllAmount("tag"));
+        assertEquals(1, findAllAmount("subscription_tag"));
+    }
+
+    @Test
+    @SneakyThrows
+    public void addTagsForSubscription_SubscriptionNotExistException(){
+        long chatId = 1L;
+        addLink(URL);
+        addUser(chatId);
+
+        mockMvc.perform(post("/links/tags")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(ADD_TAG_REQUEST))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @SneakyThrows
+    public void deleteTagForSubscription_Success(){
+        long chatId = 1L;
+        addUser(chatId);
+        addSubscriptionWithMockMvc(chatId);
+        addTagOnSubscriptionWithMockMvc(chatId);
+
+        mockMvc.perform(delete("/links/tags")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(REMOVE_SUB_TAG_REQUEST))
+            .andExpect(status().isOk());
+
+        assertEquals(0, findAllAmount("subscription_tag"));
+    }
+
+    @Test
+    @SneakyThrows
+    public void deleteTagForSubscription_SubscriptionNotExistsException(){
+        long chatId = 1L;
+        addUser(chatId);
+        addLink(URL);
+
+        mockMvc.perform(delete("/links/tags")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(REMOVE_SUB_TAG_REQUEST))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.exceptionName").value("ScrapperSubscriptionNotExistsException"));
+    }
+
+    @Test
+    @SneakyThrows
+    public void deleteTagForSubscription_TagNotExistsForSubscriptionException(){
+        long chatId = 1L;
+        long id = addUser(chatId);
+        addLink(URL);
+        addSubscriptionWithMockMvc(chatId);
+        addTagToUser(id);
+
+        mockMvc.perform(delete("/links/tags")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(REMOVE_SUB_TAG_REQUEST))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @SneakyThrows
+    public void deleteSubscriptionsWithTag_Success(){
+        long chatId = 1L;
+        addUser(chatId);
+        addSubscriptionWithMockMvc(chatId);
+        addTagOnSubscriptionWithMockMvc(chatId);
+
+        mockMvc.perform(delete("/tags/tag/links")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(""))
+            .andExpect(status().isOk());
+
+        assertEquals(0, getSubAmountByChatIdAndLinkUrl(1L, URL));
+    }
+
+    @Test
+    @SneakyThrows
+    public void deleteSubscriptionsWithTag_SuccessNoSubs(){
+        long chatId = 1L;
+        long id = addUser(chatId);
+        addTagToUser(id);
+
+        mockMvc.perform(delete("/tags/tag/links")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(""))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.links.size").value(0L));
+    }
+
+    @Test
+    @SneakyThrows
+    public void deleteSubscriptionsWithTag_TagNotExistException(){
+        long chatId = 1L;
+        addUser(chatId);
+        addSubscriptionWithMockMvc(chatId);
+
+        mockMvc.perform(delete("/tags/tag/links")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(""))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.exceptionName").value("ScrapperTagNotExistsException"));
+    }
+
+    @Test
+    @SneakyThrows
+    public void deleteUserTag_Success(){
+        long chatId = 1L;
+        long id = addUser(chatId);
+        addTagToUser(id);
+
+        mockMvc.perform(delete("/tags")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(REMOVE_TAG_REQUEST))
+            .andExpect(status().isOk());
+
+        assertEquals(0 ,findAllAmount("tag"));
+    }
+
+    @Test
+    @SneakyThrows
+    public void deleteUserTag_TagNotFoundException(){
+        long chatId = 1L;
+        addUser(chatId);
+
+        mockMvc.perform(delete("/tags")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(REMOVE_TAG_REQUEST))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @SneakyThrows
+    public void deleteUserTag_UserNotFoundException(){
+        long chatId = 1L;
+
+        mockMvc.perform(delete("/tags")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(REMOVE_TAG_REQUEST))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @SneakyThrows
+    public void getUserTags_Success(){
+        long chatId = 1L;
+        long id = addUser(chatId);
+        addTagToUser(id);
+
+        mockMvc.perform(get("/tags")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(""))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.size").value(1L));
+    }
+
+    @Test
+    @SneakyThrows
+    public void getUserTags_SuccessNoTags() {
+        long chatId = 1L;
+        addUser(chatId);
+
+        mockMvc.perform(get("/tags")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(""))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.size").value(0L));
+    }
+
+    @Test
+    @SneakyThrows
+    public void getUserTags_UserNotFoundException() {
+        long chatId = 1L;
+
+        mockMvc.perform(get("/tags")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(""))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @SneakyThrows
+    public void getSubscriptionsWithTag_Success(){
+        long chatId = 1L;
+        addUser(chatId);
+        addSubscriptionWithMockMvc(chatId);
+        addTagOnSubscriptionWithMockMvc(chatId);
+
+        mockMvc.perform(get("/tags/tag/links")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(""))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.links.size").value(1L));
+    }
+
+    @Test
+    @SneakyThrows
+    public void getSubscriptionsWithTag_SuccessNoSubs(){
+        long chatId = 1L;
+        long id = addUser(chatId);
+        addTagToUser(id);
+
+        mockMvc.perform(get("/tags/tag/links")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(""))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.links.size").value(0L));
+    }
+
+    @Test
+    @SneakyThrows
+    public void getSubscriptionsWithTag_TagNotFoundException(){
+        long chatId = 1L;
+        addUser(chatId);
+
+        mockMvc.perform(get("/tags/tag/links")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(""))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.exceptionName").value("ScrapperTagNotExistsException"));
+    }
+
+    private void addTagOnSubscriptionWithMockMvc(long chatId) throws Exception {
+        mockMvc.perform(post("/links/tags")
+                .header("Tg-Chat-Id", chatId)
+                .contentType("application/json")
+                .content(ADD_TAG_REQUEST));
+    }
+
+    private void addSubscriptionWithMockMvc(long chatId) throws Exception {
+        mockMvc.perform(post("/links")
+            .header("Tg-Chat-Id", chatId)
+            .contentType("application/json")
+            .content(ADD_SUB_REQUEST));
+    }
+
 
     private Boolean containsUserWithChat(long chatId) {
         return jdbcTemplate.queryForObject(
@@ -241,8 +546,15 @@ public class ScrapperServerFullPathTest {
                 chatId);
     }
 
+    private void addTagToUser(long chatId){
+        jdbcTemplate.update("INSERT INTO tag (tag_text, user_id) VALUES (?, ?)", "tag", chatId);
+    }
     private Boolean containsLinkWithUrl(String url) {
         return jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM link WHERE url = ?)", Boolean.class, url);
+    }
+
+    private Long addUser(long chatId){
+        return jdbcTemplate.queryForObject("INSERT INTO tg_user (chat_id) VALUES (?) RETURNING id", Long.class, chatId);
     }
 
     private void addLink(String url) {
@@ -250,5 +562,9 @@ public class ScrapperServerFullPathTest {
                 "INSERT INTO link (url, last_validation) VALUES (?, ?)",
                 url,
                 LocalDateTime.now(ZoneId.systemDefault()));
+    }
+
+    private Long findAllAmount(String table) {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM " + table, Long.class);
     }
 }

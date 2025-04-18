@@ -8,9 +8,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import backend.academy.dto.AddLinkRequest;
+import backend.academy.dto.AddLinkTagsRequest;
 import backend.academy.dto.LinkResponse;
+import backend.academy.dto.LinkTagResponse;
+import backend.academy.dto.ListLinkTagsResponse;
 import backend.academy.dto.ListLinksResponse;
+import backend.academy.dto.ListTagLinksResponse;
+import backend.academy.dto.ListTagsResponse;
 import backend.academy.dto.RemoveLinkRequest;
+import backend.academy.dto.RemoveLinkTagRequest;
+import backend.academy.dto.RemoveTagRequest;
+import backend.academy.dto.TagResponse;
 import backend.academy.scrapper.client.external.github.GithubClientService;
 import backend.academy.scrapper.client.external.stackoverflow.StackoverflowClientService;
 import backend.academy.scrapper.db.config.SqlConfig;
@@ -32,6 +40,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.shaded.com.github.dockerjava.core.dockerfile.DockerfileStatement;
 
 @SpringBootTest
 @Import(SqlConfig.class)
@@ -139,6 +148,76 @@ public class ServiceRepositoryIntegrationTest {
         assertEquals(0, getSubAmountByChatIdAndLinkUrl(user.chatId(), link.url()));
     }
 
+    @Test
+    public void addTagsForSubscription_Success(){
+        fillAllData(false);
+        AddLinkTagsRequest request = new AddLinkTagsRequest(link.url(), List.of(tag.value()));
+
+        ListLinkTagsResponse response = assertDoesNotThrow(() -> scrapperService.addTagsForSubscription(user.chatId(), request));
+        assertEquals(1, response.tags().size());
+        assertEquals(tag.value(), response.tags().tags().getFirst().value());
+        assertTrue(response.tags().tags().getFirst().id()>=1);
+        assertEquals(1, findAllAmount("tag"));
+        assertEquals(1, findAllAmount("subscription_tag"));
+    }
+
+    @Test
+    public void addTagsForSubscription_SuccessReturnsTagsThatExist(){
+        fillAllData(true);
+        AddLinkTagsRequest request = new AddLinkTagsRequest(link.url(), List.of(tag.value()));
+
+        ListLinkTagsResponse response = assertDoesNotThrow(() -> scrapperService.addTagsForSubscription(user.chatId(), request));
+        assertEquals(1, response.tags().size());
+        assertEquals(tag.value(), response.tags().tags().getFirst().value());
+        assertEquals(1, findAllAmount("tag"));
+        assertEquals(1, findAllAmount("subscription_tag"));
+    }
+
+    @Test
+    public void deleteTagForSubscription_Success(){
+        fillAllData(true);
+        RemoveLinkTagRequest request = new RemoveLinkTagRequest(link.url(), tag.value());
+
+        LinkTagResponse response = assertDoesNotThrow(() -> scrapperService.deleteTagForSubscription(user.chatId(), request));
+        assertEquals(tag.value(), response.tag().value());
+        assertTrue(response.tag().id()>=1);
+        assertEquals(1, findAllAmount("tag"));
+        assertEquals(0, findAllAmount("subscription_tag"));
+    }
+
+    @Test
+    public void deleteSubscriptionsForTag_Success(){
+        fillAllData(true);
+
+        ListTagLinksResponse response = assertDoesNotThrow(() -> scrapperService.deleteSubscriptionsForTag(user.chatId(), tag.value()));
+        assertEquals(tag.value(), response.tag());
+        assertEquals(1, response.links().size());
+        assertTrue(response.links().links().getFirst().id()>=1);
+        assertEquals(0, findAllAmount("subscription"));
+        assertEquals(0, findAllAmount("subscription_tag"));
+    }
+
+    @Test
+    public void deleteTag_Success(){
+        fillAllData(true);
+
+        RemoveTagRequest request = new RemoveTagRequest(tag.value());
+        TagResponse response = assertDoesNotThrow(() -> scrapperService.deleteTag(user.chatId(), request));
+        assertEquals(tag.value(), response.value());
+        assertEquals(0, findAllAmount("subscription_tag"));
+        assertEquals(0, findAllAmount("tag"));
+        assertEquals(1, findAllAmount("subscription"));
+    }
+
+    @Test
+    public void getTags_Success(){
+        fillAllData(true);
+
+        ListTagsResponse response = assertDoesNotThrow(() -> scrapperService.getTags(user.chatId()));
+        assertEquals(1, response.size());
+        assertEquals(tag.value(), response.tags().getFirst().value());
+    }
+
     private Long getUserAmountByChat(long chatId) {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM tg_user WHERE chat_id=?", Long.class, chatId);
     }
@@ -177,5 +256,9 @@ public class ServiceRepositoryIntegrationTest {
             jdbcTemplate.update(
                     "INSERT INTO subscription_tag (subscription_id, tag_id) VALUES (?, ?)", subscriptionId, tagId);
         }
+    }
+
+    private Long findAllAmount(String table) {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM " + table, Long.class);
     }
 }

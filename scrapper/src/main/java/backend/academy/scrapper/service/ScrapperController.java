@@ -143,13 +143,13 @@ public class ScrapperController {
     }
 
     @DeleteMapping("links/tags")
-    public final ResponseEntity<?> deleteTagsForSubscription(
+    public final ResponseEntity<?> deleteTagForSubscription(
         @RequestHeader("Tg-Chat-Id") final Long id,
         @RequestBody @Valid final RemoveLinkTagRequest request) {
         if (id <= 0) {
             throw new ScrapperInvalidIdException("Id must be a positive integer");
         }try {
-            LinkTagResponse response = scrapperService.deleteTagsForSubscription(id, request);
+            LinkTagResponse response = scrapperService.deleteTagForSubscription(id, request);
             return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
         } catch (ScrapperTagNotExistsException e){
             throw new ScrapperControllerEntityNotFoundException("Tag "+request.tag()+" for link "+request.link()+" not exists", e);

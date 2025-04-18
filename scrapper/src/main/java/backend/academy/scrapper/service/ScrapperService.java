@@ -167,7 +167,7 @@ public class ScrapperService {
         );
     }
 
-    public LinkTagResponse deleteTagsForSubscription(long chatId, RemoveLinkTagRequest request) {
+    public LinkTagResponse deleteTagForSubscription(long chatId, RemoveLinkTagRequest request) {
         User user = new User(chatId);
         Link link = new Link(request.link(), LinkType.fromValue(request.link()));
         if (link.type() == LinkType.STACKOVERFLOW) {
