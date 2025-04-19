@@ -185,6 +185,17 @@ public class ScrapperService {
         return new ListTagLinksResponse(tagValue, new ListLinksResponse(linkResponses, linkResponses.size()));
     }
 
+    public ListTagLinksResponse getSubscriptionsForTag(long chatId, String tagValue) {
+        User user = new User(chatId);
+        Tag tag = new Tag(tagValue);
+        Map<Long, Subscription> ans = subscriptionService.getSubscriptionsByUserAndTag(user, tag);
+        List<LinkResponse> linkResponses = new ArrayList<>();
+        for (Map.Entry<Long, Subscription> e : ans.entrySet()) {
+            linkResponses.add(mapSubscriptionToLink(e.getKey(), e.getValue()));
+        }
+        return new ListTagLinksResponse(tagValue, new ListLinksResponse(linkResponses, linkResponses.size()));
+    }
+
     public TagResponse deleteTag(long chatId, RemoveTagRequest request) {
         User user = new User(chatId);
         Tag tag = new Tag(request.tag());

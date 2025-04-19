@@ -195,7 +195,7 @@ public class ScrapperController {
         if (id <= 0) {
             throw new ScrapperInvalidIdException("Id must be a positive integer");
         }
-        ListTagLinksResponse response = scrapperService.deleteSubscriptionsForTag(id, tag);
+        ListTagLinksResponse response = scrapperService.getSubscriptionsForTag(id, tag);
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
     }
 }
