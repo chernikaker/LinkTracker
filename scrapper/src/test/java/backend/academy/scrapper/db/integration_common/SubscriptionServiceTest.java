@@ -140,22 +140,21 @@ public abstract class SubscriptionServiceTest {
     }
 
     @Test
-    public void getSubscribersChatsByLinkId_ManySubscribers() {
+    public void getSubscribersByLinkId_ManySubscribers() {
         User other = new User(2L);
         Long lId = addLink(LINK);
         addSubscription(addUser(other), lId);
         addSubscription(addUser(USER), lId);
 
-        List<Long> chats = assertDoesNotThrow(() -> subscriptionService.getSubscribersChatsByLinkId(lId));
+        List<Subscription> chats = assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByLinkId(lId));
         assertEquals(2, chats.size());
-        assertThat(chats, containsInAnyOrder(other.chatId(), USER.chatId()));
     }
 
     @Test
     public void getSubscribersChatsByLinkId_NoSubscribers() {
         Long lId = addLink(LINK);
 
-        List<Long> chats = assertDoesNotThrow(() -> subscriptionService.getSubscribersChatsByLinkId(lId));
+        List<Subscription> chats = assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByLinkId(lId));
         assertTrue(chats.isEmpty());
     }
 

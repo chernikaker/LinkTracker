@@ -177,13 +177,20 @@ public class OrmSubscriptionServiceUnitTest {
     @Test
     public void getSubscribersChatsByLinkId_LinkHasSubscribers() {
         ORM_LINK.subscriptions(List.of(ORM_SUBSCRIPTION));
+        ORM_LINK.url(URL);
         ORM_USER.chatId(ID);
         ORM_SUBSCRIPTION.user(ORM_USER);
+        ORM_SUBSCRIPTION.link(ORM_LINK);
+        ORM_SUBSCRIPTION.tags(List.of(ORM_TAG));
+        ORM_SUBSCRIPTION.filters(List.of(ORM_FILTER));
         when(linkRepo.findById(ID)).thenReturn(Optional.of(ORM_LINK));
 
-        List<Long> result = assertDoesNotThrow(() -> subscriptionService.getSubscribersChatsByLinkId(ID));
+        List<Subscription> result = assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByLinkId(ID));
 
-        assertThat(result).containsExactly(ID);
+        assertEquals(1, result.size());
+        Subscription s = result.getFirst();
+        assertEquals(LINK.url(), s.link().url());
+        assertEquals(USER.chatId(), s.user().chatId());
     }
 
     @Test
@@ -191,7 +198,7 @@ public class OrmSubscriptionServiceUnitTest {
         ORM_LINK.subscriptions(List.of());
         when(linkRepo.findById(ID)).thenReturn(Optional.of(ORM_LINK));
 
-        List<Long> result = assertDoesNotThrow(() -> subscriptionService.getSubscribersChatsByLinkId(ID));
+        List<Subscription> result = assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByLinkId(ID));
 
         assertTrue(result.isEmpty());
     }
@@ -200,7 +207,7 @@ public class OrmSubscriptionServiceUnitTest {
     public void getSubscribersChatsByLinkId_LinkNotFound() {
         when(linkRepo.findById(ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> subscriptionService.getSubscribersChatsByLinkId(ID))
+        assertThatThrownBy(() -> subscriptionService.getSubscriptionsByLinkId(ID))
                 .isInstanceOf(ScrapperLinkNotExistsException.class);
     }
 
@@ -208,7 +215,7 @@ public class OrmSubscriptionServiceUnitTest {
     public void getSubscribersChatsByLinkId_DataAccessException() {
         when(linkRepo.findById(ID)).thenThrow(new TestDataAccessException("error"));
 
-        assertThatThrownBy(() -> subscriptionService.getSubscribersChatsByLinkId(ID))
+        assertThatThrownBy(() -> subscriptionService.getSubscriptionsByLinkId(ID))
                 .isInstanceOf(ScrapperOrmException.class);
     }
 

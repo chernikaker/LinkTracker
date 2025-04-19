@@ -223,31 +223,39 @@ public class SqlSubscriptionServiceUnitTest {
 
     @Test
     public void getSubscribersChatsByLinkId_ReturnsChatIds() {
-        when(subscrRepo.getChatsByLink(1L)).thenReturn(List.of(1L));
+        when(linkRepo.getLinkById(1L)).thenReturn(sqlLink);
+        when(subscrRepo.getSubscriptionsByLink(1L)).thenReturn(List.of(sqlSubscription));
+        when(userRepo.findUserById(testUser.chatId())).thenReturn(sqlUser);
+        when(tagRepo.getSubscriptionTags(1L)).thenReturn(List.of(sqlTag));
+        when(filterRepo.getFiltersBySubscriptionId(1L)).thenReturn(List.of(sqlFilter));
 
-        List<Long> result = assertDoesNotThrow(() -> subscriptionService.getSubscribersChatsByLinkId(1L));
+        List<Subscription> result = assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByLinkId(1L));
 
-        assertThat(result).containsExactly(1L);
-        verify(subscrRepo).getChatsByLink(1L);
+        assertEquals(1, result.size());
+        Subscription s = result.getFirst();
+        assertEquals(testLink.url(), s.link().url());
+        assertEquals(testUser.chatId(), s.user().chatId());
+        verify(subscrRepo).getSubscriptionsByLink(1L);
     }
 
     @Test
     public void getSubscribersChatsByLinkId_NoSubscribers() {
         long linkId = 1L;
-        when(subscrRepo.getChatsByLink(linkId)).thenReturn(List.of());
+        when(linkRepo.getLinkById(linkId)).thenReturn(new SqlLink(linkId, testLink.url(), testLink.lastValidation()));
+        when(subscrRepo.getSubscriptionsByLink(linkId)).thenReturn(List.of());
 
-        List<Long> result = assertDoesNotThrow(() -> subscriptionService.getSubscribersChatsByLinkId(linkId));
+        List<Subscription> result = assertDoesNotThrow(() -> subscriptionService.getSubscriptionsByLinkId(linkId));
 
         assertThat(result).isEmpty();
-        verify(subscrRepo).getChatsByLink(linkId);
+        verify(subscrRepo).getSubscriptionsByLink(linkId);
     }
 
     @Test
     public void getSubscribersChatsByLinkId_DataAccessException() {
         long linkId = 1L;
-        when(subscrRepo.getChatsByLink(linkId)).thenThrow(new TestDataAccessException("DB error"));
+        when(linkRepo.getLinkById(linkId)).thenThrow(new TestDataAccessException("DB error"));
 
-        assertThatThrownBy(() -> subscriptionService.getSubscribersChatsByLinkId(linkId))
+        assertThatThrownBy(() -> subscriptionService.getSubscriptionsByLinkId(linkId))
                 .isInstanceOf(ScrapperSqlException.class);
     }
 

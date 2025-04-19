@@ -793,7 +793,7 @@ public class ScrapperControllerWithExceptionHandlerTest {
         String tag = "tag";
         LinkResponse link = new LinkResponse(1L, "url", List.of("tag"), List.of("filter"));
         ListTagLinksResponse response = new ListTagLinksResponse(tag, new ListLinksResponse(List.of(link), 1));
-        when(scrapperService.deleteSubscriptionsForTag(chatId, tag)).thenReturn(response);
+        when(scrapperService.getSubscriptionsForTag(chatId, tag)).thenReturn(response);
 
         mockMvc.perform(get("/tags/tag/links")
                         .header("Tg-Chat-Id", chatId)
@@ -812,7 +812,7 @@ public class ScrapperControllerWithExceptionHandlerTest {
         long chatId = 1L;
         String tag = "tag";
         ListTagLinksResponse response = new ListTagLinksResponse(tag, new ListLinksResponse(List.of(), 0));
-        when(scrapperService.deleteSubscriptionsForTag(chatId, tag)).thenReturn(response);
+        when(scrapperService.getSubscriptionsForTag(chatId, tag)).thenReturn(response);
 
         mockMvc.perform(get("/tags/tag/links")
                         .header("Tg-Chat-Id", chatId)
@@ -841,7 +841,7 @@ public class ScrapperControllerWithExceptionHandlerTest {
     @SneakyThrows
     public void getSubscriptionsWithTag_BadRequestException() {
         long chatId = 1L;
-        when(scrapperService.deleteSubscriptionsForTag(chatId, "tag"))
+        when(scrapperService.getSubscriptionsForTag(chatId, "tag"))
                 .thenThrow(new ScrapperTagNotExistsException("error"));
 
         mockMvc.perform(get("/tags/tag/links")
@@ -856,7 +856,7 @@ public class ScrapperControllerWithExceptionHandlerTest {
     @SneakyThrows
     public void getSubscriptionsWithTag_ScrapperInternalException() {
         long chatId = 1L;
-        when(scrapperService.deleteSubscriptionsForTag(chatId, "tag")).thenThrow(new ScrapperOrmException("error"));
+        when(scrapperService.getSubscriptionsForTag(chatId, "tag")).thenThrow(new ScrapperOrmException("error"));
 
         mockMvc.perform(get("/tags/tag/links")
                         .header("Tg-Chat-Id", chatId)
