@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import static backend.academy.bot.telegram.handler.Constant.FILTER_HEADER;
 import static backend.academy.bot.telegram.handler.Constant.TAG_HEADER;
 import static backend.academy.bot.telegram.handler.Constant.TAG_INVALID_INPUT;
+import static backend.academy.bot.telegram.handler.Constant.TAG_SUBS_EMPTY;
 import static backend.academy.bot.telegram.handler.Constant.TAG_SUBS_HEADER;
 
 @Component
@@ -35,9 +36,12 @@ public class GetTagSubsSender implements TagTextSender {
     }
 
     private String makeMessage(ListTagLinksResponse response) {
+        if(response.links().size() == 0){
+            return TAG_SUBS_EMPTY;
+        }
         StringBuilder stringBuilder = new StringBuilder(TAG_SUBS_HEADER).append(" #").append(response.tag());
         stringBuilder.append("\n------\n");
-        long i = 0;
+        long i = 1;
         for (LinkResponse r: response.links().links()){
             stringBuilder.append(i).append(". ").append(r.url()).append('\n');
             stringBuilder.append(TAG_HEADER);
@@ -45,7 +49,9 @@ public class GetTagSubsSender implements TagTextSender {
                 stringBuilder.append("#").append(tag).append(' ');
             }
             stringBuilder.append('\n');
-            stringBuilder.append(FILTER_HEADER);
+            if(!r.filters().isEmpty()) {
+                stringBuilder.append(FILTER_HEADER);
+            }
             for(String filter: r.filters()){
                 stringBuilder.append(filter).append(' ');
             }

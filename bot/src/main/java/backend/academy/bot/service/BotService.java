@@ -20,10 +20,10 @@ public class BotService {
     private final TelegramBotService telegramBotService;
 
     public void sendUpdates(LinkUpdate update) {
-        String message = createUpdatesMessage(update.url(), update.updateUnits());
         LinkUpdateValidator.validate(update);
-        for (long chat : update.tgChatIds()) {
-            sendUpdateInfo(chat, update.url(), message);
+        for (var info : update.tgChatData().entrySet()) {
+            String message = createUpdatesMessage(update.url(), update.updateUnits(), info.getValue());
+            sendUpdateInfo(info.getKey(), message);
         }
     }
 
@@ -31,18 +31,17 @@ public class BotService {
      * метод оправляет сообщение с обновлением пользователям с помощью TelegramBotService.
      *
      * @param chatId чат, в который отправляется сообщение
-     * @param url ссылка, по которой есть обновления
      */
-    public void sendUpdateInfo(long chatId, String url, String messageText) {
+    public void sendUpdateInfo(long chatId, String messageText) {
         SendMessage sendMessage = new SendMessage(chatId, messageText);
         telegramBotService.sendResponse(sendMessage);
     }
 
-    public String createUpdatesMessage(String url, List<LinkUpdateUnit> updates) {
+    public String createUpdatesMessage(String url, List<LinkUpdateUnit> updates, List<String> tags) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < updates.size(); i++) {
             sb.append("#").append(i + 1).append('\n');
-            sb.append("Тип сообщения: ").append(updates.get(i).type()).append('\n');
+            sb.append("Тип обновления: ").append(updates.get(i).type()).append('\n');
             sb.append("Заголовок: ").append(updates.get(i).title()).append('\n');
             sb.append("Автор: ").append(updates.get(i).author()).append('\n');
             sb.append("Время обновления: ")
@@ -52,7 +51,10 @@ public class BotService {
             if (descMessage.length() == MAX_DESCRIPTION_LENGTH) {
                 descMessage += "...";
             }
-            sb.append("Описание: ").append(descMessage).append("\n\n");
+            sb.append("Сообщение: ").append(descMessage).append("\n\n");
+        }
+        for (String tag : tags) {
+            sb.append("#").append(tag).append(' ');
         }
         return UPDATE_MESSAGE.formatted(url, sb.toString());
     }

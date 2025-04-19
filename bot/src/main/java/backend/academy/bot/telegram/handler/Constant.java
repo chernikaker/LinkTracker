@@ -72,8 +72,9 @@ public class Constant {
     public static final String TAGS_ADDED_AND_SENT = "Теги успешно добавлены к ссылке";
     public static final String TAG_DETACHED = "Тег успешно откреплен от ссылки";
     public static final String SUBS_DELETED_BY_TAG = "Ссылки по тегу успешно удалены";
-    public static final String TAG_DELETED = "Тег успешно удалены";
+    public static final String TAG_DELETED = "Тег успешно удален";
     public static final String TAG_SUBS_HEADER = "Ссылки по тегу";
+    public static final String TAG_SUBS_EMPTY = "Ссылки по тегу отсутствуют";
     public static final String NO_TAG_FOR_USER = "Данный тег отсутствует. Сначала добавьте его";
     public static final String NO_TAG_FOR_SUBSCRIPTION = "Данный тег отсутствует. Сначала добавьте его к ссылке";
 

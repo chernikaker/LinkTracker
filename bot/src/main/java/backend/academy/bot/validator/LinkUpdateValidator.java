@@ -14,7 +14,7 @@ public class LinkUpdateValidator {
             throw new BotValidationException("Link object in body is null");
         }
         // проверяет ID чатов для рассылки обновления
-        for (Long chatId : link.tgChatIds()) {
+        for (Long chatId : link.tgChatData().keySet()) {
             if (chatId == null) {
                 throw new BotIllegalRequestArgumentException("Chat id is null in link update " + link.id());
             }

@@ -67,8 +67,9 @@ public class ListHandler extends CommandHandler {
             if (!link.tags().isEmpty()) {
                 sb.append(TAG_HEADER);
                 for (String tag : link.tags()) {
-                    sb.append(tag).append("\n");
+                    sb.append('#').append(tag).append(' ');
                 }
+                sb.append('\n');
             }
             if (!link.filters().isEmpty()) {
                 sb.append(FILTER_HEADER);
