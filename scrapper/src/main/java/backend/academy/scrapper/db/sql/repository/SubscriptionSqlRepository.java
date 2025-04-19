@@ -40,11 +40,11 @@ public class SubscriptionSqlRepository {
         return jdbcTemplate.query(query, params, new SqlSubscriptionRowMapper());
     }
 
-    public List<Long> getChatsByLink(long linkId) {
-        SqlParameterSource params = new MapSqlParameterSource("id", linkId);
-        String query = "SELECT u.chat_id FROM subscription s JOIN tg_user u ON u.id = s.user_id WHERE s.link_id = :id";
-        return jdbcTemplate.queryForList(query, params, Long.class);
-    }
+//    public List<Long> getChatsByLink(long linkId) {
+//        SqlParameterSource params = new MapSqlParameterSource("id", linkId);
+//        String query = "SELECT u.chat_id FROM subscription s JOIN tg_user u ON u.id = s.user_id WHERE s.link_id = :id";
+//        return jdbcTemplate.queryForList(query, params, Long.class);
+//    }
 
     public Optional<SqlSubscription> getSubscriptionByLinkAndUserId(long linkId, long userId) {
         MapSqlParameterSource params = new MapSqlParameterSource();

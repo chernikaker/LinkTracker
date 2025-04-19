@@ -76,7 +76,6 @@ public class SqlSubscriptionService implements SubscriptionService {
     public Map<Long, Subscription> getUserSubscriptions(User user) {
         try {
             SqlUser u = tryGetUserByChatId(user.chatId());
-            Map<Long, Subscription> ans = new HashMap<>();
             List<SqlSubscription> subscriptions = subscrRepo.getSubscriptionsByUserId(u.id());
             return processSqlSubsListForUser(subscriptions, user);
         } catch (DataAccessException e) {
@@ -86,13 +85,16 @@ public class SqlSubscriptionService implements SubscriptionService {
 
     @Override
     @Transactional
-    public List<Long> getSubscribersChatsByLinkId(long linkId) {
+    public List<Subscription> getSubscriptionsByLinkId(long linkId) {
         try {
-            return subscrRepo.getChatsByLink(linkId);
+            SqlLink l = linkRepo.getLinkById(linkId);
+            List<SqlSubscription> subscriptions = subscrRepo.getSubscriptionsByLink(l.id());
+            return processSqlSubsListForSqlLink(subscriptions, l);
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Error while getting user links ", e);
         }
     }
+
 
     @Override
     @Transactional
@@ -197,6 +199,19 @@ public class SqlSubscriptionService implements SubscriptionService {
             List<Tag> tags = mapSubscriptionTags(s.id());
             List<Filter> filters = mapSubscriptionFilters(s.id());
             ans.put(s.id(), new Subscription(user, link, tags, filters));
+        }
+        return ans;
+    }
+
+    private List<Subscription> processSqlSubsListForSqlLink(List<SqlSubscription> subs, SqlLink l) {
+        List<Subscription> ans = new ArrayList<>();
+        Link link = new Link(l.url(), LinkType.fromValue(l.url()), l.lastValidation());
+        for (SqlSubscription s : subs) {
+            SqlUser u = userRepo.findUserById(s.userId());
+            User user = new User(u.chatId());
+            List<Tag> tags = mapSubscriptionTags(s.id());
+            List<Filter> filters = mapSubscriptionFilters(s.id());
+            ans.add(new Subscription(user, link, tags, filters));
         }
         return ans;
     }

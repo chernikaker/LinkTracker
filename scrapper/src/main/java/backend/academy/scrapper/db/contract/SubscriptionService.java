@@ -14,7 +14,7 @@ public interface SubscriptionService {
 
     Map<Long, Subscription> getUserSubscriptions(User user);
 
-    List<Long> getSubscribersChatsByLinkId(long linkId);
+    List<Subscription> getSubscriptionsByLinkId(long linkId);
 
     Map.Entry<Long, Subscription> deleteSubscriptionByUserAndLink(User user, Link link);
 

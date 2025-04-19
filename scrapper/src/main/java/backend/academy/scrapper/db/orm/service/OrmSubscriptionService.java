@@ -91,14 +91,19 @@ public class OrmSubscriptionService implements SubscriptionService {
 
     @Override
     @Transactional
-    public List<Long> getSubscribersChatsByLinkId(long linkId) {
+    public List<Subscription> getSubscriptionsByLinkId(long linkId) {
         try {
-            OrmLink link = tryGetLinkById(linkId);
-            return link.subscriptions().stream().map(s -> s.user().chatId()).toList();
+            OrmLink l = tryGetLinkById(linkId);
+            List<Subscription> subscriptions = new ArrayList<>();
+            for (OrmSubscription sub : l.subscriptions()) {
+                subscriptions.add(OrmSubscriptionMapper.mapFromOrm(sub));
+            }
+            return subscriptions;
         } catch (DataAccessException e) {
-            throw new ScrapperOrmException("Error while getting link subscribers with ORM", e);
+            throw new ScrapperOrmException("Error while getting user subscriptions with ORM", e);
         }
     }
+
 
     @Override
     @Transactional

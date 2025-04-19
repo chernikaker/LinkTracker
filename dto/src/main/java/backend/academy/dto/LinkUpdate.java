@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Запрос, содержащий обновление ссылки
@@ -13,7 +14,7 @@ import java.util.List;
  * @param id id ссылки
  * @param url ссылка
  * @param updateUnits обновления по ссылке
- * @param tgChatIds id чатов для рассылки обновления
+ * @param tgChatData id чатов для рассылки обновления и теги по соответствующей ссылке
  */
 public record LinkUpdate(
         @NotNull(message = "ID is required") @Min(value = Constant.MIN_ID, message = "ID can't be less than 1") Long id,
@@ -23,5 +24,5 @@ public record LinkUpdate(
                 String url,
         @NotNull(message = "Description is required") @NotEmpty(message = "Update units can not be empty")
                 List<LinkUpdateUnit> updateUnits,
-        @NotNull(message = "tgChatIds is required") @NotEmpty(message = "tgChatIds cannot be empty")
-                List<Long> tgChatIds) {}
+        @NotNull(message = "tgChatData is required") @NotEmpty(message = "tgChatData cannot be empty")
+        Map<Long, List<String>> tgChatData) {}

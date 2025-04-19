@@ -4,8 +4,13 @@ import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkUpdate;
 import backend.academy.dto.LinkUpdateUnit;
 import backend.academy.scrapper.db.contract.SubscriptionService;
+import backend.academy.scrapper.db.contract.TagService;
+import backend.academy.scrapper.entity.Subscription;
+import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.model.UpdateInfo;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +24,7 @@ public class BotClientService {
 
     private final BotClient botClient;
     private final SubscriptionService service;
+    private final TagService tagService;
 
     /** Метод отправления обновлений по ссылке клиентам */
     public void sendUpdates(long linkId, String url, List<UpdateInfo> info) {
@@ -54,10 +60,23 @@ public class BotClientService {
      */
     private LinkUpdate makeLinkUpdate(long linkId, String url, List<UpdateInfo> info) {
         // получение всех подписчиков на ссылку
-        List<Long> subscriberChats = service.getSubscribersChatsByLinkId(linkId);
+        List<Subscription> dbChatsInfo = service.getSubscriptionsByLinkId(linkId);
+        Map<Long,List<String>> chatsWithTags = processDbInfo(dbChatsInfo);
         // формирование сообщения об обновлениях
         List<LinkUpdateUnit> updateUnits = makeUpdateUnits(info);
-        return new LinkUpdate(linkId, url, updateUnits, subscriberChats);
+        return new LinkUpdate(linkId, url, updateUnits, chatsWithTags);
+    }
+
+    private Map<Long, List<String>> processDbInfo(List<Subscription> dbChatsInfo) {
+        Map<Long, List<String>> chatsWithTags = new HashMap<>();
+        for (Subscription info : dbChatsInfo) {
+            List<String> tags = info.tags()
+                .stream()
+                .map(Tag::value)
+                .toList();
+            chatsWithTags.put(info.user().chatId(), tags);
+        }
+        return chatsWithTags;
     }
 
     /**
