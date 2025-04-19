@@ -2,6 +2,7 @@ package backend.academy.bot.telegram.handler;
 
 import backend.academy.bot.config.HandlersConfig;
 import backend.academy.bot.telegram.handler.commands.CommandHandler;
+import com.pengrad.telegrambot.model.LinkPreviewOptions;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -30,7 +31,8 @@ public class HandlerService {
         }
         // выбор обработчика и получение ответа
         CommandHandler currentHandler = getHandlerByMessage(update.message());
-        SendMessage result = currentHandler.handleMessage(update.message());
+        SendMessage result = currentHandler.handleMessage(update.message())
+            .linkPreviewOptions(new LinkPreviewOptions().isDisabled(true));;
         return Optional.of(result);
     }
 

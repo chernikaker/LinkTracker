@@ -6,6 +6,7 @@ import backend.academy.bot.telegram.TelegramBotService;
 import backend.academy.bot.validator.LinkUpdateValidator;
 import backend.academy.dto.LinkUpdate;
 import backend.academy.dto.LinkUpdateUnit;
+import com.pengrad.telegrambot.model.LinkPreviewOptions;
 import com.pengrad.telegrambot.request.SendMessage;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public class BotService {
         LinkUpdateValidator.validate(update);
         for (var info : update.tgChatData().entrySet()) {
             String message = createUpdatesMessage(update.url(), update.updateUnits(), info.getValue());
-            sendUpdateInfo(info.getKey(), message);
+            sendUpdateInfo(info.getKey(), message, update.url());
         }
     }
 
@@ -32,8 +33,12 @@ public class BotService {
      *
      * @param chatId чат, в который отправляется сообщение
      */
-    public void sendUpdateInfo(long chatId, String messageText) {
-        SendMessage sendMessage = new SendMessage(chatId, messageText);
+    public void sendUpdateInfo(long chatId, String messageText, String link) {
+        LinkPreviewOptions previewOptions = new LinkPreviewOptions()
+            .url(link)
+            .preferSmallMedia(false)
+            .showAboveText(false);
+        SendMessage sendMessage = new SendMessage(chatId, messageText).linkPreviewOptions(previewOptions);
         telegramBotService.sendResponse(sendMessage);
     }
 
