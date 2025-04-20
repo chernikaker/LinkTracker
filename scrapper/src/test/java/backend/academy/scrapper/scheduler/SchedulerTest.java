@@ -3,6 +3,7 @@ package backend.academy.scrapper.scheduler;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
@@ -77,10 +78,10 @@ public class SchedulerTest {
                 .thenReturn(Map.of());
         doAnswer(i -> githubLink.lastValidation(LocalDateTime.now()))
                 .when(linkService)
-                .updateLinkValidationOnCurrentTime(1L);
+                .updateLinkValidationOnTime(eq(1L), any());
         doAnswer(i -> stackoverflowLink.lastValidation(LocalDateTime.now()))
                 .when(linkService)
-                .updateLinkValidationOnCurrentTime(2L);
+                .updateLinkValidationOnTime(eq(2L), any());
         UpdateInfo updateInfo1 = new UpdateInfo(
                 "New pr", "description", "Author", linkUpdateTime1.plusDays(1), UpdateInfoType.PULL_REQUEST);
         UpdateInfo updateInfo2 = new UpdateInfo(
@@ -105,10 +106,10 @@ public class SchedulerTest {
                 .thenReturn(Map.of());
         doAnswer(i -> githubLink.lastValidation(LocalDateTime.now()))
                 .when(linkService)
-                .updateLinkValidationOnCurrentTime(1L);
+                .updateLinkValidationOnTime(eq(1L), any());
         doAnswer(i -> stackoverflowLink.lastValidation(LocalDateTime.now()))
                 .when(linkService)
-                .updateLinkValidationOnCurrentTime(2L);
+                .updateLinkValidationOnTime(eq(2L), any());
         UpdateInfo updateInfo1 = new UpdateInfo(
                 "New pr", "description", "Author", linkUpdateTime1.plusDays(1), UpdateInfoType.PULL_REQUEST);
         UpdateInfo updateInfo2 = new UpdateInfo(

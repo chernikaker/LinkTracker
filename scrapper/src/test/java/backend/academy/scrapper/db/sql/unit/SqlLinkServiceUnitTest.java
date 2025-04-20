@@ -75,23 +75,23 @@ class SqlLinkServiceUnitTest {
     }
 
     @Test
-    void updateLinkValidationOnCurrentTime_ShouldCallRepositoryWithCurrentTime() {
+    void updateLinkValidationOnTime_ShouldCallRepositoryWithCurrentTime() {
         long linkId = 1L;
         LocalDateTime beforeCall = LocalDateTime.now(ZoneId.systemDefault());
 
-        linkService.updateLinkValidationOnCurrentTime(linkId);
+        linkService.updateLinkValidationOnTime(linkId, beforeCall);
 
         verify(linkRepo)
                 .updateLinkValidationById(
-                        eq(linkId), argThat(time -> time.isAfter(beforeCall) || time.equals(beforeCall)));
+                        eq(linkId), argThat(time -> time.equals(beforeCall)));
     }
 
     @Test
-    void updateLinkValidationOnCurrentTime_ShouldThrowScrapperSqlExceptionOnError() {
+    void updateLinkValidationOnTime_ShouldThrowScrapperSqlExceptionOnError() {
         long linkId = 1L;
         doThrow(new TestDataAccessException("error")).when(linkRepo).updateLinkValidationById(anyLong(), any());
 
-        assertThatThrownBy(() -> linkService.updateLinkValidationOnCurrentTime(linkId))
+        assertThatThrownBy(() -> linkService.updateLinkValidationOnTime(linkId, LocalDateTime.now(ZoneId.systemDefault())))
                 .isInstanceOf(ScrapperSqlException.class)
                 .hasMessageContaining("Error while updating link validation");
     }

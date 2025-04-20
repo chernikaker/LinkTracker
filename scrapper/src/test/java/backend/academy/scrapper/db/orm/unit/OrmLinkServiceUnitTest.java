@@ -57,10 +57,10 @@ public class OrmLinkServiceUnitTest {
     }
 
     @Test
-    public void updateLinkValidationOnCurrentTime_Success() {
+    public void updateLinkValidationOnTime_Success() {
         when(linkRepo.findById(LINK_ID)).thenReturn(Optional.of(oldLink));
 
-        assertDoesNotThrow(() -> linkService.updateLinkValidationOnCurrentTime(LINK_ID));
+        assertDoesNotThrow(() -> linkService.updateLinkValidationOnTime(LINK_ID, NOW));
 
         assertThat(oldLink.lastValidation()).isCloseTo(LocalDateTime.now(), within(1, SECONDS));
         verify(linkRepo).save(oldLink);
@@ -71,7 +71,7 @@ public class OrmLinkServiceUnitTest {
     public void updateLinkValidationOnCurrentTime_LinkNotFoundException() {
         when(linkRepo.findById(NON_EXISTENT_LINK_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> linkService.updateLinkValidationOnCurrentTime(NON_EXISTENT_LINK_ID))
+        assertThatThrownBy(() -> linkService.updateLinkValidationOnTime(NON_EXISTENT_LINK_ID, NOW))
                 .isInstanceOf(ScrapperLinkNotExistsException.class);
         verify(linkRepo, never()).save(any());
         verify(linkRepo, never()).flush();
@@ -81,7 +81,7 @@ public class OrmLinkServiceUnitTest {
     public void updateLinkValidationOnCurrentTime_DataAccessError() {
         when(linkRepo.findById(LINK_ID)).thenThrow(new TestDataAccessException("error"));
 
-        assertThatThrownBy(() -> linkService.updateLinkValidationOnCurrentTime(LINK_ID))
+        assertThatThrownBy(() -> linkService.updateLinkValidationOnTime(LINK_ID, NOW))
                 .isInstanceOf(ScrapperOrmException.class);
     }
 
