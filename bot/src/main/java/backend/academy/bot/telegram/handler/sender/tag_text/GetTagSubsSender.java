@@ -40,22 +40,27 @@ public class GetTagSubsSender extends TagTextSender {
             return TAG_SUBS_EMPTY;
         }
         StringBuilder stringBuilder = new StringBuilder(TAG_SUBS_HEADER).append(" #").append(response.tag());
-        stringBuilder.append("\n------\n");
+        stringBuilder.append("\n\n");
         long i = 1;
         for (LinkResponse r: response.links().links()){
             stringBuilder.append(i).append(". ").append(r.url()).append('\n');
             stringBuilder.append(TAG_HEADER);
-            for(String tag: r.tags()){
-                stringBuilder.append("#").append(tag).append(' ');
+            for(int j=0;j<r.tags().size();j++){
+                stringBuilder.append("#").append(r.tags().get(j));
+                if(j<r.tags().size() - 1){
+                    stringBuilder.append(' ');
+                }
             }
-            stringBuilder.append('\n');
             if(!r.filters().isEmpty()) {
+                stringBuilder.append('\n');
                 stringBuilder.append(FILTER_HEADER);
             }
-            for(String filter: r.filters()){
-                stringBuilder.append(filter).append(' ');
+            for(int j=0;j<r.filters().size();j++){
+                stringBuilder.append(r.filters().get(j));
+                if(j<r.filters().size() - 1){
+                    stringBuilder.append('\n');
+                }
             }
-            stringBuilder.append("\n\n");
         }
         return stringBuilder.toString();
     }

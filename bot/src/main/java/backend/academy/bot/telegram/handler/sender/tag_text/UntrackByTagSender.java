@@ -26,7 +26,7 @@ public class UntrackByTagSender extends TagTextSender {
             service.removeSubscriptionsByTag(id, tagLine.trim());
             return SUBS_DELETED_BY_TAG;
         } catch (BotRequestException e) {
-            return getErrorMessage(e.response(), false);
+            return getErrorMessage(e.response(), true);
         }
     }
 }
