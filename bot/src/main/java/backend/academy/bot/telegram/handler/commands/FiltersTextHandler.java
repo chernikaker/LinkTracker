@@ -7,6 +7,10 @@ import static backend.academy.bot.telegram.handler.Constant.FILTERS_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.LINK_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.LINK_UNABAILABLE;
 import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
+import static backend.academy.bot.telegram.handler.Constant.NO_SUBSCRIPTION;
+import static backend.academy.bot.telegram.handler.Constant.NO_TAG_FOR_SUBSCRIPTION;
+import static backend.academy.bot.telegram.handler.Constant.NO_TAG_FOR_USER;
+import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotRequestException;
@@ -15,9 +19,10 @@ import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Message;
+import org.springframework.http.HttpStatus;
 import java.util.Optional;
 
-/** Обработчик фильтров ссылки при ее удалении */
+/** Обработчик ввода фильтров ссылки */
 public class FiltersTextHandler extends CommandHandler {
 
     private final ScrapperClientService service;
@@ -42,16 +47,7 @@ public class FiltersTextHandler extends CommandHandler {
             return writingResponse + LINK_REGISTERED;
         } catch (BotRequestException ex) {
             ApiErrorResponse response = ex.response();
-            if (response.exceptionMessage().contains(message.chat().id() + " not exists")) {
-                // пользователь не зарегистрирован
-                return NOT_REGISTERED;
-            }
-            if (response.exceptionMessage().contains("unavailable")) {
-                // ссылка недоступна для получения запросов
-                return LINK_UNABAILABLE;
-            }
-            // ошибка, не зависящая от пользователя
-            return EXTERNAL_ERROR;
+            return getErrorMessage(response);
         }
     }
 
@@ -76,5 +72,24 @@ public class FiltersTextHandler extends CommandHandler {
         tracking.filters(filters);
         tracking.state(UserState.DEFAULT);
         return message;
+    }
+
+    protected String getErrorMessage(ApiErrorResponse response) {
+        if (response == null) {
+            return UNKNOWN_ERROR;
+        }
+        if (response.code().equals(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()))) {
+            return EXTERNAL_ERROR;
+        }
+        if (response.exceptionName().contains("UserNotExist")) {
+            return NOT_REGISTERED;
+        }
+        if (response.exceptionName().contains("SubscriptionNotExist")) {
+            return NO_SUBSCRIPTION;
+        }
+        if (response.exceptionName().contains("Unavailable")) {
+            return LINK_UNABAILABLE;
+        }
+        return UNKNOWN_ERROR;
     }
 }

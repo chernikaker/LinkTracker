@@ -83,7 +83,7 @@ public class FiltersTextHandlerTest {
         when(message.text()).thenReturn("filter1 filter2");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
         doThrow(new BotRequestException(new ApiErrorResponse(
-                        "User not exists", "404", "NotFoundException", "123 not exists", List.of())))
+                        "", "400", "ScrapperUserNotExistsException", "", List.of())))
                 .when(service)
                 .addLinkSubscription(CHAT_ID, TRACKING);
 
@@ -99,7 +99,7 @@ public class FiltersTextHandlerTest {
         when(message.text()).thenReturn("filter1 filter2");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
         doThrow(new BotRequestException(new ApiErrorResponse(
-                        "Unavailable link", "400", "BadRequestException", "unavailable", List.of())))
+                        "Unavailable link", "400", "ScrapperUnavailableLinkException", "", List.of())))
                 .when(service)
                 .addLinkSubscription(CHAT_ID, TRACKING);
 
