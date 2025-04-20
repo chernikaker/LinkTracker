@@ -34,7 +34,6 @@ public class HandlerService {
         SendMessage result = currentHandler
                 .handleMessage(update.message())
                 .linkPreviewOptions(new LinkPreviewOptions().isDisabled(true));
-        ;
         return Optional.of(result);
     }
 
