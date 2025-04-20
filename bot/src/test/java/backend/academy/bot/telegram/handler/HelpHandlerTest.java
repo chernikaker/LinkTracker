@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
-import backend.academy.bot.telegram.handler.commands.HelpCommandHandler;
+import backend.academy.bot.telegram.handler.commands.HelpHandler;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class HelpCommandHandlerTest {
+public class HelpHandlerTest {
 
     private static final long CHAT_ID = 123L;
 
@@ -25,7 +25,7 @@ public class HelpCommandHandlerTest {
     private InMemoryTrackingCache repository;
 
     @InjectMocks
-    private HelpCommandHandler helpCommandHandler;
+    private HelpHandler helpHandler;
 
     @Mock
     private Message message;
@@ -45,7 +45,7 @@ public class HelpCommandHandlerTest {
         when(message.text()).thenReturn("/help");
         when(repository.containsTrack(CHAT_ID)).thenReturn(false);
 
-        String result = helpCommandHandler.processRequest(message);
+        String result = helpHandler.processRequest(message);
 
         assertEquals(Constant.HELP_MESSAGE, result);
         verify(repository, never()).removeTrack(CHAT_ID);
@@ -56,7 +56,7 @@ public class HelpCommandHandlerTest {
         when(message.text()).thenReturn("/help");
         when(repository.containsTrack(CHAT_ID)).thenReturn(true);
 
-        String result = helpCommandHandler.processRequest(message);
+        String result = helpHandler.processRequest(message);
 
         assertEquals(Constant.HELP_MESSAGE, result);
         verify(repository).removeTrack(CHAT_ID);
@@ -66,7 +66,7 @@ public class HelpCommandHandlerTest {
     public void canHandle_shouldReturnTrueForHelpCommand() {
         when(message.text()).thenReturn("/help");
 
-        boolean result = helpCommandHandler.canHandle(message);
+        boolean result = helpHandler.canHandle(message);
 
         assertTrue(result);
     }
@@ -74,9 +74,9 @@ public class HelpCommandHandlerTest {
     @ParameterizedTest
     @CsvSource({"/start", "/track", "text"})
     public void canHandle_shouldReturnFalseForOtherCommands(String command) {
-        when(message.text()).thenReturn("command");
+        when(message.text()).thenReturn(command);
 
-        boolean result = helpCommandHandler.canHandle(message);
+        boolean result = helpHandler.canHandle(message);
 
         assertFalse(result);
     }

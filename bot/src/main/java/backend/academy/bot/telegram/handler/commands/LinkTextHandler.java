@@ -1,14 +1,11 @@
 package backend.academy.bot.telegram.handler.commands;
 
 import static backend.academy.bot.telegram.handler.Constant.EMPTY_INPUT;
-import static backend.academy.bot.telegram.handler.Constant.INTERNAL_ERROR;
+import static backend.academy.bot.telegram.handler.Constant.EXTERNAL_ERROR;
 import static backend.academy.bot.telegram.handler.Constant.LINK_NOT_VALID;
 import static backend.academy.bot.telegram.handler.Constant.LINK_REMOVED_SUCCESS;
 import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.NO_SUBSCRIPTION;
-import static backend.academy.bot.telegram.handler.Constant.NO_TAG_FOR_SUBSCRIPTION;
-import static backend.academy.bot.telegram.handler.Constant.NO_TAG_FOR_USER;
-import static backend.academy.bot.telegram.handler.Constant.REQUEST_CANCELLED;
 import static backend.academy.bot.telegram.handler.Constant.TAGS_TRACKING_MESSAGE;
 import static backend.academy.bot.telegram.handler.Constant.TAG_TRACKING_MESSAGE;
 import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
@@ -42,6 +39,9 @@ public class LinkTextHandler extends CommandHandler {
         Optional<LinkTrackingObject> potentialTracking =
                 repository.getTrack(message.chat().id());
         LinkTrackingObject tracking = potentialTracking.orElseThrow();
+        if (!LinkUrlValidator.isValid(message.text())) {
+            return LINK_NOT_VALID;
+        }
         if(tracking.command() == Command.UNTRACK) {
             return sendUntrackingRequest(message.text(), message.chat().id());
         }
@@ -60,24 +60,15 @@ public class LinkTextHandler extends CommandHandler {
     }
 
     private String writeLink(String link, LinkTrackingObject tracking) {
-        // валидация по формату ссылки
-        if (LinkUrlValidator.isValid(link)) {
-            tracking.link(link);
-            tracking.state(UserState.TRACKING_TAG);
-            if(tracking.command() != Command.TRACK){
-                return TAG_TRACKING_MESSAGE;
-            }
-            return TAGS_TRACKING_MESSAGE.formatted(EMPTY_INPUT);
-        } else {
-            return LINK_NOT_VALID;
+        tracking.link(link);
+        tracking.state(UserState.TRACKING_TAG);
+        if(tracking.command() == Command.REMOVE_TAG_SUB){
+            return TAG_TRACKING_MESSAGE;
         }
+        return TAGS_TRACKING_MESSAGE.formatted(EMPTY_INPUT);
     }
 
     private String sendUntrackingRequest(String message, Long chatId) {
-        if (!LinkUrlValidator.isValid(message)) {
-            // проверка формата ссылки
-            return LINK_NOT_VALID;
-        }
         // удаление из кэша
         repository.removeTrack(chatId);
         try {
@@ -94,12 +85,12 @@ public class LinkTextHandler extends CommandHandler {
             return UNKNOWN_ERROR;
         }
         if (response.code().equals(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()))) {
-            return INTERNAL_ERROR;
+            return EXTERNAL_ERROR;
         }
         if(response.exceptionName().contains("UserNotExist")) {
             return NOT_REGISTERED;
         }
-        if(response.exceptionName().contains("SubscriptionNotExist")) {
+        if(response.code().equals(String.valueOf(HttpStatus.NOT_FOUND.value()))) {
             return NO_SUBSCRIPTION;
         }
         return UNKNOWN_ERROR;

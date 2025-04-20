@@ -8,7 +8,7 @@ import static org.mockito.Mockito.*;
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
-import backend.academy.bot.telegram.handler.commands.ListCommandHandler;
+import backend.academy.bot.telegram.handler.commands.ListHandler;
 import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
@@ -23,7 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class ListCommandHandlerTest {
+public class ListHandlerTest {
 
     private static final long CHAT_ID = 123L;
 
@@ -33,13 +33,13 @@ public class ListCommandHandlerTest {
 
 https://example.com
 Теги:
-tag1
+#tag1
 Фильтры:
 filter1
 
 https://example.org
 Теги:
-tag2
+#tag2
 Фильтры:
 filter2
 
@@ -52,7 +52,7 @@ filter2
     private ScrapperClientService service;
 
     @InjectMocks
-    private ListCommandHandler listCommandHandler;
+    private ListHandler listHandler;
 
     @Mock
     private Message message;
@@ -63,14 +63,12 @@ filter2
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(CHAT_ID);
     }
 
     @Test
     public void processRequest_userAndLinksExist() {
-
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(CHAT_ID);
-        when(repository.containsTrack(CHAT_ID)).thenReturn(false);
         ListLinksResponse listLinksResponse = new ListLinksResponse(
                 List.of(
                         new LinkResponse(1L, "https://example.com", List.of("tag1"), List.of("filter1")),
@@ -78,69 +76,52 @@ filter2
                 2);
         when(service.getUserLinks(CHAT_ID)).thenReturn(listLinksResponse);
 
-        String result = listCommandHandler.processRequest(message);
+        String result = listHandler.processRequest(message);
 
         assertEquals(EXPECTED, result);
     }
 
     @Test
     public void processRequest_NoLinksExist() {
-        long chatId = 123L;
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
-
-        when(repository.containsTrack(chatId)).thenReturn(false);
         ListLinksResponse listLinksResponse = new ListLinksResponse(List.of(), 0);
-        when(service.getUserLinks(chatId)).thenReturn(listLinksResponse);
+        when(service.getUserLinks(CHAT_ID)).thenReturn(listLinksResponse);
 
-        String result = listCommandHandler.processRequest(message);
+        String result = listHandler.processRequest(message);
 
         assertEquals(Constant.NO_LINKS, result);
-        verify(service).getUserLinks(chatId);
+        verify(service).getUserLinks(CHAT_ID);
     }
 
     @Test
     public void processRequest_UserNotRegistered() {
-        long chatId = 123L;
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
-
-        when(repository.containsTrack(chatId)).thenReturn(false);
-        when(service.getUserLinks(chatId))
+        when(service.getUserLinks(CHAT_ID))
                 .thenThrow(new BotRequestException(new ApiErrorResponse(
                         "User not exists", "404", "NotFoundException", "User not exists", List.of())));
 
-        String result = listCommandHandler.processRequest(message);
+        String result = listHandler.processRequest(message);
 
         assertEquals(Constant.NOT_REGISTERED, result);
-        verify(service).getUserLinks(chatId);
+        verify(service).getUserLinks(CHAT_ID);
     }
 
     @Test
     public void processRequest_RequestFails() {
-        long chatId = 123L;
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
-        when(repository.containsTrack(chatId)).thenReturn(false);
-        when(service.getUserLinks(chatId))
+        when(service.getUserLinks(CHAT_ID))
                 .thenThrow(new BotRequestException(new ApiErrorResponse(
                         "Request rejected", "400", "BadRequestException", "Invalid request", List.of())));
 
-        String result = listCommandHandler.processRequest(message);
+        String result = listHandler.processRequest(message);
 
         assertEquals(Constant.REQUEST_CANCELLED, result);
-        verify(service).getUserLinks(chatId);
+        verify(service).getUserLinks(CHAT_ID);
     }
 
     @Test
     public void canHandle_shouldReturnTrueForListCommand() {
-        long chatId = 123L;
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("/list");
         when(repository.containsTrack(anyLong())).thenReturn(false);
 
-        boolean result = listCommandHandler.canHandle(message);
+        boolean result = listHandler.canHandle(message);
 
         assertTrue(result);
     }
@@ -148,26 +129,20 @@ filter2
     @ParameterizedTest
     @CsvSource({"/help", "/track", "/start", "text"})
     public void canHandle_shouldReturnFalseForOtherCommands(String request) {
-        long chatId = 123L;
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
-        when(message.text()).thenReturn("request");
+        when(message.text()).thenReturn(request);
         when(repository.containsTrack(anyLong())).thenReturn(false);
 
-        boolean result = listCommandHandler.canHandle(message);
+        boolean result = listHandler.canHandle(message);
 
         assertFalse(result);
     }
 
     @Test
     public void canHandle_shouldReturnFalse_whenUserIsTracked() {
-        long chatId = 123L;
-        when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(chatId);
         when(message.text()).thenReturn("/list");
         when(repository.containsTrack(anyLong())).thenReturn(true);
 
-        boolean result = listCommandHandler.canHandle(message);
+        boolean result = listHandler.canHandle(message);
 
         assertFalse(result);
     }

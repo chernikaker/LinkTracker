@@ -10,7 +10,7 @@ import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
-import backend.academy.bot.telegram.handler.commands.FiltersTextCommandHandler;
+import backend.academy.bot.telegram.handler.commands.FiltersTextHandler;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
@@ -24,8 +24,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class FiltersTextCommandHandlerTest {
+public class FiltersTextHandlerTest {
 
+    public static final LinkTrackingObject TRACKING = new LinkTrackingObject(
+            "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER, Command.TRACK);
     private static final long CHAT_ID = 123L;
 
     @Mock
@@ -35,7 +37,7 @@ public class FiltersTextCommandHandlerTest {
     private ScrapperClientService service;
 
     @InjectMocks
-    private FiltersTextCommandHandler filtersTextCommandHandler;
+    private FiltersTextHandler filtersTextHandler;
 
     @Mock
     private Message message;
@@ -53,25 +55,23 @@ public class FiltersTextCommandHandlerTest {
     @Test
     public void processRequest_AddFiltersAndRegisterSuccessfully() {
         when(message.text()).thenReturn("filter1 filter2");
-        LinkTrackingObject tracking = new LinkTrackingObject(
-                "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
 
-        String result = filtersTextCommandHandler.processRequest(message);
+        String result = filtersTextHandler.processRequest(message);
 
         assertEquals(Constant.FILTERS_REGISTERED + Constant.LINK_REGISTERED, result);
         verify(repository).removeTrack(CHAT_ID);
-        verify(service).addLinkSubscription(CHAT_ID, tracking);
+        verify(service).addLinkSubscription(CHAT_ID, TRACKING);
     }
 
     @Test
     public void processRequest_NoFiltersAndRegisterSuccessfully() {
         when(message.text()).thenReturn("-");
         LinkTrackingObject tracking = new LinkTrackingObject(
-                "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
+                "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER, Command.TRACK);
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
 
-        String result = filtersTextCommandHandler.processRequest(message);
+        String result = filtersTextHandler.processRequest(message);
 
         assertEquals(Constant.FILTERS_NOT_REGISTERD + Constant.LINK_REGISTERED, result);
         verify(repository).removeTrack(CHAT_ID);
@@ -81,47 +81,41 @@ public class FiltersTextCommandHandlerTest {
     @Test
     public void processRequest_shouldReturnNotRegisteredMessage_whenUserNotRegistered() {
         when(message.text()).thenReturn("filter1 filter2");
-        LinkTrackingObject tracking = new LinkTrackingObject(
-                "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
         doThrow(new BotRequestException(new ApiErrorResponse(
                         "User not exists", "404", "NotFoundException", "123 not exists", List.of())))
                 .when(service)
-                .addLinkSubscription(CHAT_ID, tracking);
+                .addLinkSubscription(CHAT_ID, TRACKING);
 
-        String result = filtersTextCommandHandler.processRequest(message);
+        String result = filtersTextHandler.processRequest(message);
 
         assertEquals(Constant.NOT_REGISTERED, result);
         verify(repository).removeTrack(CHAT_ID);
-        verify(service).addLinkSubscription(CHAT_ID, tracking);
+        verify(service).addLinkSubscription(CHAT_ID, TRACKING);
     }
 
     @Test
     public void processRequest_linkIsUnavailable() {
         when(message.text()).thenReturn("filter1 filter2");
-        LinkTrackingObject tracking = new LinkTrackingObject(
-                "https://unavailable.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
         doThrow(new BotRequestException(new ApiErrorResponse(
                         "Unavailable link", "400", "BadRequestException", "unavailable", List.of())))
                 .when(service)
-                .addLinkSubscription(CHAT_ID, tracking);
+                .addLinkSubscription(CHAT_ID, TRACKING);
 
-        String result = filtersTextCommandHandler.processRequest(message);
+        String result = filtersTextHandler.processRequest(message);
 
         assertEquals(Constant.LINK_UNABAILABLE, result);
         verify(repository).removeTrack(CHAT_ID);
-        verify(service).addLinkSubscription(CHAT_ID, tracking);
+        verify(service).addLinkSubscription(CHAT_ID, TRACKING);
     }
 
     @Test
     public void canHandle_stateIsTrackingFilterAndTextIsNotCommand() {
         when(message.text()).thenReturn("filter1 filter2");
-        LinkTrackingObject tracking = new LinkTrackingObject(
-                "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
 
-        boolean result = filtersTextCommandHandler.canHandle(message);
+        boolean result = filtersTextHandler.canHandle(message);
 
         assertTrue(result);
     }
@@ -129,12 +123,10 @@ public class FiltersTextCommandHandlerTest {
     @Test
     public void canHandle_StateIsNotTrackingFilter() {
         when(message.text()).thenReturn("filter1 filter2");
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
 
-        LinkTrackingObject tracking =
-                new LinkTrackingObject("https://example.com", new String[] {"tag1"}, new String[0], UserState.DEFAULT);
-        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
+        boolean result = filtersTextHandler.canHandle(message);
 
-        boolean result = filtersTextCommandHandler.canHandle(message);
         assertFalse(result);
     }
 
@@ -142,11 +134,9 @@ public class FiltersTextCommandHandlerTest {
     @CsvSource({"/help", "/track", "/start", "/any"})
     public void canHandle_shouldReturnFalse_whenTextIsCommand(String command) {
         when(message.text()).thenReturn(command);
-        LinkTrackingObject tracking = new LinkTrackingObject(
-                "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_FILTER);
-        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(tracking));
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
 
-        boolean result = filtersTextCommandHandler.canHandle(message);
+        boolean result = filtersTextHandler.canHandle(message);
 
         assertFalse(result);
     }

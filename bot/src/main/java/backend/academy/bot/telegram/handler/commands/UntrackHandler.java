@@ -19,6 +19,7 @@ public class UntrackHandler extends CommandHandler {
     public String processRequest(Message message) {
         // создание нового объекта для кэша и его добавление
         LinkTrackingObject newTracking = new LinkTrackingObject();
+        newTracking.command(Command.UNTRACK);
         newTracking.state(UserState.TRACKING_LINK);
         repository.setTrack(message.chat().id(), newTracking);
         return LINK_UNTRACK_TEXT;

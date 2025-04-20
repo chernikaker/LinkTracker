@@ -8,7 +8,7 @@ import static org.mockito.Mockito.*;
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
-import backend.academy.bot.telegram.handler.commands.StartCommandHandler;
+import backend.academy.bot.telegram.handler.commands.StartHandler;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
@@ -21,7 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class StartCommandHandlerTest {
+public class StartHandlerTest {
 
     private static final long CHAT_ID = 123L;
 
@@ -32,7 +32,7 @@ public class StartCommandHandlerTest {
     private ScrapperClientService service;
 
     @InjectMocks
-    private StartCommandHandler startCommandHandler;
+    private StartHandler startHandler;
 
     @Mock
     private Message message;
@@ -52,7 +52,7 @@ public class StartCommandHandlerTest {
     public void processRequest_newClient() {
         doNothing().when(service).registerNewClient(CHAT_ID);
 
-        String result = startCommandHandler.processRequest(message);
+        String result = startHandler.processRequest(message);
 
         assertEquals(Constant.CHAT_REGISTERED, result);
         verify(service).registerNewClient(CHAT_ID);
@@ -65,7 +65,7 @@ public class StartCommandHandlerTest {
                 .when(service)
                 .registerNewClient(CHAT_ID);
 
-        String result = startCommandHandler.processRequest(message);
+        String result = startHandler.processRequest(message);
 
         assertEquals(Constant.ALREADY_REGISTERED, result);
         verify(service).registerNewClient(CHAT_ID);
@@ -78,7 +78,7 @@ public class StartCommandHandlerTest {
                 .when(service)
                 .registerNewClient(CHAT_ID);
 
-        String result = startCommandHandler.processRequest(message);
+        String result = startHandler.processRequest(message);
 
         assertEquals(Constant.REGISTRATION_CANCELLED, result);
         verify(service).registerNewClient(CHAT_ID);
@@ -88,7 +88,7 @@ public class StartCommandHandlerTest {
     public void canHandle_shouldReturnTrueForStartCommand() {
         when(message.text()).thenReturn("/start");
 
-        boolean result = startCommandHandler.canHandle(message);
+        boolean result = startHandler.canHandle(message);
 
         assertTrue(result);
     }
@@ -98,7 +98,7 @@ public class StartCommandHandlerTest {
     public void canHandle_shouldReturnFalseForOtherCommands(String command) {
         when(message.text()).thenReturn(command);
 
-        boolean result = startCommandHandler.canHandle(message);
+        boolean result = startHandler.canHandle(message);
 
         assertFalse(result);
     }

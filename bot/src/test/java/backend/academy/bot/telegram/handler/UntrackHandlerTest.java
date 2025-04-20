@@ -7,18 +7,20 @@ import static org.mockito.Mockito.*;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.model.LinkTrackingObject;
-import backend.academy.bot.telegram.handler.commands.UntrackCommandHandler;
+import backend.academy.bot.model.UserState;
+import backend.academy.bot.telegram.handler.commands.UntrackHandler;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class UntrackCommandHandlerTest {
+public class UntrackHandlerTest {
 
     private static final long CHAT_ID = 123L;
 
@@ -26,7 +28,7 @@ public class UntrackCommandHandlerTest {
     private InMemoryTrackingCache repository;
 
     @InjectMocks
-    private UntrackCommandHandler untrackCommandHandler;
+    private UntrackHandler untrackCommandHandler;
 
     @Mock
     private Message message;
@@ -43,13 +45,14 @@ public class UntrackCommandHandlerTest {
 
     @Test
     public void processRequest_createNewTrackingAndReturnMessage() {
-        when(message.text()).thenReturn("/untrack");
-        when(repository.containsTrack(CHAT_ID)).thenReturn(false);
+        ArgumentCaptor<LinkTrackingObject> captor = ArgumentCaptor.forClass(LinkTrackingObject.class);
 
         String result = untrackCommandHandler.processRequest(message);
 
         assertEquals(Constant.LINK_UNTRACK_TEXT, result);
-        verify(repository).setTrack(eq(CHAT_ID), any(LinkTrackingObject.class));
+        verify(repository).setTrack(eq(CHAT_ID), captor.capture());
+        assertEquals(UserState.TRACKING_LINK, captor.getValue().state());
+        assertEquals(Command.UNTRACK, captor.getValue().command());
     }
 
     @Test
@@ -64,8 +67,8 @@ public class UntrackCommandHandlerTest {
 
     @ParameterizedTest
     @CsvSource({"/help", "/track", "text"})
-    public void canHandle_shouldReturnFalse_commandIsNotUntrack() {
-        when(message.text()).thenReturn("/start");
+    public void canHandle_shouldReturnFalse_commandIsNotUntrack(String command) {
+        when(message.text()).thenReturn(command);
         when(repository.containsTrack(CHAT_ID)).thenReturn(false);
 
         boolean result = untrackCommandHandler.canHandle(message);

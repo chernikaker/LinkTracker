@@ -5,18 +5,13 @@ import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.bot.telegram.handler.Command;
 import backend.academy.dto.ApiErrorResponse;
-import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.ListTagsResponse;
 import backend.academy.dto.TagResponse;
 import com.pengrad.telegrambot.model.Message;
-import io.micrometer.core.instrument.Tag;
 import org.springframework.http.HttpStatus;
-import static backend.academy.bot.telegram.handler.Constant.INTERNAL_ERROR;
+import static backend.academy.bot.telegram.handler.Constant.EXTERNAL_ERROR;
 import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
-import static backend.academy.bot.telegram.handler.Constant.NO_SUBSCRIPTION;
-import static backend.academy.bot.telegram.handler.Constant.NO_TAG_FOR_SUBSCRIPTION;
-import static backend.academy.bot.telegram.handler.Constant.NO_TAG_FOR_USER;
-import static backend.academy.bot.telegram.handler.Constant.REQUEST_CANCELLED;
+import static backend.academy.bot.telegram.handler.Constant.NO_TAGS;
 import static backend.academy.bot.telegram.handler.Constant.TAG_HEADER;
 import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
 
@@ -47,6 +42,9 @@ public class TagListHandler extends CommandHandler {
     }
 
     private String makeTagsMessage(ListTagsResponse response) {
+        if(response.size()==0) {
+            return NO_TAGS;
+        }
         StringBuilder tags = new StringBuilder(TAG_HEADER);
         for (TagResponse tag : response.tags()) {
             tags.append("#").append(tag.value()).append('\n');
@@ -59,7 +57,7 @@ public class TagListHandler extends CommandHandler {
             return UNKNOWN_ERROR;
         }
         if (response.code().equals(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()))) {
-            return INTERNAL_ERROR;
+            return EXTERNAL_ERROR;
         }
         if(response.exceptionName().contains("UserNotExist")) {
             return NOT_REGISTERED;

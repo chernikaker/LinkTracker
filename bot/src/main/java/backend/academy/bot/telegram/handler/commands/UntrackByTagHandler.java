@@ -5,7 +5,6 @@ import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.telegram.handler.Command;
 import com.pengrad.telegrambot.model.Message;
-import static backend.academy.bot.telegram.handler.Constant.LINK_TRACK_MESSAGE;
 import static backend.academy.bot.telegram.handler.Constant.TAG_TRACKING_MESSAGE;
 
 public class UntrackByTagHandler extends CommandHandler {
