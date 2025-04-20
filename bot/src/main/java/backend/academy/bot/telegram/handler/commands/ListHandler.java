@@ -1,11 +1,15 @@
 package backend.academy.bot.telegram.handler.commands;
 
+import static backend.academy.bot.telegram.handler.Constant.EXTERNAL_ERROR;
 import static backend.academy.bot.telegram.handler.Constant.FILTER_HEADER;
 import static backend.academy.bot.telegram.handler.Constant.LINK_HEADER;
+import static backend.academy.bot.telegram.handler.Constant.LINK_UNABAILABLE;
 import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.NO_LINKS;
+import static backend.academy.bot.telegram.handler.Constant.NO_SUBSCRIPTION;
 import static backend.academy.bot.telegram.handler.Constant.REQUEST_CANCELLED;
 import static backend.academy.bot.telegram.handler.Constant.TAG_HEADER;
+import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotRequestException;
@@ -15,6 +19,7 @@ import backend.academy.dto.ApiErrorResponse;
 import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListLinksResponse;
 import com.pengrad.telegrambot.model.Message;
+import org.springframework.http.HttpStatus;
 
 /** Обработчик команды /list */
 public class ListHandler extends CommandHandler {
@@ -34,13 +39,7 @@ public class ListHandler extends CommandHandler {
             return makeLinksMessage(list);
         } catch (BotRequestException ex) {
             ApiErrorResponse response = ex.response();
-            if (response.exceptionMessage().contains("not exists")) {
-                // пользователя не существует
-                return NOT_REGISTERED;
-            } else {
-                // ошибка, не зависящая от пользователя
-                return REQUEST_CANCELLED;
-            }
+            return getErrorMessage(response);
         }
     }
 
@@ -84,5 +83,18 @@ public class ListHandler extends CommandHandler {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    private String getErrorMessage(ApiErrorResponse response) {
+        if (response == null) {
+            return UNKNOWN_ERROR;
+        }
+        if (response.code().equals(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()))) {
+            return EXTERNAL_ERROR;
+        }
+        if (response.exceptionName().contains("UserNotExist")) {
+            return NOT_REGISTERED;
+        }
+        return UNKNOWN_ERROR;
     }
 }

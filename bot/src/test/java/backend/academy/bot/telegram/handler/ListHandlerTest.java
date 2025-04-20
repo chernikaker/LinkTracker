@@ -96,7 +96,7 @@ filter2
     public void processRequest_UserNotRegistered() {
         when(service.getUserLinks(CHAT_ID))
                 .thenThrow(new BotRequestException(new ApiErrorResponse(
-                        "User not exists", "404", "NotFoundException", "User not exists", List.of())));
+                        "", "400", "ScrapperUserNotExistsException", "", List.of())));
 
         String result = listHandler.processRequest(message);
 
@@ -105,14 +105,14 @@ filter2
     }
 
     @Test
-    public void processRequest_RequestFails() {
+    public void processRequest_ExternalError() {
         when(service.getUserLinks(CHAT_ID))
                 .thenThrow(new BotRequestException(new ApiErrorResponse(
-                        "Request rejected", "400", "BadRequestException", "Invalid request", List.of())));
+                        "", "500", "", "", List.of())));
 
         String result = listHandler.processRequest(message);
 
-        assertEquals(Constant.REQUEST_CANCELLED, result);
+        assertEquals(Constant.EXTERNAL_ERROR, result);
         verify(service).getUserLinks(CHAT_ID);
     }
 
