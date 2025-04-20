@@ -50,6 +50,7 @@ public class Constant {
 
     // LinkTextCommandHandler
     public static final String TAGS_TRACKING_MESSAGE = "Введите тэги(опционально, введите %s для пустых тегов)";
+    public static final String NOT_EMPTY_TAGS_TRACKING_MESSAGE = "Введите тэги";
     public static final String TAG_TRACKING_MESSAGE = "Введите тэг (один)";
     public static final String TAG_INVALID_INPUT = "Введено несколько тэгов. Повторите попытку";
 

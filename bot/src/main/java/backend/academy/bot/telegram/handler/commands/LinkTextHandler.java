@@ -4,6 +4,7 @@ import static backend.academy.bot.telegram.handler.Constant.EMPTY_INPUT;
 import static backend.academy.bot.telegram.handler.Constant.EXTERNAL_ERROR;
 import static backend.academy.bot.telegram.handler.Constant.LINK_NOT_VALID;
 import static backend.academy.bot.telegram.handler.Constant.LINK_REMOVED_SUCCESS;
+import static backend.academy.bot.telegram.handler.Constant.NOT_EMPTY_TAGS_TRACKING_MESSAGE;
 import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.NO_SUBSCRIPTION;
 import static backend.academy.bot.telegram.handler.Constant.TAGS_TRACKING_MESSAGE;
@@ -64,6 +65,9 @@ public class LinkTextHandler extends CommandHandler {
         tracking.state(UserState.TRACKING_TAG);
         if(tracking.command() == Command.REMOVE_TAG_SUB){
             return TAG_TRACKING_MESSAGE;
+        }
+        if(tracking.command() == Command.TAGS_TO_SUB){
+            return NOT_EMPTY_TAGS_TRACKING_MESSAGE;
         }
         return TAGS_TRACKING_MESSAGE.formatted(EMPTY_INPUT);
     }

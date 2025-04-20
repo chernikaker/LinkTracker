@@ -1,6 +1,7 @@
 package backend.academy.bot.telegram.handler;
 
 import static backend.academy.bot.telegram.handler.Constant.EMPTY_INPUT;
+import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
+import backend.academy.bot.exception.handler.BotIllegalCommandException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.telegram.handler.commands.TagsTextHandler;
@@ -100,12 +102,25 @@ public class TagsTextHandlerTest {
         assertEquals("answer", result);
     }
 
+    @Test
+    public void processRequest_TerminalState_senderException() {
+        when(message.text()).thenReturn("tag");
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
+        TRACKING.command(Command.LIST_BY_TAG);
+        when(factory.getSenderByCommand(Command.LIST_BY_TAG)).thenThrow(new BotIllegalCommandException("error"));
+
+        String result = tagsTextHandler.processRequest(message);
+
+        assertEquals(UNKNOWN_ERROR, result);
+    }
+
 
 
     @Test
     public void canHandle_shouldReturnTrue_stateIsTrackingTagTextIsNotCommand() {
         when(message.text()).thenReturn("tag1 tag2");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
+        TRACKING.state(UserState.TRACKING_TAG);
 
         boolean result = tagsTextHandler.canHandle(message);
 

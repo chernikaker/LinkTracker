@@ -52,16 +52,28 @@ public class LinkTextHandlerTest {
         when(chat.id()).thenReturn(CHAT_ID);
     }
 
-    @ParameterizedTest
-    @EnumSource(value = Command.class, names = {"TRACK", "TAGS_TO_SUB"})
-    public void processRequest_ValidLinkNotTerminalStateNextWriteTags(Command command) {
+    @Test
+    public void processRequest_ValidLinkNotTerminalStateNextWriteTagsOptional() {
         when(message.text()).thenReturn("https://github.com/owner/repo");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
-        TRACKING.command(command);
+        TRACKING.command(Command.TRACK);
 
         String result = linkTextHandler.processRequest(message);
 
         assertEquals(Constant.TAGS_TRACKING_MESSAGE.formatted(Constant.EMPTY_INPUT), result);
+        assertEquals("https://github.com/owner/repo", TRACKING.link());
+        assertEquals(UserState.TRACKING_TAG, TRACKING.state());
+    }
+
+    @Test
+    public void processRequest_ValidLinkNotTerminalStateNextWriteTagsRequired() {
+        when(message.text()).thenReturn("https://github.com/owner/repo");
+        when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
+        TRACKING.command(Command.TAGS_TO_SUB);
+
+        String result = linkTextHandler.processRequest(message);
+
+        assertEquals(Constant.NOT_EMPTY_TAGS_TRACKING_MESSAGE, result);
         assertEquals("https://github.com/owner/repo", TRACKING.link());
         assertEquals(UserState.TRACKING_TAG, TRACKING.state());
     }
@@ -164,6 +176,7 @@ public class LinkTextHandlerTest {
     public void canHandle_shouldReturnTrue() {
         when(message.text()).thenReturn("https://github.com/owner/repo");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
+        TRACKING.state(UserState.TRACKING_LINK);
 
         boolean result = linkTextHandler.canHandle(message);
 

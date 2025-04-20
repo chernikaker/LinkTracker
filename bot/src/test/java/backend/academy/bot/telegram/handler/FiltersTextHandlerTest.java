@@ -114,6 +114,7 @@ public class FiltersTextHandlerTest {
     public void canHandle_stateIsTrackingFilterAndTextIsNotCommand() {
         when(message.text()).thenReturn("filter1 filter2");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
+        TRACKING.state(UserState.TRACKING_FILTER);
 
         boolean result = filtersTextHandler.canHandle(message);
 
@@ -124,6 +125,7 @@ public class FiltersTextHandlerTest {
     public void canHandle_StateIsNotTrackingFilter() {
         when(message.text()).thenReturn("filter1 filter2");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
+        TRACKING.state(UserState.DEFAULT);
 
         boolean result = filtersTextHandler.canHandle(message);
 

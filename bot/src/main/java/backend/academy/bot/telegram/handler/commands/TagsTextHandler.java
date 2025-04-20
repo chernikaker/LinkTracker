@@ -3,17 +3,21 @@ package backend.academy.bot.telegram.handler.commands;
 import static backend.academy.bot.telegram.handler.Constant.EMPTY_INPUT;
 import static backend.academy.bot.telegram.handler.Constant.ENTER_FILTER;
 import static backend.academy.bot.telegram.handler.Constant.ENTER_FILTER_NO_TAGS;
+import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
+import backend.academy.bot.exception.handler.BotIllegalCommandException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.telegram.handler.Command;
 import backend.academy.bot.telegram.handler.sender.tag_text.TagCommandSenderFactory;
 import backend.academy.bot.telegram.handler.sender.tag_text.TagTextSender;
 import com.pengrad.telegrambot.model.Message;
+import lombok.extern.slf4j.Slf4j;
 import java.util.Optional;
 
 /** Обработчик тегов ссылки при ее удалении */
+@Slf4j
 public class TagsTextHandler extends CommandHandler {
 
     private final TagCommandSenderFactory factory;
@@ -32,8 +36,14 @@ public class TagsTextHandler extends CommandHandler {
         if(tracking.command() == Command.TRACK) {
             return writeTags(message.text(), tracking);
         } else {
-            TagTextSender sender = factory.getSenderByCommand(tracking.command());
-            return sender.writeTagAndSendRequest(message.text(), tracking, message.chat().id());
+            try {
+                TagTextSender sender = factory.getSenderByCommand(tracking.command());
+                return sender.writeTagAndSendRequest(message.text(), tracking, message.chat().id());
+            } catch (BotIllegalCommandException e){
+                repository.removeTrack(message.chat().id());
+                log.atError().addKeyValue("command", tracking.command()).log("Error while getting sender for tag command");
+                return UNKNOWN_ERROR;
+            }
         }
     }
 
