@@ -24,7 +24,7 @@ public class RemoveTagFromSubSender implements TagTextSender {
         tracking.tags(new String[]{tagLine.trim()});
         repository.removeTrack(id);
         try {
-            service.removeTagBySubscription(id, tracking);
+            service.removeTagForSubscription(id, tracking);
             return TAG_DETACHED;
         } catch (BotRequestException e) {
             return getErrorMessage(e.response(), false);

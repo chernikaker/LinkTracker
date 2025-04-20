@@ -84,7 +84,7 @@ public final class ScrapperClientService {
         }
     }
 
-    public void removeTagBySubscription(long chatId, LinkTrackingObject data) {
+    public void removeTagForSubscription(long chatId, LinkTrackingObject data) {
         try {
             RemoveLinkTagRequest request = new RemoveLinkTagRequest(data.link(), data.tags()[0]);
             client.removeTagFromSubscription(chatId, request);
