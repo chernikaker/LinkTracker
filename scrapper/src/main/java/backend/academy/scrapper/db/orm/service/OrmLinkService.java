@@ -26,11 +26,11 @@ public class OrmLinkService implements LinkService {
 
     @Override
     @Transactional
-    public void updateLinkValidationOnCurrentTime(long linkId) {
+    public void updateLinkValidationOnTime(long linkId, LocalDateTime dt) {
         try {
             OrmLink ormLink = linkRepo.findById(linkId)
                     .orElseThrow(() -> new ScrapperLinkNotExistsException("Link " + linkId + " not found"));
-            ormLink.lastValidation(LocalDateTime.now(ZoneId.systemDefault()));
+            ormLink.lastValidation(dt);
             linkRepo.save(ormLink);
             linkRepo.flush();
         } catch (DataAccessException e) {

@@ -8,8 +8,17 @@ import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.model.UpdateInfo;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,11 +33,13 @@ public class UpdateScheduler {
 
     public static final int INITIAL_DELAY = 10000;
     public static final int DELAY = 10000;
+    public static final int THREADS = 4;
 
     private final LinkService linkDbService;
     private final GithubClientService githubClientService;
     private final StackoverflowClientService soClientService;
     private final BotClientService botClientService;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
     private final long notCheckedIntervalSeconds;
     private final int batchSize;
 
@@ -39,29 +50,63 @@ public class UpdateScheduler {
         Map<Long, Link> links;
         do {
             links = linkDbService.getLinksToCheck(batchSize, offset, notCheckedIntervalSeconds);
-            for (Map.Entry<Long, Link> linkData : links.entrySet()) {
-                try {
-                    Link link = linkData.getValue();
-                    // получение всех обновлений
-                    List<UpdateInfo> updates = link.type() == LinkType.GITHUB
-                            ? githubClientService.getAllInfo(link)
-                            : soClientService.getAllInfo(link);
-                    // фильтрация новых обновлений по дате последней проверки
-                    List<UpdateInfo> actualInfos = updates.stream()
-                            .filter(info -> link.lastValidation().isBefore(info.time()))
-                            .toList();
-                    // если есть новые обновления, отправляем их пользователю
-                    if (!actualInfos.isEmpty()) {
-                        botClientService.sendUpdates(linkData.getKey(), link.url(), actualInfos);
-                    }
-                } catch (ScrapperInternalResponseException e) {
-                    log.atWarn().setCause(e).log("Error while getting update in scheduler");
-                    return;
-                }
-                // обновление времени проверки ссылки
-                linkDbService.updateLinkValidationOnCurrentTime(linkData.getKey());
+            if (!links.isEmpty()) {
+                processLinksMultithread(new ArrayList<>(links.entrySet()));
                 offset += batchSize;
             }
+            offset += batchSize;
         } while (!links.isEmpty());
+    }
+
+    private void processLinksMultithread(List<Map.Entry<Long, Link>> linkBatch) {
+        int chunkSize = (linkBatch.size() + THREADS-1) / THREADS;
+        List<List<Map.Entry<Long, Link>>> chunks = new ArrayList<>();
+
+        for (int i = 0; i < linkBatch.size(); i += chunkSize) {
+            chunks.add(linkBatch.subList(i, Math.min(linkBatch.size(), i + chunkSize)));
+        }
+
+        List<Future<?>> futures = chunks.stream()
+            .map(chunk -> executorService.submit(() -> processLinkChunk(chunk)))
+            .collect(Collectors.toList());
+
+        for (Future<?> future : futures) {
+            try {
+                future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                log.error("Error processing link chunk", e);
+            }
+        }
+    }
+
+    private void processLinkChunk(List<Map.Entry<Long, Link>> chunk) {
+        for (Map.Entry<Long, Link> linkData : chunk) {
+            Link link = linkData.getValue();
+            LocalDateTime validationTime = LocalDateTime.now(ZoneId.systemDefault());
+            try {
+                // получение всех обновлений
+                List<UpdateInfo> updates = link.type() == LinkType.GITHUB
+                    ? githubClientService.getAllInfo(link)
+                    : soClientService.getAllInfo(link);
+                // фильтрация новых обновлений по дате последней проверки
+                List<UpdateInfo> actualInfos = updates.stream()
+                    .filter(info -> link.lastValidation().isBefore(info.time()))
+                    .filter(info -> info.time().isBefore(validationTime))
+                    .toList();
+                // если есть новые обновления, отправляем их пользователю
+                if (!actualInfos.isEmpty()) {
+                    botClientService.sendUpdates(linkData.getKey(), link.url(), actualInfos);
+                }
+            } catch (ScrapperInternalResponseException e) {
+                log.warn("Error while getting update in scheduler", e);
+            }
+            // обновление времени проверки ссылки
+            linkDbService.updateLinkValidationOnTime(linkData.getKey(), validationTime);
+        }
+    }
+
+    @PreDestroy
+    private void preDestroy(){
+        executorService.close();
     }
 }

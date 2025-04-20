@@ -87,7 +87,7 @@ public abstract class LinkServiceTest {
         Long id = addLink(LINK);
         Thread.sleep(1000);
 
-        assertDoesNotThrow(() -> linkService.updateLinkValidationOnCurrentTime(id));
+        assertDoesNotThrow(() -> linkService.updateLinkValidationOnTime(id, LocalDateTime.now(ZoneId.systemDefault())));
 
         LocalDateTime curr = getDateTimeByLinkId(id);
         assertTrue(curr.isAfter(DT));

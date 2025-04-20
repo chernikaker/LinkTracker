@@ -39,9 +39,9 @@ public class SqlLinkService implements LinkService {
 
     @Override
     @Transactional
-    public void updateLinkValidationOnCurrentTime(long linkId) {
+    public void updateLinkValidationOnTime(long linkId, LocalDateTime dt) {
         try {
-            linkRepo.updateLinkValidationById(linkId, LocalDateTime.now(ZoneId.systemDefault()));
+            linkRepo.updateLinkValidationById(linkId, dt);
         } catch (DataAccessException e) {
             throw new ScrapperSqlException("Error while updating link validation with SQL", e);
         }
