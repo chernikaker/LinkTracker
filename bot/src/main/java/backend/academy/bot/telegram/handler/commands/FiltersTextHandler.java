@@ -37,6 +37,9 @@ public class FiltersTextHandler extends CommandHandler {
         // запись фильтров в соответствующий объект кэша
         Optional<LinkTrackingObject> potentialTracking =
                 repository.getTrack(message.chat().id());
+        if (potentialTracking.isEmpty()){
+            return UNKNOWN_ERROR;
+        }
         LinkTrackingObject tracking = potentialTracking.orElseThrow();
         String writingResponse = writeFilters(message.text(), tracking);
         try {
@@ -74,7 +77,7 @@ public class FiltersTextHandler extends CommandHandler {
         return message;
     }
 
-    protected String getErrorMessage(ApiErrorResponse response) {
+    private String getErrorMessage(ApiErrorResponse response) {
         if (response == null) {
             return UNKNOWN_ERROR;
         }

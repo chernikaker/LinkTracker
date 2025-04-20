@@ -16,7 +16,7 @@ import com.pengrad.telegrambot.model.Message;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 
-/** Обработчик тегов ссылки при ее удалении */
+/** Обработчик ввода тегов(-а)  */
 @Slf4j
 public class TagsTextHandler extends CommandHandler {
 
@@ -29,9 +29,12 @@ public class TagsTextHandler extends CommandHandler {
 
     @Override
     public String processRequest(Message message) {
-        // записывает тэги в соответствующий объект кэша
+        // получение соответствующего объекта кэша
         Optional<LinkTrackingObject> potentialTracking =
                 repository.getTrack(message.chat().id());
+        if (potentialTracking.isEmpty()){
+            return UNKNOWN_ERROR;
+        }
         LinkTrackingObject tracking = potentialTracking.orElseThrow();
         if (tracking.command() == Command.TRACK) {
             return writeTags(message.text(), tracking);

@@ -35,13 +35,18 @@ public class LinkTextHandler extends CommandHandler {
 
     @Override
     public String processRequest(Message message) {
-        // записывает ссылку в соответствующий объект кэша
+        // получение объекта кэша для записи
         Optional<LinkTrackingObject> potentialTracking =
                 repository.getTrack(message.chat().id());
+        if (potentialTracking.isEmpty()){
+            return UNKNOWN_ERROR;
+        }
         LinkTrackingObject tracking = potentialTracking.orElseThrow();
+        // первичная проерка на формат
         if (!LinkUrlValidator.isValid(message.text())) {
             return LINK_NOT_VALID;
         }
+        // если надо отписаться от ссылки, то данное состояние конечное => отправляем запрос
         if (tracking.command() == Command.UNTRACK) {
             return sendUntrackingRequest(message.text(), message.chat().id());
         }
