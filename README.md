@@ -1,4 +1,3 @@
-![Build](https://github.com/central-university-dev/backend-academy-2025-spring-template/actions/workflows/build.yaml/badge.svg)
 
 # Link Tracker
 
@@ -19,6 +18,7 @@
 
 - Java 23
 - Maven
+- Docker и Docker Compose
 
 ## Установка
 
@@ -27,25 +27,37 @@
    ```bash
    git clone https://github.com/central-university-dev/java-chernikaker.git
    cd <имя папки с репозиторием>
-
    ```
-2. Создайте переменные окружения для конфигурации запуска модуля bot
+   
+2. Запустите сервисы через Docker Compose (в корне проекта):
+
+```bash
+docker-compose up -d
+```
+Это запустит PostgreSQL. Миграции применятся автоматически
+
+3. Создайте переменные окружения для конфигурации запуска модуля bot
    `` TELEGRAM_TOKEN`` - токен для телеграм бота
-3. Создайте переменные окружения для конфигурации запуска модуля scrapper
+4. Создайте переменные окружения для конфигурации запуска модуля scrapper
    `` GITHUB_TOKEN`` - токен для клиента GitHub REST API (для количества запросов)
 
    `` SO_TOKEN_KEY`` - токен для клиента StackOverflow REST API  (для количества запросов)
 
    `` SO_ACCESS_TOKEN`` - токен доступа для клиента StackOverflow REST API
 
-4. Соберите проект:
+5. Соберите проект:
 
    ```bash
    mvn clean install
-
    ```
-5. Запустите модули в IDE через соответствующие классы ``@SpringBootApplication``
+6. Запустите модули в IDE через соответствующие классы ``@SpringBootApplication``
 
-Для работы требуется БД `PostgreSQL`. Присутствует опциональная зависимость на `Kafka`.
+## Тестирование
+Для запуска тестов (с использованием Testcontainers):
+
+```bash
+mvn test
+```
+Тесты автоматически поднимают PostgreSQL в контейнере
 
 Для дополнительной справки: [HELP.md](./HELP.md)
