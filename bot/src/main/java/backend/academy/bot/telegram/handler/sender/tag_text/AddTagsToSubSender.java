@@ -1,13 +1,12 @@
 package backend.academy.bot.telegram.handler.sender.tag_text;
 
+import static backend.academy.bot.telegram.handler.Constant.TAGS_ADDED_AND_SENT;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import static backend.academy.bot.telegram.handler.Constant.EMPTY_INPUT;
-import static backend.academy.bot.telegram.handler.Constant.TAGS_ADDED_AND_SENT;
 
 @Component
 public class AddTagsToSubSender extends TagTextSender {

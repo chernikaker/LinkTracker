@@ -33,7 +33,8 @@ import org.springframework.http.HttpStatus;
 @WireMockTest
 public class ScrapperClientServiceIntegrationTest {
 
-    public static final String ADD_LINK_REQUEST_BODY = """
+    public static final String ADD_LINK_REQUEST_BODY =
+            """
     {
       "link": "https://example.com",
       "tags": ["tag1", "tag2"],
@@ -46,14 +47,16 @@ public class ScrapperClientServiceIntegrationTest {
     }
     """;
 
-    public static final String ADD_TAGS_TO_SUB_REQUEST = """
+    public static final String ADD_TAGS_TO_SUB_REQUEST =
+            """
     {
         "link": "https://example.com",
         "tags": ["tag1"]
     }
     """;
 
-    public static final String REMOVE_TAG_FROM_SUB_REQUEST = """
+    public static final String REMOVE_TAG_FROM_SUB_REQUEST =
+            """
     {
         "link": "https://example.com",
         "tag": "tag1"
@@ -66,9 +69,8 @@ public class ScrapperClientServiceIntegrationTest {
     }
     """;
 
-
     private static final String ERROR_RESPONSE_BODY =
-        """
+            """
     {
         "description": "Invalid request",
         "code": "400",
@@ -83,7 +85,6 @@ public class ScrapperClientServiceIntegrationTest {
 
     @Autowired
     private ScrapperClientService service;
-
 
     @Test
     public void registerChat_success() {
@@ -161,7 +162,11 @@ public class ScrapperClientServiceIntegrationTest {
                         .withBody(responseBody)));
 
         LinkTrackingObject request = new LinkTrackingObject(
-                "https://example.com", new String[] {"tag1", "tag2"}, new String[] {"filter1"}, UserState.DEFAULT, Command.TRACK);
+                "https://example.com",
+                new String[] {"tag1", "tag2"},
+                new String[] {"filter1"},
+                UserState.DEFAULT,
+                Command.TRACK);
         assertDoesNotThrow(() -> service.addLinkSubscription(123L, request));
     }
 
@@ -176,7 +181,11 @@ public class ScrapperClientServiceIntegrationTest {
                         .withBody(ERROR_RESPONSE_BODY)));
 
         LinkTrackingObject request = new LinkTrackingObject(
-                "https://example.com", new String[] {"tag1", "tag2"}, new String[] {"filter1"}, UserState.DEFAULT, Command.TRACK);
+                "https://example.com",
+                new String[] {"tag1", "tag2"},
+                new String[] {"filter1"},
+                UserState.DEFAULT,
+                Command.TRACK);
         assertThatThrownBy(() -> service.addLinkSubscription(123, request)).isInstanceOf(BotRequestException.class);
     }
 
@@ -207,7 +216,7 @@ public class ScrapperClientServiceIntegrationTest {
     @Test
     public void addTagsToSubscription_success() {
         String responseBody =
-            """
+                """
         {
             "url": "https://example.com",
             "tags":{
@@ -217,38 +226,45 @@ public class ScrapperClientServiceIntegrationTest {
         }
         """;
         wireMockServer.stubFor(post(urlEqualTo("/links/tags"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .withRequestBody(equalToJson(ADD_TAGS_TO_SUB_REQUEST))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.OK.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(responseBody)));
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .withRequestBody(equalToJson(ADD_TAGS_TO_SUB_REQUEST))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(responseBody)));
 
         LinkTrackingObject request = new LinkTrackingObject(
-            "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_TAG, Command.TAGS_TO_SUB);
+                "https://example.com",
+                new String[] {"tag1"},
+                new String[0],
+                UserState.TRACKING_TAG,
+                Command.TAGS_TO_SUB);
         assertDoesNotThrow(() -> service.addTagsToSubscription(123L, request));
     }
 
     @Test
     public void addTagsToSubscription_scrapperReturnsException() {
         wireMockServer.stubFor(post(urlEqualTo("/links/tags"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .withRequestBody(equalToJson(ADD_TAGS_TO_SUB_REQUEST))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.BAD_REQUEST.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(ERROR_RESPONSE_BODY)));
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .withRequestBody(equalToJson(ADD_TAGS_TO_SUB_REQUEST))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.BAD_REQUEST.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(ERROR_RESPONSE_BODY)));
 
         LinkTrackingObject request = new LinkTrackingObject(
-            "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_TAG, Command.TAGS_TO_SUB);
-        assertThatThrownBy(() -> service.addTagsToSubscription(123L, request))
-            .isInstanceOf(BotRequestException.class);
+                "https://example.com",
+                new String[] {"tag1"},
+                new String[0],
+                UserState.TRACKING_TAG,
+                Command.TAGS_TO_SUB);
+        assertThatThrownBy(() -> service.addTagsToSubscription(123L, request)).isInstanceOf(BotRequestException.class);
     }
 
     @Test
     public void removeTagFromSubscription_success() {
         String responseBody =
-            """
+                """
         {
             "tag":{
                 "id": 1,
@@ -258,39 +274,47 @@ public class ScrapperClientServiceIntegrationTest {
         }
         """;
         wireMockServer.stubFor(delete(urlEqualTo("/links/tags"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .withRequestBody(equalToJson(REMOVE_TAG_FROM_SUB_REQUEST))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.OK.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(responseBody)));
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .withRequestBody(equalToJson(REMOVE_TAG_FROM_SUB_REQUEST))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(responseBody)));
 
         LinkTrackingObject request = new LinkTrackingObject(
-            "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_TAG, Command.REMOVE_TAG_SUB);
+                "https://example.com",
+                new String[] {"tag1"},
+                new String[0],
+                UserState.TRACKING_TAG,
+                Command.REMOVE_TAG_SUB);
         assertDoesNotThrow(() -> service.removeTagForSubscription(123L, request));
     }
 
     @Test
     public void removeTagFromSubscription_ScrapperReturnsException() {
         wireMockServer.stubFor(delete(urlEqualTo("/links/tags"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .withRequestBody(equalToJson(REMOVE_TAG_FROM_SUB_REQUEST))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.BAD_REQUEST.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(ERROR_RESPONSE_BODY)));
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .withRequestBody(equalToJson(REMOVE_TAG_FROM_SUB_REQUEST))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.BAD_REQUEST.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(ERROR_RESPONSE_BODY)));
 
         LinkTrackingObject request = new LinkTrackingObject(
-            "https://example.com", new String[] {"tag1"}, new String[0], UserState.TRACKING_TAG, Command.REMOVE_TAG_SUB);
+                "https://example.com",
+                new String[] {"tag1"},
+                new String[0],
+                UserState.TRACKING_TAG,
+                Command.REMOVE_TAG_SUB);
         assertThatThrownBy(() -> service.removeTagForSubscription(123L, request))
-            .isInstanceOf(BotRequestException.class);
+                .isInstanceOf(BotRequestException.class);
     }
 
     @Test
     public void removeSubscriptionsByTag_success() {
         String tag = "tag";
         String responseBody =
-            """
+                """
         {
             "tag":"tag",
             "links":{
@@ -299,45 +323,43 @@ public class ScrapperClientServiceIntegrationTest {
             }
         }
         """;
-        wireMockServer.stubFor(delete(urlEqualTo("/tags/"+tag+"/links"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.OK.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(responseBody)));
+        wireMockServer.stubFor(delete(urlEqualTo("/tags/" + tag + "/links"))
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(responseBody)));
         assertDoesNotThrow(() -> service.removeSubscriptionsByTag(123L, tag));
     }
 
     @Test
     public void removeSubscriptionsByTag_ScrapperReturnsException() {
         String tag = "tag";
-        wireMockServer.stubFor(delete(urlEqualTo("/tags/"+tag+"/links"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.BAD_REQUEST.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(ERROR_RESPONSE_BODY)));
-        assertThatThrownBy(() -> service.removeSubscriptionsByTag(123L, tag))
-            .isInstanceOf(BotRequestException.class);
+        wireMockServer.stubFor(delete(urlEqualTo("/tags/" + tag + "/links"))
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.BAD_REQUEST.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(ERROR_RESPONSE_BODY)));
+        assertThatThrownBy(() -> service.removeSubscriptionsByTag(123L, tag)).isInstanceOf(BotRequestException.class);
     }
 
     @Test
     public void deleteTag_success() {
         String tag = "tag";
-        String responseBody =
-            """
+        String responseBody = """
         {
             "id":1,
             "value":"tag"
         }
         """;
         wireMockServer.stubFor(delete(urlEqualTo("/tags"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .withRequestBody(equalToJson(DELETE_TAG_REQUEST))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.OK.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(responseBody)));
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .withRequestBody(equalToJson(DELETE_TAG_REQUEST))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(responseBody)));
         assertDoesNotThrow(() -> service.deleteTag(123L, tag));
     }
 
@@ -345,21 +367,20 @@ public class ScrapperClientServiceIntegrationTest {
     public void deleteTag_ScrapperReturnsException() {
         String tag = "tag";
         wireMockServer.stubFor(delete(urlEqualTo("/tags"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .withRequestBody(equalToJson(DELETE_TAG_REQUEST))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.BAD_REQUEST.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(ERROR_RESPONSE_BODY)));
-        assertThatThrownBy(() -> service.deleteTag(123L, tag))
-            .isInstanceOf(BotRequestException.class);
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .withRequestBody(equalToJson(DELETE_TAG_REQUEST))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.BAD_REQUEST.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(ERROR_RESPONSE_BODY)));
+        assertThatThrownBy(() -> service.deleteTag(123L, tag)).isInstanceOf(BotRequestException.class);
     }
 
     @Test
     public void getSubscriptionsByTag_success() {
         String tag = "tag";
         String responseBody =
-            """
+                """
         {
             "tag":"tag",
             "links":{
@@ -368,12 +389,12 @@ public class ScrapperClientServiceIntegrationTest {
             }
         }
         """;
-        wireMockServer.stubFor(get(urlEqualTo("/tags/"+tag+"/links"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.OK.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(responseBody)));
+        wireMockServer.stubFor(get(urlEqualTo("/tags/" + tag + "/links"))
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(responseBody)));
         ListTagLinksResponse r = assertDoesNotThrow(() -> service.getSubscriptionsByTag(123L, tag));
         assertEquals(tag, r.tag());
         assertEquals(1, r.links().size());
@@ -382,32 +403,30 @@ public class ScrapperClientServiceIntegrationTest {
     @Test
     public void getSubscriptionsByTag_ScrapperReturnsException() {
         String tag = "tag";
-        wireMockServer.stubFor(get(urlEqualTo("/tags/"+tag+"/links"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.BAD_REQUEST.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(ERROR_RESPONSE_BODY)));
-        assertThatThrownBy(() -> service.getSubscriptionsByTag(123L, tag))
-            .isInstanceOf(BotRequestException.class);
+        wireMockServer.stubFor(get(urlEqualTo("/tags/" + tag + "/links"))
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.BAD_REQUEST.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(ERROR_RESPONSE_BODY)));
+        assertThatThrownBy(() -> service.getSubscriptionsByTag(123L, tag)).isInstanceOf(BotRequestException.class);
     }
-
 
     @Test
     public void getTags_success() {
         String responseBody =
-            """
+                """
         {
             "tags": [{"id": 1, "value":"tag"}],
             "size": 1
         }
         """;
         wireMockServer.stubFor(get(urlEqualTo("/tags"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.OK.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(responseBody)));
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(responseBody)));
         ListTagsResponse r = assertDoesNotThrow(() -> service.getUserTags(123L));
         assertEquals(1, r.size());
         assertEquals("tag", r.tags().getFirst().value());
@@ -416,12 +435,11 @@ public class ScrapperClientServiceIntegrationTest {
     @Test
     public void getTags_ScrapperReturnsException() {
         wireMockServer.stubFor(get(urlEqualTo("/tags"))
-            .withHeader("Tg-Chat-Id", equalTo("123"))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.BAD_REQUEST.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(ERROR_RESPONSE_BODY)));
-        assertThatThrownBy(() -> service.getUserTags(123L))
-            .isInstanceOf(BotRequestException.class);
+                .withHeader("Tg-Chat-Id", equalTo("123"))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.BAD_REQUEST.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(ERROR_RESPONSE_BODY)));
+        assertThatThrownBy(() -> service.getUserTags(123L)).isInstanceOf(BotRequestException.class);
     }
 }

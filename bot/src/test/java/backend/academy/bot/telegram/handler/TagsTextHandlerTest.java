@@ -3,7 +3,6 @@ package backend.academy.bot.telegram.handler;
 import static backend.academy.bot.telegram.handler.Constant.EMPTY_INPUT;
 import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,9 +17,7 @@ import backend.academy.bot.telegram.handler.sender.tag_text.TagCommandSenderFact
 import backend.academy.bot.telegram.handler.sender.tag_text.TagTextSender;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +30,8 @@ import org.mockito.MockitoAnnotations;
 
 public class TagsTextHandlerTest {
 
-    public static final LinkTrackingObject TRACKING = new LinkTrackingObject("https://example.com", new String[0], new String[0], UserState.TRACKING_TAG, Command.TRACK);
+    public static final LinkTrackingObject TRACKING = new LinkTrackingObject(
+            "https://example.com", new String[0], new String[0], UserState.TRACKING_TAG, Command.TRACK);
     private static final long CHAT_ID = 123L;
 
     @Mock
@@ -89,13 +87,16 @@ public class TagsTextHandlerTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = Command.class, names = {"REMOVE_TAG_SUB","UNTRACK_BY_TAG","REMOVE_TAG", "LIST_BY_TAG"})
+    @EnumSource(
+            value = Command.class,
+            names = {"REMOVE_TAG_SUB", "UNTRACK_BY_TAG", "REMOVE_TAG", "LIST_BY_TAG"})
     public void processRequest_TerminalState_SendRequest(Command command) {
         when(message.text()).thenReturn("tag");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
         TRACKING.command(command);
         when(factory.getSenderByCommand(command)).thenReturn(sender);
-        when(sender.writeTagAndSendRequest("tag", TRACKING, message.chat().id())).thenReturn("answer");
+        when(sender.writeTagAndSendRequest("tag", TRACKING, message.chat().id()))
+                .thenReturn("answer");
 
         String result = tagsTextHandler.processRequest(message);
 
@@ -113,8 +114,6 @@ public class TagsTextHandlerTest {
 
         assertEquals(UNKNOWN_ERROR, result);
     }
-
-
 
     @Test
     public void canHandle_shouldReturnTrue_stateIsTrackingTagTextIsNotCommand() {

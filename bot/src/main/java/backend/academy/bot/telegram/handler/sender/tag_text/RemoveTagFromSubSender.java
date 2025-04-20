@@ -1,13 +1,13 @@
 package backend.academy.bot.telegram.handler.sender.tag_text;
 
+import static backend.academy.bot.telegram.handler.Constant.TAG_DETACHED;
+import static backend.academy.bot.telegram.handler.Constant.TAG_INVALID_INPUT;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import static backend.academy.bot.telegram.handler.Constant.TAG_DETACHED;
-import static backend.academy.bot.telegram.handler.Constant.TAG_INVALID_INPUT;
 
 @Component
 public class RemoveTagFromSubSender extends TagTextSender {
@@ -18,10 +18,10 @@ public class RemoveTagFromSubSender extends TagTextSender {
 
     @Override
     public String writeTagAndSendRequest(String tagLine, LinkTrackingObject tracking, long id) {
-        if(tagLine.trim().contains(" ")) {
+        if (tagLine.trim().contains(" ")) {
             return TAG_INVALID_INPUT;
         }
-        tracking.tags(new String[]{tagLine.trim()});
+        tracking.tags(new String[] {tagLine.trim()});
         repository.removeTrack(id);
         try {
             service.removeTagForSubscription(id, tracking);

@@ -1,24 +1,20 @@
 package backend.academy.bot.telegram.sender.tag_text;
 
+import static backend.academy.bot.telegram.handler.Constant.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
-import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.bot.telegram.handler.sender.tag_text.AddTagsToSubSender;
-import backend.academy.dto.ApiErrorResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-
-import static backend.academy.bot.telegram.handler.Constant.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AddTagToSubSenderTest {

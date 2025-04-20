@@ -14,7 +14,6 @@ import backend.academy.scrapper.db.contract.SubscriptionService;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.entity.Subscription;
-import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.User;
 import backend.academy.scrapper.model.UpdateInfo;
 import backend.academy.scrapper.model.UpdateInfoType;

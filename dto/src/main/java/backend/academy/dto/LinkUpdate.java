@@ -25,4 +25,4 @@ public record LinkUpdate(
         @NotNull(message = "Description is required") @NotEmpty(message = "Update units can not be empty")
                 List<LinkUpdateUnit> updateUnits,
         @NotNull(message = "tgChatData is required") @NotEmpty(message = "tgChatData cannot be empty")
-        Map<Long, List<String>> tgChatData) {}
+                Map<Long, List<String>> tgChatData) {}

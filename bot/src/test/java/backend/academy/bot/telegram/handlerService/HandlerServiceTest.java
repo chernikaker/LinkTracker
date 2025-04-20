@@ -27,7 +27,6 @@ import backend.academy.bot.telegram.handler.commands.UnknownCommandHandler;
 import backend.academy.bot.telegram.handler.commands.UntrackByTagHandler;
 import backend.academy.bot.telegram.handler.commands.UntrackHandler;
 import backend.academy.bot.telegram.handler.sender.tag_text.TagCommandSenderFactory;
-import backend.academy.bot.telegram.handler.sender.tag_text.TagTextSender;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import java.util.Optional;
@@ -46,7 +45,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @Import(HandlersConfig.class)
 public class HandlerServiceTest {
 
-    public static final LinkTrackingObject TRACKING_OBJECT = new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_LINK, Command.TRACK);
+    public static final LinkTrackingObject TRACKING_OBJECT =
+            new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_LINK, Command.TRACK);
     private static final long CHAT_ID = 123L;
 
     @MockitoBean

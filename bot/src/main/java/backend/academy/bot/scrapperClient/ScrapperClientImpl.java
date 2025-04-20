@@ -74,69 +74,69 @@ public class ScrapperClientImpl implements ScrapperClient {
     @Override
     public ListLinkTagsResponse addTagsToSubscription(long userId, AddLinkTagsRequest request) {
         return restClient
-            .post()
-            .uri("/links/tags")
-            .header(TG_ID_HEADER, String.valueOf(userId))
-            .body(request)
-            .retrieve()
-            .toEntity(ListLinkTagsResponse.class)
-            .getBody();
+                .post()
+                .uri("/links/tags")
+                .header(TG_ID_HEADER, String.valueOf(userId))
+                .body(request)
+                .retrieve()
+                .toEntity(ListLinkTagsResponse.class)
+                .getBody();
     }
 
     @Override
     public LinkTagResponse removeTagFromSubscription(long userId, RemoveLinkTagRequest request) {
         return restClient
-            .method(HttpMethod.DELETE)
-            .uri("/links/tags")
-            .header(TG_ID_HEADER, String.valueOf(userId))
-            .body(request)
-            .retrieve()
-            .toEntity(LinkTagResponse.class)
-            .getBody();
+                .method(HttpMethod.DELETE)
+                .uri("/links/tags")
+                .header(TG_ID_HEADER, String.valueOf(userId))
+                .body(request)
+                .retrieve()
+                .toEntity(LinkTagResponse.class)
+                .getBody();
     }
 
     @Override
     public ListTagLinksResponse removeSubscriptionsByTag(long userId, String tag) {
         return restClient
-            .method(HttpMethod.DELETE)
-            .uri("/tags/"+tag+"/links")
-            .header(TG_ID_HEADER, String.valueOf(userId))
-            .retrieve()
-            .toEntity(ListTagLinksResponse.class)
-            .getBody();
+                .method(HttpMethod.DELETE)
+                .uri("/tags/" + tag + "/links")
+                .header(TG_ID_HEADER, String.valueOf(userId))
+                .retrieve()
+                .toEntity(ListTagLinksResponse.class)
+                .getBody();
     }
 
     @Override
     public TagResponse deleteTag(long userId, RemoveTagRequest request) {
         return restClient
-            .method(HttpMethod.DELETE)
-            .uri("/tags")
-            .header(TG_ID_HEADER, String.valueOf(userId))
-            .body(request)
-            .retrieve()
-            .toEntity(TagResponse.class)
-            .getBody();
+                .method(HttpMethod.DELETE)
+                .uri("/tags")
+                .header(TG_ID_HEADER, String.valueOf(userId))
+                .body(request)
+                .retrieve()
+                .toEntity(TagResponse.class)
+                .getBody();
     }
 
     @Override
     public ListTagLinksResponse getTagSubscriptions(long userId, String tag) {
         return restClient
-            .get()
-            .uri("/tags/"+tag+"/links")
-            .header(TG_ID_HEADER, String.valueOf(userId))
-            .retrieve()
-            .toEntity(ListTagLinksResponse.class)
-            .getBody();
+                .get()
+                .uri("/tags/" + tag + "/links")
+                .header(TG_ID_HEADER, String.valueOf(userId))
+                .retrieve()
+                .toEntity(ListTagLinksResponse.class)
+                .getBody();
     }
 
     @Override
     public ListTagsResponse getTags(long userId) {
         return restClient
-            .get()
-            .uri("/tags")
-            .header(TG_ID_HEADER, String.valueOf(userId))
-            .retrieve()
-            .toEntity(ListTagsResponse.class)
-            .getBody();
+                .get()
+                .uri("/tags")
+                .header(TG_ID_HEADER, String.valueOf(userId))
+                .retrieve()
+                .toEntity(ListTagsResponse.class)
+                .getBody();
     }
 }

@@ -95,7 +95,6 @@ public class SqlSubscriptionService implements SubscriptionService {
         }
     }
 
-
     @Override
     @Transactional
     public Map.Entry<Long, Subscription> deleteSubscriptionByUserAndLink(User user, Link link) {

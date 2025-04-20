@@ -61,7 +61,7 @@ public class BotClientService {
     private LinkUpdate makeLinkUpdate(long linkId, String url, List<UpdateInfo> info) {
         // получение всех подписчиков на ссылку
         List<Subscription> dbChatsInfo = service.getSubscriptionsByLinkId(linkId);
-        Map<Long,List<String>> chatsWithTags = processDbInfo(dbChatsInfo);
+        Map<Long, List<String>> chatsWithTags = processDbInfo(dbChatsInfo);
         // формирование сообщения об обновлениях
         List<LinkUpdateUnit> updateUnits = makeUpdateUnits(info);
         return new LinkUpdate(linkId, url, updateUnits, chatsWithTags);
@@ -70,10 +70,7 @@ public class BotClientService {
     private Map<Long, List<String>> processDbInfo(List<Subscription> dbChatsInfo) {
         Map<Long, List<String>> chatsWithTags = new HashMap<>();
         for (Subscription info : dbChatsInfo) {
-            List<String> tags = info.tags()
-                .stream()
-                .map(Tag::value)
-                .toList();
+            List<String> tags = info.tags().stream().map(Tag::value).toList();
             chatsWithTags.put(info.user().chatId(), tags);
         }
         return chatsWithTags;

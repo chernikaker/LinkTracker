@@ -34,10 +34,8 @@ public class BotService {
      * @param chatId чат, в который отправляется сообщение
      */
     public void sendUpdateInfo(long chatId, String messageText, String link) {
-        LinkPreviewOptions previewOptions = new LinkPreviewOptions()
-            .url(link)
-            .preferSmallMedia(false)
-            .showAboveText(false);
+        LinkPreviewOptions previewOptions =
+                new LinkPreviewOptions().url(link).preferSmallMedia(false).showAboveText(false);
         SendMessage sendMessage = new SendMessage(chatId, messageText).linkPreviewOptions(previewOptions);
         telegramBotService.sendResponse(sendMessage);
     }

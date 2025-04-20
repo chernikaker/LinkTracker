@@ -1,5 +1,12 @@
 package backend.academy.bot.service;
 
+import static backend.academy.data.Constant.MAX_DESCRIPTION_LENGTH;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+
 import backend.academy.bot.telegram.TelegramBotService;
 import backend.academy.dto.LinkUpdate;
 import backend.academy.dto.LinkUpdateUnit;
@@ -16,12 +23,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static backend.academy.data.Constant.MAX_DESCRIPTION_LENGTH;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class BotServiceTest {
@@ -29,20 +30,11 @@ class BotServiceTest {
     private static final long CHAT_ID = 12345L;
     private static final String TEST_URL = "https://example.com";
     private static final String TEST_TAG = "test_tag";
-    private static final LinkUpdateUnit UPDATE_UNIT = new LinkUpdateUnit(
-        "title",
-        "description",
-        LocalDateTime.now(ZoneId.systemDefault()),
-        "author",
-        "comment"
-    );
+    private static final LinkUpdateUnit UPDATE_UNIT =
+            new LinkUpdateUnit("title", "description", LocalDateTime.now(ZoneId.systemDefault()), "author", "comment");
 
-    private static final LinkUpdate UPDATE = new LinkUpdate(
-        1L,
-        TEST_URL,
-        List.of(UPDATE_UNIT),
-        Map.of(CHAT_ID, List.of(TEST_TAG))
-    );
+    private static final LinkUpdate UPDATE =
+            new LinkUpdate(1L, TEST_URL, List.of(UPDATE_UNIT), Map.of(CHAT_ID, List.of(TEST_TAG)));
 
     @Mock
     private TelegramBotService telegramBotService;
@@ -63,7 +55,8 @@ class BotServiceTest {
         assertEquals(CHAT_ID, actualMessage.getParameters().get("chat_id"));
         assertTrue(actualMessage.getParameters().get("text").toString().contains(TEST_URL));
 
-        LinkPreviewOptions previewOptions = (LinkPreviewOptions) actualMessage.getParameters().get("link_preview_options");
+        LinkPreviewOptions previewOptions =
+                (LinkPreviewOptions) actualMessage.getParameters().get("link_preview_options");
         assertNotNull(previewOptions);
         assertEquals(TEST_URL, previewOptions.url());
         assertFalse(previewOptions.preferSmallMedia());
@@ -72,11 +65,7 @@ class BotServiceTest {
 
     @Test
     public void createUpdatesMessage_FormatsCorrectly() {
-        String result = botService.createUpdatesMessage(
-            TEST_URL,
-            List.of(UPDATE_UNIT),
-            List.of(TEST_TAG)
-        );
+        String result = botService.createUpdatesMessage(TEST_URL, List.of(UPDATE_UNIT), List.of(TEST_TAG));
         assertTrue(result.contains(TEST_URL));
         assertTrue(result.contains("#1"));
         assertTrue(result.contains("Тип обновления: comment"));
@@ -91,12 +80,7 @@ class BotServiceTest {
         String longDescription = "a".repeat(MAX_DESCRIPTION_LENGTH);
 
         LinkUpdateUnit updateUnit = new LinkUpdateUnit(
-            "title",
-            longDescription,
-            LocalDateTime.now(ZoneId.systemDefault()),
-            "author",
-            "comment"
-        );
+                "title", longDescription, LocalDateTime.now(ZoneId.systemDefault()), "author", "comment");
         String result = botService.createUpdatesMessage(TEST_URL, List.of(updateUnit), List.of(TEST_TAG));
 
         assertTrue(result.contains("Сообщение: " + "a".repeat(MAX_DESCRIPTION_LENGTH) + "..."));
@@ -114,7 +98,8 @@ class BotServiceTest {
         assertEquals(CHAT_ID, actualMessage.getParameters().get("chat_id"));
         assertEquals(testMessage, actualMessage.getParameters().get("text"));
 
-        LinkPreviewOptions previewOptions = (LinkPreviewOptions) actualMessage.getParameters().get("link_preview_options");
+        LinkPreviewOptions previewOptions =
+                (LinkPreviewOptions) actualMessage.getParameters().get("link_preview_options");
         assertNotNull(previewOptions);
         assertEquals(TEST_URL, previewOptions.url());
     }

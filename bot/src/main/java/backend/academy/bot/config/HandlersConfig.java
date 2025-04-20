@@ -8,19 +8,19 @@ import backend.academy.bot.telegram.handler.commands.HelpHandler;
 import backend.academy.bot.telegram.handler.commands.LinkTextHandler;
 import backend.academy.bot.telegram.handler.commands.ListByTagHandler;
 import backend.academy.bot.telegram.handler.commands.ListHandler;
-import backend.academy.bot.telegram.handler.commands.RemoveTagHandler;
 import backend.academy.bot.telegram.handler.commands.RemoveTagFromSubHandler;
+import backend.academy.bot.telegram.handler.commands.RemoveTagHandler;
 import backend.academy.bot.telegram.handler.commands.StartHandler;
 import backend.academy.bot.telegram.handler.commands.TagListHandler;
 import backend.academy.bot.telegram.handler.commands.TagsTextHandler;
 import backend.academy.bot.telegram.handler.commands.TagsToSubHandler;
 import backend.academy.bot.telegram.handler.commands.TrackHandler;
 import backend.academy.bot.telegram.handler.commands.UnknownCommandHandler;
-import java.util.ArrayList;
-import java.util.List;
 import backend.academy.bot.telegram.handler.commands.UntrackByTagHandler;
 import backend.academy.bot.telegram.handler.commands.UntrackHandler;
 import backend.academy.bot.telegram.handler.sender.tag_text.TagCommandSenderFactory;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
@@ -105,7 +105,8 @@ public class HandlersConfig {
 
     @Bean
     @Order(13)
-    public CommandHandler tagsTextCommandHandler(InMemoryTrackingCache userRepository, TagCommandSenderFactory factory) {
+    public CommandHandler tagsTextCommandHandler(
+            InMemoryTrackingCache userRepository, TagCommandSenderFactory factory) {
         return new TagsTextHandler(userRepository, factory);
     }
 
@@ -132,10 +133,7 @@ public class HandlersConfig {
      */
     @Bean
     public List<CommandHandler> commandHandlers(
-        InMemoryTrackingCache cache,
-        ScrapperClientService service,
-        TagCommandSenderFactory factory
-    ) {
+            InMemoryTrackingCache cache, ScrapperClientService service, TagCommandSenderFactory factory) {
         List<CommandHandler> list = new ArrayList<>(List.of(
                 startCommandHandler(cache, service),
                 trackCommandHandler(cache),

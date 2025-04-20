@@ -8,18 +8,15 @@ import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkType;
 import backend.academy.scrapper.exception.client.ScrapperInternalResponseException;
 import backend.academy.scrapper.model.UpdateInfo;
+import jakarta.annotation.PreDestroy;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -60,22 +57,20 @@ public class UpdateScheduler {
     }
 
     private void processLinksMultithread(List<Map.Entry<Long, Link>> linkBatch) {
-        int chunkSize = (linkBatch.size() + THREADS-1) / THREADS;
+        int chunkSize = (linkBatch.size() + THREADS - 1) / THREADS;
 
         List<CompletableFuture<?>> futures = new ArrayList<>();
         for (int i = 0; i < linkBatch.size(); i += chunkSize) {
             var chunk = linkBatch.subList(i, Math.min(linkBatch.size(), i + chunkSize));
-            futures.add(
-                CompletableFuture.runAsync(() -> processLinkChunk(chunk), executorService)
-            );
+            futures.add(CompletableFuture.runAsync(() -> processLinkChunk(chunk), executorService));
         }
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-            .exceptionally(ex -> {
-                log.atError().setCause(ex).log("Error in one of the chunks"+ ex.getMessage());
-                return null;
-            })
-            .join();
+                .exceptionally(ex -> {
+                    log.atError().setCause(ex).log("Error in one of the chunks" + ex.getMessage());
+                    return null;
+                })
+                .join();
     }
 
     private void processLinkChunk(List<Map.Entry<Long, Link>> chunk) {
@@ -85,13 +80,13 @@ public class UpdateScheduler {
             try {
                 // получение всех обновлений
                 List<UpdateInfo> updates = link.type() == LinkType.GITHUB
-                    ? githubClientService.getAllInfo(link)
-                    : soClientService.getAllInfo(link);
+                        ? githubClientService.getAllInfo(link)
+                        : soClientService.getAllInfo(link);
                 // фильтрация новых обновлений по дате последней проверки
                 List<UpdateInfo> actualInfos = updates.stream()
-                    .filter(info -> link.lastValidation().isBefore(info.time()))
-                    .filter(info -> info.time().isBefore(validationTime))
-                    .toList();
+                        .filter(info -> link.lastValidation().isBefore(info.time()))
+                        .filter(info -> info.time().isBefore(validationTime))
+                        .toList();
                 // если есть новые обновления, отправляем их пользователю
                 if (!actualInfos.isEmpty()) {
                     botClientService.sendUpdates(linkData.getKey(), link.url(), actualInfos);
@@ -105,7 +100,7 @@ public class UpdateScheduler {
     }
 
     @PreDestroy
-    private void preDestroy(){
+    private void preDestroy() {
         executorService.close();
     }
 }

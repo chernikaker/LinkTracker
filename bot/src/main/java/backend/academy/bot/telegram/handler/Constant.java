@@ -10,7 +10,7 @@ public class Constant {
     public static final String NOT_REGISTERED = "Вы не зарегистрированы. Чтобы зарегистрироваться, выполните /start";
     public static final String REQUEST_CANCELLED = "Запрос отклонен, попробуйте ещё раз";
     public static final String EXTERNAL_ERROR = "Ошибка сервера";
-    public static final String UNKNOWN_ERROR  = "Неизвестная ошибка";
+    public static final String UNKNOWN_ERROR = "Неизвестная ошибка";
     public static final String NO_SUBSCRIPTION = "У вас нет подписки на данную ссылку";
     public static final String LINK_NOT_VALID =
             """

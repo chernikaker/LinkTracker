@@ -9,10 +9,10 @@ import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.ListTagLinksResponse;
 import backend.academy.dto.ListTagsResponse;
 import backend.academy.dto.RemoveLinkRequest;
-import java.util.Arrays;
-import java.util.List;
 import backend.academy.dto.RemoveLinkTagRequest;
 import backend.academy.dto.RemoveTagRequest;
+import java.util.Arrays;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -127,7 +127,7 @@ public final class ScrapperClientService {
         }
     }
 
-    public ListTagsResponse getUserTags(long chatId){
+    public ListTagsResponse getUserTags(long chatId) {
         try {
             ListTagsResponse response = client.getTags(chatId);
             log.atInfo().addKeyValue("chat id", chatId).log("Tags were sent successfully");

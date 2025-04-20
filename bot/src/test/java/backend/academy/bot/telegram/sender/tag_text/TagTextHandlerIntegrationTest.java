@@ -1,11 +1,19 @@
 package backend.academy.bot.telegram.sender.tag_text;
 
+import static backend.academy.bot.telegram.handler.Constant.SUBS_DELETED_BY_TAG;
+import static backend.academy.bot.telegram.handler.Constant.TAGS_ADDED_AND_SENT;
+import static backend.academy.bot.telegram.handler.Constant.TAG_DELETED;
+import static backend.academy.bot.telegram.handler.Constant.TAG_DETACHED;
+import static backend.academy.bot.telegram.handler.Constant.TAG_INVALID_INPUT;
+import static backend.academy.bot.telegram.handler.Constant.TAG_SUBS_EMPTY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.bot.telegram.handler.Command;
-import backend.academy.bot.telegram.handler.Constant;
 import backend.academy.bot.telegram.handler.commands.TagsTextHandler;
 import backend.academy.bot.telegram.handler.sender.tag_text.AddTagsToSubSender;
 import backend.academy.bot.telegram.handler.sender.tag_text.DeleteTagSender;
@@ -18,49 +26,30 @@ import backend.academy.dto.ListLinksResponse;
 import backend.academy.dto.ListTagLinksResponse;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.util.List;
 import java.util.Optional;
-import static backend.academy.bot.telegram.handler.Constant.EMPTY_INPUT;
-import static backend.academy.bot.telegram.handler.Constant.NO_TAGS;
-import static backend.academy.bot.telegram.handler.Constant.SUBS_DELETED_BY_TAG;
-import static backend.academy.bot.telegram.handler.Constant.TAGS_ADDED_AND_SENT;
-import static backend.academy.bot.telegram.handler.Constant.TAG_DELETED;
-import static backend.academy.bot.telegram.handler.Constant.TAG_DETACHED;
-import static backend.academy.bot.telegram.handler.Constant.TAG_INVALID_INPUT;
-import static backend.academy.bot.telegram.handler.Constant.TAG_SUBS_EMPTY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-
-@SpringBootTest(classes = {
-    AddTagsToSubSender.class,
-    DeleteTagSender.class,
-    RemoveTagFromSubSender.class,
-    TagCommandSenderFactory.class,
-    UntrackByTagSender.class,
-    GetTagSubsSender.class,
-    TagsTextHandler.class
-})
+@SpringBootTest(
+        classes = {
+            AddTagsToSubSender.class,
+            DeleteTagSender.class,
+            RemoveTagFromSubSender.class,
+            TagCommandSenderFactory.class,
+            UntrackByTagSender.class,
+            GetTagSubsSender.class,
+            TagsTextHandler.class
+        })
 public class TagTextHandlerIntegrationTest {
 
     private static final long CHAT_ID = 123L;
-    public static final LinkTrackingObject TRACKING = new LinkTrackingObject("https://example.com", new String[0], new String[0], UserState.TRACKING_TAG, Command.TRACK);
+    public static final LinkTrackingObject TRACKING = new LinkTrackingObject(
+            "https://example.com", new String[0], new String[0], UserState.TRACKING_TAG, Command.TRACK);
 
     @MockitoBean
     private InMemoryTrackingCache repository;
@@ -144,7 +133,7 @@ public class TagTextHandlerIntegrationTest {
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
         TRACKING.command(Command.LIST_BY_TAG);
         LinkResponse link = new LinkResponse(1L, "url", List.of("tag"), List.of());
-        ListTagLinksResponse res = new ListTagLinksResponse("tag", new ListLinksResponse(List.of(link),1));
+        ListTagLinksResponse res = new ListTagLinksResponse("tag", new ListLinksResponse(List.of(link), 1));
         String expected = """
             Ссылки по тегу #tag
 
@@ -163,7 +152,7 @@ public class TagTextHandlerIntegrationTest {
         when(message.text()).thenReturn("tag");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
         TRACKING.command(Command.LIST_BY_TAG);
-        ListTagLinksResponse res = new ListTagLinksResponse("tag", new ListLinksResponse(List.of(),0));
+        ListTagLinksResponse res = new ListTagLinksResponse("tag", new ListLinksResponse(List.of(), 0));
         when(service.getSubscriptionsByTag(CHAT_ID, "tag")).thenReturn(res);
 
         String result = tagsTextHandler.processRequest(message);

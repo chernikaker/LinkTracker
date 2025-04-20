@@ -27,7 +27,8 @@ import org.mockito.MockitoAnnotations;
 
 public class LinkTextHandlerTest {
 
-    public static final LinkTrackingObject TRACKING = new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK, Command.TRACK);
+    public static final LinkTrackingObject TRACKING =
+            new LinkTrackingObject(null, new String[0], new String[0], UserState.TRACKING_LINK, Command.TRACK);
     private static final long CHAT_ID = 123L;
 
     @Mock
@@ -79,7 +80,9 @@ public class LinkTextHandlerTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = Command.class, names = {"REMOVE_TAG_SUB"})
+    @EnumSource(
+            value = Command.class,
+            names = {"REMOVE_TAG_SUB"})
     public void processRequest_ValidLinkNotTerminalStateNextWriteOneTag(Command command) {
         when(message.text()).thenReturn("https://github.com/owner/repo");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
@@ -133,7 +136,7 @@ public class LinkTextHandlerTest {
     public void processRequest_processAndSendUntrackingRequest_InternalError() {
         when(message.text()).thenReturn("https://github.com/owner/repo");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
-        ApiErrorResponse response = new ApiErrorResponse("","500","","", List.of());
+        ApiErrorResponse response = new ApiErrorResponse("", "500", "", "", List.of());
         doThrow(new BotRequestException(response)).when(service).removeLinkSubscription(eq(CHAT_ID), any());
         TRACKING.command(Command.UNTRACK);
 
@@ -147,7 +150,7 @@ public class LinkTextHandlerTest {
     public void processRequest_processAndSendUntrackingRequest_UserNotRegistered() {
         when(message.text()).thenReturn("https://github.com/owner/repo");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
-        ApiErrorResponse response = new ApiErrorResponse("","400","ScrapperUserNotExistsException","", List.of());
+        ApiErrorResponse response = new ApiErrorResponse("", "400", "ScrapperUserNotExistsException", "", List.of());
         doThrow(new BotRequestException(response)).when(service).removeLinkSubscription(eq(CHAT_ID), any());
         TRACKING.command(Command.UNTRACK);
 
@@ -161,7 +164,7 @@ public class LinkTextHandlerTest {
     public void processRequest_processAndSendUntrackingRequest_NoSuchSubscription() {
         when(message.text()).thenReturn("https://github.com/owner/repo");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
-        ApiErrorResponse response = new ApiErrorResponse("","404","","", List.of());
+        ApiErrorResponse response = new ApiErrorResponse("", "404", "", "", List.of());
         doThrow(new BotRequestException(response)).when(service).removeLinkSubscription(eq(CHAT_ID), any());
         TRACKING.command(Command.UNTRACK);
 
@@ -170,7 +173,6 @@ public class LinkTextHandlerTest {
         assertEquals(Constant.NO_SUBSCRIPTION, result);
         verify(repository).removeTrack(CHAT_ID);
     }
-
 
     @Test
     public void canHandle_shouldReturnTrue() {

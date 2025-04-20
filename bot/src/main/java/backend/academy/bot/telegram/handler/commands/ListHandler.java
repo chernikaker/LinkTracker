@@ -66,10 +66,10 @@ public class ListHandler extends CommandHandler {
             sb.append(link.url()).append("\n");
             if (!link.tags().isEmpty()) {
                 sb.append(TAG_HEADER);
-                for (int i =0;i<link.tags().size();i++) {
+                for (int i = 0; i < link.tags().size(); i++) {
                     String tag = link.tags().get(i);
                     sb.append('#').append(tag);
-                    if(i!=link.tags().size()-1) {
+                    if (i != link.tags().size() - 1) {
                         sb.append(' ');
                     }
                 }

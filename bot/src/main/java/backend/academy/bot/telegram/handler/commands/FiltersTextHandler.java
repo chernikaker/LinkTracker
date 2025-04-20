@@ -1,9 +1,9 @@
 package backend.academy.bot.telegram.handler.commands;
 
 import static backend.academy.bot.telegram.handler.Constant.EMPTY_INPUT;
+import static backend.academy.bot.telegram.handler.Constant.EXTERNAL_ERROR;
 import static backend.academy.bot.telegram.handler.Constant.FILTERS_NOT_REGISTERD;
 import static backend.academy.bot.telegram.handler.Constant.FILTERS_REGISTERED;
-import static backend.academy.bot.telegram.handler.Constant.EXTERNAL_ERROR;
 import static backend.academy.bot.telegram.handler.Constant.LINK_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.LINK_UNABAILABLE;
 import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;

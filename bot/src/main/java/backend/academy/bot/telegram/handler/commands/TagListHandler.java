@@ -1,5 +1,11 @@
 package backend.academy.bot.telegram.handler.commands;
 
+import static backend.academy.bot.telegram.handler.Constant.EXTERNAL_ERROR;
+import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
+import static backend.academy.bot.telegram.handler.Constant.NO_TAGS;
+import static backend.academy.bot.telegram.handler.Constant.TAG_HEADER;
+import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
+
 import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.exception.scrapperClient.BotRequestException;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
@@ -9,11 +15,6 @@ import backend.academy.dto.ListTagsResponse;
 import backend.academy.dto.TagResponse;
 import com.pengrad.telegrambot.model.Message;
 import org.springframework.http.HttpStatus;
-import static backend.academy.bot.telegram.handler.Constant.EXTERNAL_ERROR;
-import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
-import static backend.academy.bot.telegram.handler.Constant.NO_TAGS;
-import static backend.academy.bot.telegram.handler.Constant.TAG_HEADER;
-import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
 
 public class TagListHandler extends CommandHandler {
 
@@ -42,7 +43,7 @@ public class TagListHandler extends CommandHandler {
     }
 
     private String makeTagsMessage(ListTagsResponse response) {
-        if(response.size()==0) {
+        if (response.size() == 0) {
             return NO_TAGS;
         }
         StringBuilder tags = new StringBuilder(TAG_HEADER);
@@ -53,13 +54,13 @@ public class TagListHandler extends CommandHandler {
     }
 
     private String getErrorMessage(ApiErrorResponse response) {
-        if(response == null) {
+        if (response == null) {
             return UNKNOWN_ERROR;
         }
         if (response.code().equals(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()))) {
             return EXTERNAL_ERROR;
         }
-        if(response.exceptionName().contains("UserNotExist")) {
+        if (response.exceptionName().contains("UserNotExist")) {
             return NOT_REGISTERED;
         }
         return UNKNOWN_ERROR;

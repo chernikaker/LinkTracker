@@ -20,11 +20,10 @@ import backend.academy.bot.telegram.handler.Command;
 import backend.academy.bot.validator.LinkUrlValidator;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Message;
-import org.springframework.http.HttpStatus;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
 
 /** Обработчик текста ссылки при ее добавлении */
-
 public class LinkTextHandler extends CommandHandler {
 
     private final ScrapperClientService service;
@@ -43,7 +42,7 @@ public class LinkTextHandler extends CommandHandler {
         if (!LinkUrlValidator.isValid(message.text())) {
             return LINK_NOT_VALID;
         }
-        if(tracking.command() == Command.UNTRACK) {
+        if (tracking.command() == Command.UNTRACK) {
             return sendUntrackingRequest(message.text(), message.chat().id());
         }
         return writeLink(message.text(), tracking);
@@ -63,10 +62,10 @@ public class LinkTextHandler extends CommandHandler {
     private String writeLink(String link, LinkTrackingObject tracking) {
         tracking.link(link);
         tracking.state(UserState.TRACKING_TAG);
-        if(tracking.command() == Command.REMOVE_TAG_SUB){
+        if (tracking.command() == Command.REMOVE_TAG_SUB) {
             return TAG_TRACKING_MESSAGE;
         }
-        if(tracking.command() == Command.TAGS_TO_SUB){
+        if (tracking.command() == Command.TAGS_TO_SUB) {
             return NOT_EMPTY_TAGS_TRACKING_MESSAGE;
         }
         return TAGS_TRACKING_MESSAGE.formatted(EMPTY_INPUT);
@@ -85,16 +84,16 @@ public class LinkTextHandler extends CommandHandler {
     }
 
     private String getErrorMessage(ApiErrorResponse response) {
-        if(response == null) {
+        if (response == null) {
             return UNKNOWN_ERROR;
         }
         if (response.code().equals(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()))) {
             return EXTERNAL_ERROR;
         }
-        if(response.exceptionName().contains("UserNotExist")) {
+        if (response.exceptionName().contains("UserNotExist")) {
             return NOT_REGISTERED;
         }
-        if(response.code().equals(String.valueOf(HttpStatus.NOT_FOUND.value()))) {
+        if (response.code().equals(String.valueOf(HttpStatus.NOT_FOUND.value()))) {
             return NO_SUBSCRIPTION;
         }
         return UNKNOWN_ERROR;

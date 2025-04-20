@@ -54,7 +54,7 @@ public class TelegramBotService extends TelegramBot {
             new BotCommand(Command.TAGS_TO_SUB.command(), Command.TAGS_TO_SUB.description()),
             new BotCommand(Command.REMOVE_TAG_SUB.command(), Command.REMOVE_TAG_SUB.description()),
             new BotCommand(Command.LIST_BY_TAG.command(), Command.LIST_BY_TAG.description())
-                };
+        };
         SetMyCommands setMyCommands = new SetMyCommands(commands);
         BaseResponse response = execute(setMyCommands);
         if (response.isOk()) {
