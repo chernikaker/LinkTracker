@@ -10,11 +10,11 @@ import static backend.academy.bot.telegram.handler.Constant.TAG_DETACHED;
 import static backend.academy.bot.telegram.handler.Constant.TAG_INVALID_INPUT;
 
 @Component
-@AllArgsConstructor
-public class RemoveTagFromSubSender implements TagTextSender {
+public class RemoveTagFromSubSender extends TagTextSender {
 
-    private final InMemoryTrackingCache repository;
-    private final ScrapperClientService service;
+    public RemoveTagFromSubSender(InMemoryTrackingCache repository, ScrapperClientService service) {
+        super(repository, service);
+    }
 
     @Override
     public String writeTagAndSendRequest(String tagLine, LinkTrackingObject tracking, long id) {

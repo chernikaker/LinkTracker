@@ -15,11 +15,11 @@ import static backend.academy.bot.telegram.handler.Constant.TAG_SUBS_EMPTY;
 import static backend.academy.bot.telegram.handler.Constant.TAG_SUBS_HEADER;
 
 @Component
-@AllArgsConstructor
-public class GetTagSubsSender implements TagTextSender {
+public class GetTagSubsSender extends TagTextSender {
 
-    private final ScrapperClientService service;
-    private final InMemoryTrackingCache repository;
+    public GetTagSubsSender(InMemoryTrackingCache repository, ScrapperClientService service) {
+        super(repository, service);
+    }
 
     @Override
     public String writeTagAndSendRequest(String tagLine, LinkTrackingObject tracking, long id) {

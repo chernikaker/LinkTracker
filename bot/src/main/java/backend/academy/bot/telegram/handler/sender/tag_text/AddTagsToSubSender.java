@@ -10,19 +10,15 @@ import static backend.academy.bot.telegram.handler.Constant.EMPTY_INPUT;
 import static backend.academy.bot.telegram.handler.Constant.TAGS_ADDED_AND_SENT;
 
 @Component
-@AllArgsConstructor
-public class AddTagsToSubSender implements TagTextSender {
+public class AddTagsToSubSender extends TagTextSender {
 
-    private final InMemoryTrackingCache repository;
-    private final ScrapperClientService service;
+    public AddTagsToSubSender(InMemoryTrackingCache repository, ScrapperClientService service) {
+        super(repository, service);
+    }
 
     @Override
     public String writeTagAndSendRequest(String tagLine, LinkTrackingObject tracking, long id) {
-        String[] tags = new String[0];
-        if (!EMPTY_INPUT.equals(tagLine)) {
-            tags = tagLine.split(" ");
-        }
-        tracking.tags(tags);
+        tracking.tags(tagLine.split(" "));
         repository.removeTrack(id);
         try {
             service.addTagsToSubscription(id, tracking);

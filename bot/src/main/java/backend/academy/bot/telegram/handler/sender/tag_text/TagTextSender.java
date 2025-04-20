@@ -1,7 +1,11 @@
 package backend.academy.bot.telegram.handler.sender.tag_text;
 
+import backend.academy.bot.cache.InMemoryTrackingCache;
 import backend.academy.bot.model.LinkTrackingObject;
+import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.dto.ApiErrorResponse;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import static backend.academy.bot.telegram.handler.Constant.EXTERNAL_ERROR;
 import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
@@ -10,11 +14,15 @@ import static backend.academy.bot.telegram.handler.Constant.NO_TAG_FOR_SUBSCRIPT
 import static backend.academy.bot.telegram.handler.Constant.NO_TAG_FOR_USER;
 import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
 
-public interface TagTextSender {
+@AllArgsConstructor
+public abstract class TagTextSender {
 
-    String writeTagAndSendRequest(String tagLine, LinkTrackingObject tracking, long id);
+    protected final InMemoryTrackingCache repository;
+    protected final ScrapperClientService service;
 
-    default String getErrorMessage(ApiErrorResponse response, boolean tagForUser) {
+    public abstract String writeTagAndSendRequest(String tagLine, LinkTrackingObject tracking, long id);
+
+    protected String getErrorMessage(ApiErrorResponse response, boolean tagForUser) {
         if(response == null) {
             return UNKNOWN_ERROR;
         }
