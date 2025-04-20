@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -60,23 +61,21 @@ public class UpdateScheduler {
 
     private void processLinksMultithread(List<Map.Entry<Long, Link>> linkBatch) {
         int chunkSize = (linkBatch.size() + THREADS-1) / THREADS;
-        List<List<Map.Entry<Long, Link>>> chunks = new ArrayList<>();
 
+        List<CompletableFuture<?>> futures = new ArrayList<>();
         for (int i = 0; i < linkBatch.size(); i += chunkSize) {
-            chunks.add(linkBatch.subList(i, Math.min(linkBatch.size(), i + chunkSize)));
+            var chunk = linkBatch.subList(i, Math.min(linkBatch.size(), i + chunkSize));
+            futures.add(
+                CompletableFuture.runAsync(() -> processLinkChunk(chunk), executorService)
+            );
         }
 
-        List<Future<?>> futures = chunks.stream()
-            .map(chunk -> executorService.submit(() -> processLinkChunk(chunk)))
-            .collect(Collectors.toList());
-
-        for (Future<?> future : futures) {
-            try {
-                future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                log.error("Error processing link chunk", e);
-            }
-        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+            .exceptionally(ex -> {
+                log.atError().setCause(ex).log("Error in one of the chunks"+ ex.getMessage());
+                return null;
+            })
+            .join();
     }
 
     private void processLinkChunk(List<Map.Entry<Long, Link>> chunk) {
