@@ -8,17 +8,26 @@ import backend.academy.bot.config.HandlersConfig;
 import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
+import backend.academy.bot.telegram.handler.Command;
 import backend.academy.bot.telegram.handler.HandlerService;
 import backend.academy.bot.telegram.handler.commands.CommandHandler;
-import backend.academy.bot.telegram.handler.commands.FiltersTextCommandHandler;
-import backend.academy.bot.telegram.handler.commands.HelpCommandHandler;
-import backend.academy.bot.telegram.handler.commands.LinkTextCommandHandler;
-import backend.academy.bot.telegram.handler.commands.ListCommandHandler;
-import backend.academy.bot.telegram.handler.commands.StartCommandHandler;
-import backend.academy.bot.telegram.handler.commands.TagsTextCommandHandler;
-import backend.academy.bot.telegram.handler.commands.TrackCommandHandler;
+import backend.academy.bot.telegram.handler.commands.FiltersTextHandler;
+import backend.academy.bot.telegram.handler.commands.HelpHandler;
+import backend.academy.bot.telegram.handler.commands.LinkTextHandler;
+import backend.academy.bot.telegram.handler.commands.ListByTagHandler;
+import backend.academy.bot.telegram.handler.commands.ListHandler;
+import backend.academy.bot.telegram.handler.commands.RemoveTagFromSubHandler;
+import backend.academy.bot.telegram.handler.commands.RemoveTagHandler;
+import backend.academy.bot.telegram.handler.commands.StartHandler;
+import backend.academy.bot.telegram.handler.commands.TagListHandler;
+import backend.academy.bot.telegram.handler.commands.TagsTextHandler;
+import backend.academy.bot.telegram.handler.commands.TagsToSubHandler;
+import backend.academy.bot.telegram.handler.commands.TrackHandler;
 import backend.academy.bot.telegram.handler.commands.UnknownCommandHandler;
-import backend.academy.bot.telegram.handler.commands.UntrackCommandHandler;
+import backend.academy.bot.telegram.handler.commands.UntrackByTagHandler;
+import backend.academy.bot.telegram.handler.commands.UntrackHandler;
+import backend.academy.bot.telegram.handler.sender.tag_text.TagCommandSenderFactory;
+import backend.academy.bot.telegram.handler.sender.tag_text.TagTextSender;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import java.util.Optional;
@@ -37,6 +46,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @Import(HandlersConfig.class)
 public class HandlerServiceTest {
 
+    public static final LinkTrackingObject TRACKING_OBJECT = new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_LINK, Command.TRACK);
     private static final long CHAT_ID = 123L;
 
     @MockitoBean
@@ -44,6 +54,9 @@ public class HandlerServiceTest {
 
     @MockitoBean
     private ScrapperClientService service;
+
+    @MockitoBean
+    private TagCommandSenderFactory factory;
 
     @Autowired
     private HandlerService handlerService;
@@ -67,7 +80,7 @@ public class HandlerServiceTest {
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);
 
-        assertInstanceOf(StartCommandHandler.class, handler);
+        assertInstanceOf(StartHandler.class, handler);
     }
 
     @Test
@@ -76,7 +89,7 @@ public class HandlerServiceTest {
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);
 
-        assertInstanceOf(HelpCommandHandler.class, handler);
+        assertInstanceOf(HelpHandler.class, handler);
     }
 
     @Test
@@ -85,7 +98,7 @@ public class HandlerServiceTest {
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);
 
-        assertInstanceOf(ListCommandHandler.class, handler);
+        assertInstanceOf(ListHandler.class, handler);
     }
 
     @Test
@@ -95,12 +108,132 @@ public class HandlerServiceTest {
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);
 
-        assertInstanceOf(TrackCommandHandler.class, handler);
+        assertInstanceOf(TrackHandler.class, handler);
     }
 
     @Test
     public void getHandler_TrackCommand_WrongTrackingState() {
         when(message.text()).thenReturn("/track");
+        when(cache.containsTrack(CHAT_ID)).thenReturn(true);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(UnknownCommandHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_ListByTagCommand_CorrectTrackingState() {
+        when(message.text()).thenReturn(Command.LIST_BY_TAG.command());
+        when(cache.containsTrack(CHAT_ID)).thenReturn(false);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(ListByTagHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_ListByTagCommand_IncorrectTrackingState() {
+        when(message.text()).thenReturn(Command.LIST_BY_TAG.command());
+        when(cache.containsTrack(CHAT_ID)).thenReturn(true);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(UnknownCommandHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_RemoveTagFromSubCommand_CorrectTrackingState() {
+        when(message.text()).thenReturn(Command.REMOVE_TAG_SUB.command());
+        when(cache.containsTrack(CHAT_ID)).thenReturn(false);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(RemoveTagFromSubHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_RemoveTagFromSubCommand_IncorrectTrackingState() {
+        when(message.text()).thenReturn(Command.REMOVE_TAG_SUB.command());
+        when(cache.containsTrack(CHAT_ID)).thenReturn(true);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(UnknownCommandHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_RemoveTagCommand_CorrectTrackingState() {
+        when(message.text()).thenReturn(Command.REMOVE_TAG.command());
+        when(cache.containsTrack(CHAT_ID)).thenReturn(false);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(RemoveTagHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_RemoveTagCommand_IncorrectTrackingState() {
+        when(message.text()).thenReturn(Command.REMOVE_TAG.command());
+        when(cache.containsTrack(CHAT_ID)).thenReturn(true);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(UnknownCommandHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_TagListCommand_CorrectTrackingState() {
+        when(message.text()).thenReturn(Command.TAGS.command());
+        when(cache.containsTrack(CHAT_ID)).thenReturn(false);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(TagListHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_TagListCommand_IncorrectTrackingState() {
+        when(message.text()).thenReturn(Command.TAGS.command());
+        when(cache.containsTrack(CHAT_ID)).thenReturn(true);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(UnknownCommandHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_AddTagsToSubCommand_CorrectTrackingState() {
+        when(message.text()).thenReturn(Command.TAGS_TO_SUB.command());
+        when(cache.containsTrack(CHAT_ID)).thenReturn(false);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(TagsToSubHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_AddTagsToSubCommand_IncorrectTrackingState() {
+        when(message.text()).thenReturn(Command.TAGS_TO_SUB.command());
+        when(cache.containsTrack(CHAT_ID)).thenReturn(true);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(UnknownCommandHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_UntrackByTagCommand_CorrectTrackingState() {
+        when(message.text()).thenReturn(Command.UNTRACK_BY_TAG.command());
+        when(cache.containsTrack(CHAT_ID)).thenReturn(false);
+
+        CommandHandler handler = handlerService.getHandlerByMessage(message);
+
+        assertInstanceOf(UntrackByTagHandler.class, handler);
+    }
+
+    @Test
+    public void getHandler_UntrackByTagCommand_IncorrectTrackingState() {
+        when(message.text()).thenReturn(Command.UNTRACK_BY_TAG.command());
         when(cache.containsTrack(CHAT_ID)).thenReturn(true);
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);
@@ -115,7 +248,7 @@ public class HandlerServiceTest {
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);
 
-        assertInstanceOf(UntrackCommandHandler.class, handler);
+        assertInstanceOf(UntrackHandler.class, handler);
     }
 
     @Test
@@ -132,39 +265,36 @@ public class HandlerServiceTest {
     public void getHandler_TrackingLinkText_CorrectTrackingState() {
         when(message.text()).thenReturn("some_text");
         when(cache.containsTrack(CHAT_ID)).thenReturn(true);
-        LinkTrackingObject trackingObject =
-                new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_LINK);
-        when(cache.getTrack(CHAT_ID)).thenReturn(Optional.of(trackingObject));
+        TRACKING_OBJECT.state(UserState.TRACKING_LINK);
+        when(cache.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING_OBJECT));
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);
 
-        assertInstanceOf(LinkTextCommandHandler.class, handler);
+        assertInstanceOf(LinkTextHandler.class, handler);
     }
 
     @Test
     public void getHandler_TrackingTags_CorrectTrackingState() {
         when(message.text()).thenReturn("some tags");
         when(cache.containsTrack(CHAT_ID)).thenReturn(true);
-        LinkTrackingObject trackingObject =
-                new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_TAG);
-        when(cache.getTrack(CHAT_ID)).thenReturn(Optional.of(trackingObject));
+        TRACKING_OBJECT.state(UserState.TRACKING_TAG);
+        when(cache.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING_OBJECT));
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);
 
-        assertInstanceOf(TagsTextCommandHandler.class, handler);
+        assertInstanceOf(TagsTextHandler.class, handler);
     }
 
     @Test
     public void getHandler_TrackingFilters_CorrectTrackingState() {
         when(message.text()).thenReturn("some filters");
         when(cache.containsTrack(CHAT_ID)).thenReturn(true);
-        LinkTrackingObject trackingObject =
-                new LinkTrackingObject("", new String[0], new String[0], UserState.TRACKING_FILTER);
-        when(cache.getTrack(CHAT_ID)).thenReturn(Optional.of(trackingObject));
+        TRACKING_OBJECT.state(UserState.TRACKING_FILTER);
+        when(cache.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING_OBJECT));
 
         CommandHandler handler = handlerService.getHandlerByMessage(message);
 
-        assertInstanceOf(FiltersTextCommandHandler.class, handler);
+        assertInstanceOf(FiltersTextHandler.class, handler);
     }
 
     @Test
