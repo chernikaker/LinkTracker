@@ -31,6 +31,7 @@ public class HandlerService {
         }
         // выбор обработчика и получение ответа
         CommandHandler currentHandler = getHandlerByMessage(update.message());
+        // все запросы от пользователя отправляются без превью
         SendMessage result = currentHandler
                 .handleMessage(update.message())
                 .linkPreviewOptions(new LinkPreviewOptions().isDisabled(true));

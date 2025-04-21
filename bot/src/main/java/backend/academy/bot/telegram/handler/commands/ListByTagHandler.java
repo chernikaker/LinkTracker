@@ -8,6 +8,9 @@ import backend.academy.bot.model.UserState;
 import backend.academy.bot.telegram.handler.Command;
 import com.pengrad.telegrambot.model.Message;
 
+/**
+ * Обработчик команды получения ссылок по тегу
+ */
 public class ListByTagHandler extends CommandHandler {
 
     public ListByTagHandler(InMemoryTrackingCache repository) {
@@ -16,9 +19,12 @@ public class ListByTagHandler extends CommandHandler {
 
     @Override
     public String processRequest(Message message) {
+        // создаем объект кэша для последующей записи
         LinkTrackingObject newTracking = new LinkTrackingObject();
         newTracking.command(Command.LIST_BY_TAG);
+        // следующее состояние - ввод тегов
         newTracking.state(UserState.TRACKING_TAG);
+        // добавляем объект в кэш
         repository.setTrack(message.chat().id(), newTracking);
         return TAG_TRACKING_MESSAGE;
     }

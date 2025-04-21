@@ -129,6 +129,7 @@ public class HandlersConfig {
      *
      * @param cache - кэш для временной информации
      * @param service - сервис клиента для взаимодействия со Scrapper
+     * @param factory - фабрика объектов для отправки сообщений из состояния записи тегов
      * @return список обработчиков команд
      */
     @Bean

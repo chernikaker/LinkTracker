@@ -9,6 +9,9 @@ import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import org.springframework.stereotype.Component;
 
+/**
+ * Класс обработки и посылки сообщения об откреплении тега от ссылки
+ */
 @Component
 public class RemoveTagFromSubSender extends TagTextSender {
 
@@ -18,6 +21,7 @@ public class RemoveTagFromSubSender extends TagTextSender {
 
     @Override
     public String writeTagAndSendRequest(String tagLine, LinkTrackingObject tracking, long id) {
+        // тег может быть только один
         if (tagLine.trim().contains(" ")) {
             return TAG_INVALID_INPUT;
         }

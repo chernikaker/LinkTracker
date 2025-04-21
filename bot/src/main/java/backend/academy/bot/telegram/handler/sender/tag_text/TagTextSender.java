@@ -14,6 +14,10 @@ import backend.academy.dto.ApiErrorResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+/**
+ * Общий класс обработки и посылки сообщения на этапе ввода тегов
+ * @see backend.academy.bot.telegram.handler.commands.TagsTextHandler
+ */
 @AllArgsConstructor
 public abstract class TagTextSender {
 
@@ -22,6 +26,12 @@ public abstract class TagTextSender {
 
     public abstract String writeTagAndSendRequest(String tagLine, LinkTrackingObject tracking, long id);
 
+    /**
+     * Разбор ошибки и отправка сообщения о ней
+     * @param response DTO ошибки
+     * @param tagForUser флаг проверки наличия тега для пользователя или подписки
+     * @return сообщение об ошибке для пользователя
+     */
     protected String getErrorMessage(ApiErrorResponse response, boolean tagForUser) {
         if (response == null) {
             return UNKNOWN_ERROR;

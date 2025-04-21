@@ -8,6 +8,9 @@ import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import org.springframework.stereotype.Component;
 
+/**
+ * Класс обработки и посылки сообщения о добавлении тегов к ссылке
+ */
 @Component
 public class AddTagsToSubSender extends TagTextSender {
 
@@ -17,6 +20,7 @@ public class AddTagsToSubSender extends TagTextSender {
 
     @Override
     public String writeTagAndSendRequest(String tagLine, LinkTrackingObject tracking, long id) {
+        // тегов может быть несколько
         tracking.tags(tagLine.split(" "));
         repository.removeTrack(id);
         try {

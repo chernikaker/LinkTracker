@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TagsTextHandler extends CommandHandler {
 
+    // фабрика для выбора
     private final TagCommandSenderFactory factory;
 
     public TagsTextHandler(InMemoryTrackingCache repository, TagCommandSenderFactory factory) {
@@ -37,9 +38,12 @@ public class TagsTextHandler extends CommandHandler {
         }
         LinkTrackingObject tracking = potentialTracking.orElseThrow();
         if (tracking.command() == Command.TRACK) {
+            // ввод тегов - промежуточное состояние
             return writeTags(message.text(), tracking);
         } else {
+            // ввод тегов - конечное состояние
             try {
+                // в зависимости от команды выбираем, какой запрос отправить
                 TagTextSender sender = factory.getSenderByCommand(tracking.command());
                 return sender.writeTagAndSendRequest(
                         message.text(), tracking, message.chat().id());

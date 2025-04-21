@@ -20,6 +20,7 @@ public class TrackHandler extends CommandHandler {
         // создание нового объекта для кэша и его добавление
         LinkTrackingObject newTracking = new LinkTrackingObject();
         newTracking.command(Command.TRACK);
+        // следующее состояние - ввод ссылки
         newTracking.state(UserState.TRACKING_LINK);
         repository.setTrack(message.chat().id(), newTracking);
         return LINK_TRACK_MESSAGE;

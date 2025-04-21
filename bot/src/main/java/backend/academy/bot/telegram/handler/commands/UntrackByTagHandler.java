@@ -8,6 +8,9 @@ import backend.academy.bot.model.UserState;
 import backend.academy.bot.telegram.handler.Command;
 import com.pengrad.telegrambot.model.Message;
 
+/**
+ * Обработчик команды удаления подписок по тегу
+ */
 public class UntrackByTagHandler extends CommandHandler {
 
     public UntrackByTagHandler(InMemoryTrackingCache repository) {
@@ -16,8 +19,10 @@ public class UntrackByTagHandler extends CommandHandler {
 
     @Override
     public String processRequest(Message message) {
+        // создание нового объекта на кэша
         LinkTrackingObject newTracking = new LinkTrackingObject();
         newTracking.command(Command.UNTRACK_BY_TAG);
+        // следующее состояние - ввод тега
         newTracking.state(UserState.TRACKING_TAG);
         repository.setTrack(message.chat().id(), newTracking);
         return TAG_TRACKING_MESSAGE;

@@ -8,6 +8,9 @@ import backend.academy.bot.model.UserState;
 import backend.academy.bot.telegram.handler.Command;
 import com.pengrad.telegrambot.model.Message;
 
+/**
+ * Обработчик команды открепления тега от ссылки
+ */
 public class RemoveTagFromSubHandler extends CommandHandler {
 
     public RemoveTagFromSubHandler(InMemoryTrackingCache repository) {
@@ -16,8 +19,10 @@ public class RemoveTagFromSubHandler extends CommandHandler {
 
     @Override
     public String processRequest(Message message) {
+        // создание нового объекта для кэша
         LinkTrackingObject newTracking = new LinkTrackingObject();
         newTracking.command(Command.REMOVE_TAG_SUB);
+        // следующее состояние - ввод ссылки
         newTracking.state(UserState.TRACKING_LINK);
         repository.setTrack(message.chat().id(), newTracking);
         return LINK_TRACK_MESSAGE;

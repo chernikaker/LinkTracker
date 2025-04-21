@@ -14,6 +14,9 @@ import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListTagLinksResponse;
 import org.springframework.stereotype.Component;
 
+/**
+ * Класс обработки и посылки сообщения о получении подписок по тегу
+ */
 @Component
 public class GetTagSubsSender extends TagTextSender {
 
@@ -23,6 +26,7 @@ public class GetTagSubsSender extends TagTextSender {
 
     @Override
     public String writeTagAndSendRequest(String tagLine, LinkTrackingObject tracking, long id) {
+        // тег может быть только один
         if (tagLine.trim().contains(" ")) {
             return TAG_INVALID_INPUT;
         }
