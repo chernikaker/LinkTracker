@@ -29,6 +29,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/** Класс конфигурации работы с БД. Выбор способа работы (SQL/ORM) зависит от параметра конфиг файла */
 @Configuration
 public class ScrapperDbConfig {
 

@@ -8,9 +8,7 @@ import backend.academy.bot.model.UserState;
 import backend.academy.bot.telegram.handler.Command;
 import com.pengrad.telegrambot.model.Message;
 
-/**
- * Обработчик команды добавления списка тегов к подписке
- */
+/** Обработчик команды добавления списка тегов к подписке */
 public class TagsToSubHandler extends CommandHandler {
 
     public TagsToSubHandler(InMemoryTrackingCache repository) {

@@ -76,6 +76,6 @@ public class Constant {
     public static final String UNKNOWN_COMMAND_MESSAGE = "Команда неизвестна или недоступна на данный момент";
 
     public static final String LINK_UNTRACK_TEXT = "Введите ссылку для удаления";
-    
+
     public static final String LINK_REMOVED_SUCCESS = "Ссылка успешно удалена";
 }

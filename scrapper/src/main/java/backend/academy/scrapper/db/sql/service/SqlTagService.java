@@ -26,6 +26,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+/** SQL реализация сервиса работы с тегами */
 @AllArgsConstructor
 public class SqlTagService implements TagService {
 
@@ -44,6 +45,7 @@ public class SqlTagService implements TagService {
             Map<Long, Tag> addedTags = new HashMap<>();
             for (Tag tag : tags) {
                 Optional<SqlTag> t = tagRepo.getTagByValue(tag.value());
+                // если тег уже есть у пользователя, привязываем к нему, иначе создаем новый
                 Long tagId =
                         t.map(SqlTag::id).orElseGet(() -> tagRepo.addTag(new SqlTag(tag.value(), existingUser.id())));
                 tagRepo.addTagToSubscription(tagId, sub.id());

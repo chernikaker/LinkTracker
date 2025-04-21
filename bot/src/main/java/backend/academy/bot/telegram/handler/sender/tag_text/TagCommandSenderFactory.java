@@ -5,10 +5,7 @@ import backend.academy.bot.telegram.handler.Command;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/**
- * Класс, определяющий подходящий отправщик сообщения на этапе
- * ввода тегов в зависимости от текущей команды
- */
+/** Класс, определяющий подходящий отправщик сообщения на этапе ввода тегов в зависимости от текущей команды */
 @Component
 @AllArgsConstructor
 public class TagCommandSenderFactory {

@@ -10,6 +10,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 
+/** SQL реализация сервиса работы с фильтрами */
 @AllArgsConstructor
 public class SqlFilterService implements FilterService {
 

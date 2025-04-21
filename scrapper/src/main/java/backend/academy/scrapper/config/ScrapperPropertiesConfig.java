@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
  * @param github параметры конфигурации клиента GitHub
  * @param stackOverflow параметры конфигурации клиента StackOverflow
  * @param botUrl URL для отправки запросов боту
+ * @param sql параметры запроса для получения батча ссылок при скрапинге
  */
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
@@ -33,5 +34,11 @@ public record ScrapperPropertiesConfig(
     public record StackOverflowCredentials(
             @NotEmpty String key, @NotEmpty String accessToken, @NotEmpty String baseUrl) {}
 
+    /**
+     * параметры запроса для получения батча ссылок при скрапинге
+     *
+     * @param batchSize размер батча получаемых ссылок
+     * @param secondsCheck максимально допустимое время, которое ссылка не проверяется
+     */
     public record SqlParams(int batchSize, long secondsCheck) {}
 }

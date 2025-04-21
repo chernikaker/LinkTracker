@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+/** SQL реализация сервиса работы с ссылками */
 @AllArgsConstructor
 public class SqlLinkService implements LinkService {
 

@@ -35,6 +35,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+/** ORM реализация сервиса работы с подписками */
 @AllArgsConstructor
 public class OrmSubscriptionService implements SubscriptionService {
 
@@ -49,6 +50,7 @@ public class OrmSubscriptionService implements SubscriptionService {
         try {
             OrmUser u = tryGetUserByChatId(user.chatId());
             OrmLink l = tryGetLinkByData(link);
+            // проверка на существование подписки
             checkExistingSubscription(u, link.url());
             OrmSubscription sub = new OrmSubscription(l, u);
             List<OrmTag> ormTags = new ArrayList<>();
@@ -120,6 +122,7 @@ public class OrmSubscriptionService implements SubscriptionService {
             u.subscriptions().remove(sub);
             subscrRepo.delete(sub);
             if (l.subscriptions().isEmpty()) {
+                // если у ссылки нет подписок, удаляем ее
                 linkRepo.delete(l);
             }
             subscrRepo.flush();
@@ -146,6 +149,7 @@ public class OrmSubscriptionService implements SubscriptionService {
                 l.subscriptions().remove(sub);
                 subscrRepo.delete(sub);
                 if (l.subscriptions().isEmpty()) {
+                    // если у ссылки нет подписок, удаляем ее
                     linkRepo.delete(l);
                 }
             }
@@ -178,6 +182,7 @@ public class OrmSubscriptionService implements SubscriptionService {
     }
 
     private OrmLink tryGetLinkByData(Link link) {
+        // если ссылки еще нет в БД, добавляем ее
         return linkRepo.findByUrl(link.url()).orElseGet(() -> {
             OrmLink newLink = OrmLinkMapper.mapToOrm(link);
             return linkRepo.save(newLink);

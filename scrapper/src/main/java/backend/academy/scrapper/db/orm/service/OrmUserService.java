@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+/** ORM реализация сервиса работы с пользователями */
 @AllArgsConstructor
 public class OrmUserService implements UserService {
 
@@ -53,6 +54,7 @@ public class OrmUserService implements UserService {
             userRepo.delete(existingUser);
             userRepo.flush();
             for (OrmLink link : linksToCheck) {
+                // если не осталось подписок на ссылку, удаляем ее
                 if (link.subscriptions().isEmpty()) {
                     linkRepo.delete(link);
                 }

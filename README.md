@@ -1,4 +1,3 @@
-
 # Link Tracker
 
 Проект сделан в рамках курса Академия Бэкенда.
@@ -28,12 +27,12 @@
    git clone https://github.com/central-university-dev/java-chernikaker.git
    cd <имя папки с репозиторием>
    ```
-   
 2. Запустите сервисы через Docker Compose (в корне проекта):
 
 ```bash
 docker-compose up -d
 ```
+
 Это запустит PostgreSQL. Миграции применятся автоматически
 
 3. Создайте переменные окружения для конфигурации запуска модуля bot
@@ -53,11 +52,13 @@ docker-compose up -d
 6. Запустите модули в IDE через соответствующие классы ``@SpringBootApplication``
 
 ## Тестирование
+
 Для запуска тестов (с использованием Testcontainers):
 
 ```bash
 mvn test
 ```
+
 Тесты автоматически поднимают PostgreSQL в контейнере
 
 Для дополнительной справки: [HELP.md](./HELP.md)

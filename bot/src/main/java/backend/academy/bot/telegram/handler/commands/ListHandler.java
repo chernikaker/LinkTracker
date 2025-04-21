@@ -3,11 +3,8 @@ package backend.academy.bot.telegram.handler.commands;
 import static backend.academy.bot.telegram.handler.Constant.EXTERNAL_ERROR;
 import static backend.academy.bot.telegram.handler.Constant.FILTER_HEADER;
 import static backend.academy.bot.telegram.handler.Constant.LINK_HEADER;
-import static backend.academy.bot.telegram.handler.Constant.LINK_UNABAILABLE;
 import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.NO_LINKS;
-import static backend.academy.bot.telegram.handler.Constant.NO_SUBSCRIPTION;
-import static backend.academy.bot.telegram.handler.Constant.REQUEST_CANCELLED;
 import static backend.academy.bot.telegram.handler.Constant.TAG_HEADER;
 import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
 

@@ -19,6 +19,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+/** ORM реализация сервиса работы с ссылками */
 @AllArgsConstructor
 public class OrmLinkService implements LinkService {
 

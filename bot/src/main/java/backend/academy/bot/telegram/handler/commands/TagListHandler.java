@@ -16,9 +16,7 @@ import backend.academy.dto.TagResponse;
 import com.pengrad.telegrambot.model.Message;
 import org.springframework.http.HttpStatus;
 
-/**
- * Обработчик команды получения списка тегов
- */
+/** Обработчик команды получения списка тегов */
 public class TagListHandler extends CommandHandler {
 
     private final ScrapperClientService service;

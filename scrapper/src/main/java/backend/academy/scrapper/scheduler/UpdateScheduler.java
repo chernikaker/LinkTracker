@@ -29,8 +29,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 @Slf4j
 public class UpdateScheduler {
 
+    // параметры частоты скрапинга
     public static final int INITIAL_DELAY = 10000;
     public static final int DELAY = 10000;
+    // количество потоков, обрабатывающих батч ссылок
     public static final int THREADS = 4;
 
     private final LinkService linkDbService;
@@ -38,6 +40,7 @@ public class UpdateScheduler {
     private final StackoverflowClientService soClientService;
     private final BotClientService botClientService;
     private final ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
+    // параметры запроса извлечения батча ссылок
     private final long notCheckedIntervalSeconds;
     private final int batchSize;
 
@@ -47,22 +50,27 @@ public class UpdateScheduler {
         long offset = 0;
         Map<Long, Link> links;
         do {
+            // фиксация времени валидации (чтобы обновления, полученные в момент обработки шедулером
+            // не пропали
+            LocalDateTime validationTime = LocalDateTime.now(ZoneId.systemDefault());
+            // получение батча
             links = linkDbService.getLinksToCheck(batchSize, offset, notCheckedIntervalSeconds);
             if (!links.isEmpty()) {
-                processLinksMultithread(new ArrayList<>(links.entrySet()));
+                // многопоточная обработка
+                processLinksMultithread(new ArrayList<>(links.entrySet()), validationTime);
                 offset += batchSize;
             }
-            offset += batchSize;
         } while (!links.isEmpty());
     }
 
-    private void processLinksMultithread(List<Map.Entry<Long, Link>> linkBatch) {
+    private void processLinksMultithread(List<Map.Entry<Long, Link>> linkBatch, LocalDateTime validationTime) {
+        // размер деления батча между потоками
         int chunkSize = (linkBatch.size() + THREADS - 1) / THREADS;
 
         List<CompletableFuture<?>> futures = new ArrayList<>();
         for (int i = 0; i < linkBatch.size(); i += chunkSize) {
             var chunk = linkBatch.subList(i, Math.min(linkBatch.size(), i + chunkSize));
-            futures.add(CompletableFuture.runAsync(() -> processLinkChunk(chunk), executorService));
+            futures.add(CompletableFuture.runAsync(() -> processLinkChunk(chunk, validationTime), executorService));
         }
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
@@ -73,10 +81,9 @@ public class UpdateScheduler {
                 .join();
     }
 
-    private void processLinkChunk(List<Map.Entry<Long, Link>> chunk) {
+    private void processLinkChunk(List<Map.Entry<Long, Link>> chunk, LocalDateTime validationTime) {
         for (Map.Entry<Long, Link> linkData : chunk) {
             Link link = linkData.getValue();
-            LocalDateTime validationTime = LocalDateTime.now(ZoneId.systemDefault());
             try {
                 // получение всех обновлений
                 List<UpdateInfo> updates = link.type() == LinkType.GITHUB
@@ -84,7 +91,10 @@ public class UpdateScheduler {
                         : soClientService.getAllInfo(link);
                 // фильтрация новых обновлений по дате последней проверки
                 List<UpdateInfo> actualInfos = updates.stream()
+                        // проверка, что обновление произошло после последней валидации ссылки
                         .filter(info -> link.lastValidation().isBefore(info.time()))
+                        // проверка, что обновление произошло до фиксации времени валидации
+                        // остальные обработаются на следующей итерации
                         .filter(info -> info.time().isBefore(validationTime))
                         .toList();
                 // если есть новые обновления, отправляем их пользователю

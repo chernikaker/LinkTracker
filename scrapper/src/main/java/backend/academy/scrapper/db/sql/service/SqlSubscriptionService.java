@@ -32,6 +32,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+/** SQL реализация сервиса работы с подписками */
 @AllArgsConstructor
 public class SqlSubscriptionService implements SubscriptionService {
 
@@ -48,9 +49,11 @@ public class SqlSubscriptionService implements SubscriptionService {
             SqlUser u = tryGetUserByChatId(user.chatId());
             Optional<SqlLink> existingLink = linkRepo.findLinkByUrl(link.url());
             long linkId;
+            // если ссылка уже есть, добавляем подписку к ней, иначе создаем новую ссылку
             if (existingLink.isPresent()) {
                 SqlLink sqlLink = existingLink.orElseThrow();
                 linkId = sqlLink.id();
+                // проверка на существование подписки
                 checkExistingSubscription(u.id(), linkId);
             } else {
                 linkId = linkRepo.addLink(new SqlLink(link.url(), link.lastValidation()));
@@ -105,6 +108,7 @@ public class SqlSubscriptionService implements SubscriptionService {
             List<Tag> tags = mapSubscriptionTags(s.id());
             List<Filter> filters = mapSubscriptionFilters(s.id());
             subscrRepo.deleteSubscriptionById(s.id());
+            // если у ссылки нет подписок, удаляем ее
             if (subscrRepo.getSubscriptionsByLink(l.id()).isEmpty()) {
                 linkRepo.deleteLinkById(l.id());
             }
@@ -127,6 +131,7 @@ public class SqlSubscriptionService implements SubscriptionService {
             Map<Long, Subscription> ans = processSqlSubsListForUser(subscriptions, user);
             subscrRepo.deleteSubscriptionsByTagId(t.id());
             for (SqlSubscription s : subscriptions) {
+                // если у ссылки нет подписок, удаляем ее
                 if (subscrRepo.getSubscriptionsByLink(s.linkId()).isEmpty()) {
                     linkRepo.deleteLinkById(s.linkId());
                 }

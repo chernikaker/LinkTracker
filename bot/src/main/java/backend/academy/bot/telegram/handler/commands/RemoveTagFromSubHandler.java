@@ -8,9 +8,7 @@ import backend.academy.bot.model.UserState;
 import backend.academy.bot.telegram.handler.Command;
 import com.pengrad.telegrambot.model.Message;
 
-/**
- * Обработчик команды открепления тега от ссылки
- */
+/** Обработчик команды открепления тега от ссылки */
 public class RemoveTagFromSubHandler extends CommandHandler {
 
     public RemoveTagFromSubHandler(InMemoryTrackingCache repository) {

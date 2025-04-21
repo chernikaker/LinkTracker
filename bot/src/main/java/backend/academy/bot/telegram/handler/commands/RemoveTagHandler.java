@@ -8,9 +8,7 @@ import backend.academy.bot.model.UserState;
 import backend.academy.bot.telegram.handler.Command;
 import com.pengrad.telegrambot.model.Message;
 
-/**
- * Обработчик команды удаления тега
- */
+/** Обработчик команды удаления тега */
 public class RemoveTagHandler extends CommandHandler {
 
     public RemoveTagHandler(InMemoryTrackingCache repository) {

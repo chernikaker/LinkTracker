@@ -149,6 +149,13 @@ public class ScrapperService {
                         .toList());
     }
 
+    /**
+     * Метод добавляет теги к подписке
+     *
+     * @param chatId id чата пользователя
+     * @param request DTO запроса на добавление тегов
+     * @return DTO ответа с информацией о добавленных к ссылке тегах
+     */
     public ListLinkTagsResponse addTagsForSubscription(long chatId, AddLinkTagsRequest request) {
         User user = new User(chatId);
         Link link = new Link(request.link(), LinkType.fromValue(request.link()));
@@ -164,6 +171,13 @@ public class ScrapperService {
         return new ListLinkTagsResponse(link.url(), new ListTagsResponse(tagResponses, tagResponses.size()));
     }
 
+    /**
+     * Метод открепляет ссылку от тега
+     *
+     * @param chatId id чата пользователя
+     * @param request DTO запроса на открепление ссылки
+     * @return DTO ответа с информацией об открепленном теге
+     */
     public LinkTagResponse deleteTagForSubscription(long chatId, RemoveLinkTagRequest request) {
         User user = new User(chatId);
         Link link = new Link(request.link(), LinkType.fromValue(request.link()));
@@ -174,6 +188,13 @@ public class ScrapperService {
         return new LinkTagResponse(new TagResponse(ans.getKey(), ans.getValue().value()), link.url());
     }
 
+    /**
+     * Метод удаляет подписки пользователя по тегу
+     *
+     * @param chatId id чата пользователя
+     * @param tagValue тег
+     * @return DTO ответа с информацией об удаленных ссылках
+     */
     public ListTagLinksResponse deleteSubscriptionsForTag(long chatId, String tagValue) {
         User user = new User(chatId);
         Tag tag = new Tag(tagValue);
@@ -185,6 +206,13 @@ public class ScrapperService {
         return new ListTagLinksResponse(tagValue, new ListLinksResponse(linkResponses, linkResponses.size()));
     }
 
+    /**
+     * Метод возвращает подписки пользователя по тегу
+     *
+     * @param chatId id чата пользователя
+     * @param tagValue тег
+     * @return DTO ответа с информацией о ссылках по тегу
+     */
     public ListTagLinksResponse getSubscriptionsForTag(long chatId, String tagValue) {
         User user = new User(chatId);
         Tag tag = new Tag(tagValue);
@@ -196,6 +224,13 @@ public class ScrapperService {
         return new ListTagLinksResponse(tagValue, new ListLinksResponse(linkResponses, linkResponses.size()));
     }
 
+    /**
+     * Метод удаляет тег
+     *
+     * @param chatId id чата пользователя
+     * @param request DTO запроса на удаление тега
+     * @return DTO ответа с информацией об удаленном теге
+     */
     public TagResponse deleteTag(long chatId, RemoveTagRequest request) {
         User user = new User(chatId);
         Tag tag = new Tag(request.tag());
@@ -204,6 +239,12 @@ public class ScrapperService {
         return new TagResponse(ans.getKey(), ans.getValue().value());
     }
 
+    /**
+     * Метод получает список тегов
+     *
+     * @param chatId id чата пользователя
+     * @return DTO ответа с информацией о тегах
+     */
     public ListTagsResponse getTags(long chatId) {
         User user = new User(chatId);
         Map<Long, Tag> ans = tagService.getTagsForUser(user);
@@ -228,6 +269,11 @@ public class ScrapperService {
         }
     }
 
+    /**
+     * Метод удаляет из ссылки название вопроса, если оно там присутствует чтобы избежать дублирования в БД
+     *
+     * @param link ссылка
+     */
     private void processSOLink(Link link) {
         String url = link.url();
         if (!Character.isDigit(url.charAt(url.length() - 1))) {

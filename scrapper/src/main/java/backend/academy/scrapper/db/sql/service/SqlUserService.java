@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+/** SQL реализация сервиса работы с пользователями */
 @AllArgsConstructor
 public class SqlUserService implements UserService {
 
@@ -46,6 +47,7 @@ public class SqlUserService implements UserService {
                     .orElseThrow(() -> new ScrapperUserNotExistsException("User " + user.chatId() + " not exists"));
             List<SqlSubscription> userSubs = subscriptionRepo.getSubscriptionsByUserId(userDb.id());
             userRepo.deleteUserById(userDb.id());
+            // если у ссылки нет подписок, удаляем ее
             userSubs.stream()
                     .map(SqlSubscription::linkId)
                     .filter((id) -> subscriptionRepo.getSubscriptionsByLink(id).isEmpty())

@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 
 /**
  * Общий класс обработки и посылки сообщения на этапе ввода тегов
+ *
  * @see backend.academy.bot.telegram.handler.commands.TagsTextHandler
  */
 @AllArgsConstructor
@@ -28,6 +29,7 @@ public abstract class TagTextSender {
 
     /**
      * Разбор ошибки и отправка сообщения о ней
+     *
      * @param response DTO ошибки
      * @param tagForUser флаг проверки наличия тега для пользователя или подписки
      * @return сообщение об ошибке для пользователя

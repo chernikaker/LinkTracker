@@ -14,9 +14,7 @@ import backend.academy.dto.LinkResponse;
 import backend.academy.dto.ListTagLinksResponse;
 import org.springframework.stereotype.Component;
 
-/**
- * Класс обработки и посылки сообщения о получении подписок по тегу
- */
+/** Класс обработки и посылки сообщения о получении подписок по тегу */
 @Component
 public class GetTagSubsSender extends TagTextSender {
 

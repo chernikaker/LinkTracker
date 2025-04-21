@@ -9,9 +9,7 @@ import backend.academy.bot.model.LinkTrackingObject;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import org.springframework.stereotype.Component;
 
-/**
- * Класс обработки и посылки сообщения об удалении подписок по тегу
- */
+/** Класс обработки и посылки сообщения об удалении подписок по тегу */
 @Component
 public class UntrackByTagSender extends TagTextSender {
 

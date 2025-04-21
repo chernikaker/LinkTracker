@@ -8,8 +8,6 @@ import static backend.academy.bot.telegram.handler.Constant.LINK_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.LINK_UNABAILABLE;
 import static backend.academy.bot.telegram.handler.Constant.NOT_REGISTERED;
 import static backend.academy.bot.telegram.handler.Constant.NO_SUBSCRIPTION;
-import static backend.academy.bot.telegram.handler.Constant.NO_TAG_FOR_SUBSCRIPTION;
-import static backend.academy.bot.telegram.handler.Constant.NO_TAG_FOR_USER;
 import static backend.academy.bot.telegram.handler.Constant.UNKNOWN_ERROR;
 
 import backend.academy.bot.cache.InMemoryTrackingCache;
@@ -19,8 +17,8 @@ import backend.academy.bot.model.UserState;
 import backend.academy.bot.scrapperClient.ScrapperClientService;
 import backend.academy.dto.ApiErrorResponse;
 import com.pengrad.telegrambot.model.Message;
-import org.springframework.http.HttpStatus;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
 
 /** Обработчик ввода фильтров ссылки */
 public class FiltersTextHandler extends CommandHandler {
@@ -37,7 +35,7 @@ public class FiltersTextHandler extends CommandHandler {
         // запись фильтров в соответствующий объект кэша
         Optional<LinkTrackingObject> potentialTracking =
                 repository.getTrack(message.chat().id());
-        if (potentialTracking.isEmpty()){
+        if (potentialTracking.isEmpty()) {
             return UNKNOWN_ERROR;
         }
         LinkTrackingObject tracking = potentialTracking.orElseThrow();

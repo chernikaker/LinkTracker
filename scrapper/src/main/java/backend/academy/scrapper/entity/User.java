@@ -1,4 +1,4 @@
 package backend.academy.scrapper.entity;
 
-/** сущность пользователя для хранения в репозитории */
+/** класс сущность пользователя */
 public record User(long chatId) {}

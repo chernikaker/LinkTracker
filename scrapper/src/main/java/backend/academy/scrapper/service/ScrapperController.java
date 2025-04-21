@@ -131,6 +131,16 @@ public class ScrapperController {
         }
     }
 
+    /**
+     * Добавляет теги, новые и/или существующие, к существующей подписке пользователя
+     *
+     * @param id идентификатор Telegram чата, для которого необходимо добавить теги.
+     * @param request объект запроса, содержащий данные для добавления тегов к подписке.
+     * @return ResponseEntity с кодом 200 и информацией о добавленных тегах в теле ответа.
+     * @throws ScrapperInvalidIdException если идентификатор не положительный.
+     * @throws ScrapperUserNotExistsException если пользователь не найден.
+     * @throws ScrapperSubscriptionNotExistsException если подписка не найдена.
+     */
     @PostMapping("links/tags")
     public final ResponseEntity<?> addTagsForSubscription(
             @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final AddLinkTagsRequest request) {
@@ -141,6 +151,17 @@ public class ScrapperController {
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
     }
 
+    /**
+     * Открепляет существующую подписку от существующего тега
+     *
+     * @param id идентификатор Telegram чата, для которого необходимо открепить подписку.
+     * @param request объект запроса, содержащий данные для открепления тега от подписки.
+     * @return ResponseEntity с кодом 200 и информацией об открепленном теге.
+     * @throws ScrapperInvalidIdException если идентификатор не положительный.
+     * @throws ScrapperUserNotExistsException если пользователь не найден.
+     * @throws ScrapperSubscriptionNotExistsException если подписка не найдена.
+     * @throws ScrapperControllerEntityNotFoundException если тег не найден (код 404).
+     */
     @DeleteMapping("links/tags")
     public final ResponseEntity<?> deleteTagForSubscription(
             @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final RemoveLinkTagRequest request) {
@@ -156,6 +177,16 @@ public class ScrapperController {
         }
     }
 
+    /**
+     * Удаляет все подписки пользователя по тегу (если таких нет, не делает ничего)
+     *
+     * @param id идентификатор Telegram чата, для которого необходимо открепить подписку.
+     * @param tag существующий тег пользователя, для которого нужно удалить подписки.
+     * @return ResponseEntity с кодом 200 и информацией об удаленных подписках.
+     * @throws ScrapperInvalidIdException если идентификатор не положительный.
+     * @throws ScrapperUserNotExistsException если пользователь не найден.
+     * @throws ScrapperTagNotExistsException если тег не найден.
+     */
     @DeleteMapping("tags/{tag}/links")
     public final ResponseEntity<?> deleteSubscriptionsWithTag(
             @RequestHeader("Tg-Chat-Id") final Long id, @PathVariable final String tag) {
@@ -166,6 +197,16 @@ public class ScrapperController {
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
     }
 
+    /**
+     * Удаляет тег пользователя без удаления подписок по данному тегу
+     *
+     * @param id идентификатор Telegram чата, для которого необходимо удалить тег.
+     * @param request объект запроса, содержащий данные для удаления тега.
+     * @return ResponseEntity с кодом 200 и информацией об удаленном теге.
+     * @throws ScrapperInvalidIdException если идентификатор не положительный.
+     * @throws ScrapperUserNotExistsException если пользователь не найден.
+     * @throws ScrapperControllerEntityNotFoundException если тег не найден (код 404).
+     */
     @DeleteMapping("/tags")
     public final ResponseEntity<?> deleteUserTag(
             @RequestHeader("Tg-Chat-Id") final Long id, @RequestBody @Valid final RemoveTagRequest request) {
@@ -180,6 +221,14 @@ public class ScrapperController {
         }
     }
 
+    /**
+     * Получает список тегов пользователя
+     *
+     * @param id идентификатор Telegram чата, для которого необходимо получить теги.
+     * @return ResponseEntity с кодом 200 и списком тегов.
+     * @throws ScrapperInvalidIdException если идентификатор не положительный.
+     * @throws ScrapperUserNotExistsException если пользователь не найден.
+     */
     @GetMapping("/tags")
     public final ResponseEntity<?> getUserTags(@RequestHeader("Tg-Chat-Id") final Long id) {
         if (id <= 0) {
@@ -189,6 +238,16 @@ public class ScrapperController {
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(200));
     }
 
+    /**
+     * Получает список подписок по данному тегу
+     *
+     * @param id идентификатор Telegram чата, для которого необходимо удалить тег.
+     * @param tag существующий тег пользователя, для которого нужно получить подписки.
+     * @return ResponseEntity с кодом 200 и информацией о подписках по тегу.
+     * @throws ScrapperInvalidIdException если идентификатор не положительный.
+     * @throws ScrapperUserNotExistsException если пользователь не найден.
+     * @throws ScrapperTagNotExistsException если тег не найден.
+     */
     @GetMapping("tags/{tag}/links")
     public final ResponseEntity<?> getSubscriptionsWithTag(
             @RequestHeader("Tg-Chat-Id") final Long id, @PathVariable final String tag) {

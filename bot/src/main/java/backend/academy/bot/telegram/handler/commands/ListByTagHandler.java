@@ -8,9 +8,7 @@ import backend.academy.bot.model.UserState;
 import backend.academy.bot.telegram.handler.Command;
 import com.pengrad.telegrambot.model.Message;
 
-/**
- * Обработчик команды получения ссылок по тегу
- */
+/** Обработчик команды получения ссылок по тегу */
 public class ListByTagHandler extends CommandHandler {
 
     public ListByTagHandler(InMemoryTrackingCache repository) {

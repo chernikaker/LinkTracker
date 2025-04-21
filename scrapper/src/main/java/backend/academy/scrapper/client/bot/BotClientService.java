@@ -59,8 +59,9 @@ public class BotClientService {
      * @return DTO
      */
     private LinkUpdate makeLinkUpdate(long linkId, String url, List<UpdateInfo> info) {
-        // получение всех подписчиков на ссылку
+        // получение всех подписок на ссылку
         List<Subscription> dbChatsInfo = service.getSubscriptionsByLinkId(linkId);
+        // информация о чатах подписчиков и списке тегов для данной ссылки
         Map<Long, List<String>> chatsWithTags = processDbInfo(dbChatsInfo);
         // формирование сообщения об обновлениях
         List<LinkUpdateUnit> updateUnits = makeUpdateUnits(info);

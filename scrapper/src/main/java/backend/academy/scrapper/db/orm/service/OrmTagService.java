@@ -25,6 +25,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
+/** ORM реализация сервиса работы с тегами */
 @AllArgsConstructor
 public class OrmTagService implements TagService {
 
@@ -47,6 +48,7 @@ public class OrmTagService implements TagService {
                 Optional<OrmTag> existingTag = ormUser.tags().stream()
                         .filter(t -> t.tagText().equals(tag.value()))
                         .findFirst();
+                // если у пользователя еще нет данного тега, добавляем его
                 OrmTag t = existingTag.orElseGet(() -> OrmTagMapper.mapToOrm(tag));
                 if (!sub.tags().contains(t)) {
                     sub.tags().add(t);

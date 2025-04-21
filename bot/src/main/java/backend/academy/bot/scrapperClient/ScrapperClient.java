@@ -13,9 +13,10 @@ import backend.academy.dto.RemoveLinkTagRequest;
 import backend.academy.dto.RemoveTagRequest;
 import backend.academy.dto.TagResponse;
 
-/** Контракт для клиента Scrapper. Методы, принимаемые и возвращаемые значения соответствуют контракту OpenAPI. Т
- * Также добавлены новые методы для работы с тегами
- *  */
+/**
+ * Контракт для клиента Scrapper. Методы, принимаемые и возвращаемые значения соответствуют контракту OpenAPI. Т Также
+ * добавлены новые методы для работы с тегами
+ */
 public interface ScrapperClient {
 
     void registerChat(long userId);
@@ -26,33 +27,21 @@ public interface ScrapperClient {
 
     void deleteLinkSubscription(long userId, RemoveLinkRequest request);
 
-    /**
-     * Метод добавления тега (существующего или нового к существующей подписке пользователя)
-     */
+    /** Метод добавления тега (существующего или нового к существующей подписке пользователя) */
     ListLinkTagsResponse addTagsToSubscription(long userId, AddLinkTagsRequest request);
 
-    /**
-     * Метод открепления тега от существующей подписки пользователя
-     */
+    /** Метод открепления тега от существующей подписки пользователя */
     LinkTagResponse removeTagFromSubscription(long userId, RemoveLinkTagRequest request);
 
-    /**
-     * Метод удаления всех подписок, помеченных данным тегом
-     */
+    /** Метод удаления всех подписок, помеченных данным тегом */
     ListTagLinksResponse removeSubscriptionsByTag(long userId, String tag);
 
-    /**
-     * Метод удаления тега
-     */
+    /** Метод удаления тега */
     TagResponse deleteTag(long userId, RemoveTagRequest request);
 
-    /**
-     * Метод получения всех подписок, помеченных данным тегом
-     */
+    /** Метод получения всех подписок, помеченных данным тегом */
     ListTagLinksResponse getTagSubscriptions(long userId, String tag);
 
-    /**
-     * Метод получения всех тегов
-     */
+    /** Метод получения всех тегов */
     ListTagsResponse getTags(long userId);
 }

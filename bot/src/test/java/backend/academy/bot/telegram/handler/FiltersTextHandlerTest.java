@@ -82,8 +82,8 @@ public class FiltersTextHandlerTest {
     public void processRequest_shouldReturnNotRegisteredMessage_whenUserNotRegistered() {
         when(message.text()).thenReturn("filter1 filter2");
         when(repository.getTrack(CHAT_ID)).thenReturn(Optional.of(TRACKING));
-        doThrow(new BotRequestException(new ApiErrorResponse(
-                        "", "400", "ScrapperUserNotExistsException", "", List.of())))
+        doThrow(new BotRequestException(
+                        new ApiErrorResponse("", "400", "ScrapperUserNotExistsException", "", List.of())))
                 .when(service)
                 .addLinkSubscription(CHAT_ID, TRACKING);
 

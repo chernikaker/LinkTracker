@@ -38,7 +38,7 @@ public class LinkTextHandler extends CommandHandler {
         // получение объекта кэша для записи
         Optional<LinkTrackingObject> potentialTracking =
                 repository.getTrack(message.chat().id());
-        if (potentialTracking.isEmpty()){
+        if (potentialTracking.isEmpty()) {
             return UNKNOWN_ERROR;
         }
         LinkTrackingObject tracking = potentialTracking.orElseThrow();

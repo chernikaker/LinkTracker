@@ -49,7 +49,6 @@ public class StackoverflowClientService {
         List<UpdateInfo> infoList = new ArrayList<>();
         try {
             // информация о вопросе
-            // TODO: cache
             String questionData = client.getResponse(uri);
             // информация о комментариях
             String commentData = client.getResponse(uri.concat("/comments"));
@@ -102,7 +101,6 @@ public class StackoverflowClientService {
      */
     private UpdateInfo parseItem(JsonNode node, UpdateInfoType type, String title) {
         String message = node.path(BODY).asText();
-        // TODO: parser
         message = message.length() > 200 ? message.substring(0, 200) : message;
         String authorName = node.path(OWNER).path(DISPLAY_NAME).asText();
         long date = node.path(CREATION_DATE).asLong();
